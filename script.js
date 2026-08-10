@@ -55,7 +55,7 @@ const animationsData = [
 
 // Web Audio
 const AudioContext = window.AudioContext || window.webkitAudioContext;
-let audioCtx = null, bgmInterval = null;
+let audioCtx = null;
 
 function initAudio() {
   try {
@@ -373,10 +373,16 @@ function loadMission(idx) {
 
   } else if (idx === 5) {
     if (title) title.innerText = `${t.term} 5: DIGITAL VAULT CONSOLE ${t.icon}`;
-    if (prompt) prompt.innerText = `Enter the 3 secret Numbers you wrote on your paper (${t.numSeq.join(' - ')})!`;
-    if (promptEs) promptEs.innerText = `¡Ingresa los 3 números secretos de tu papel!`;
+    if (prompt) prompt.innerText = `Read the 4-sentence story to unlock the console:`;
+    if (promptEs) promptEs.innerText = `Lee la historia de 4 oraciones para desbloquear la consola:`;
     if (area) {
       area.innerHTML = `
+        <div class="reading-pass-box">
+          1. Detective ${agentName} found a digital console in the Manzanita hallway.<br/>
+          2. ${sidekickName} checked the secret paper for the 3 numbers.<br/>
+          3. El código secreto de la bóveda tiene tres dígitos.<br/>
+          4. ¡Ingresa los números (${t.numSeq.join(' - ')}) para abrir la caja fuerte!
+        </div>
         <div class="keypad-console">
           <div class="code-display" id="vault-combo-disp">_ _ _</div>
           <div class="keypad-grid-3x3">
@@ -390,7 +396,7 @@ function loadMission(idx) {
             <button class="digit-btn" onclick="pressPadDigit('8')">8</button>
             <button class="digit-btn" onclick="pressPadDigit('9')">9</button>
           </div>
-          <button class="agent-btn clear-btn" style="margin-top:10px;" onclick="resetVaultPad()">CLEAR / BORRAR</button>
+          <button class="agent-btn clear-btn" style="margin-top:8px;" onclick="resetVaultPad()">CLEAR / BORRAR</button>
         </div>`;
     }
     enteredKeypadCode = "";
