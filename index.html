@@ -2,13 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Prevents accidental iPad zooming & double-tap scaling -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
+  <!-- iOS Home Screen Fullscreen Web App Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Dark Side Quest" />
+  
   <title>Lord Athen: Dark Side Brick Quest</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- Animated Warp Speed Background -->
+<!-- Animated Starfield Background -->
 <div class="stars"></div>
 <div class="twinkling"></div>
 
@@ -28,14 +35,14 @@
   <!-- Intro Screen -->
   <div id="intro-screen" class="screen active">
     <h2>Greetings, Dark Commander Athen!</h2>
-    <p>A secret Star Destroyer in Sector 7 has gone dark. The galaxy needs your Force powers and math expertise to unlock the ancient Sith Vaults!</p>
-    <p>Crack the door codes, harness the Dark Side, use Force Lightning, and defeat the Jedi Bosses!</p>
-    <button class="brick-btn red-btn" id="start-btn">Begin Sith Mission</button>
+    <p>A secret Imperial Star Destroyer in Sector 7 has gone dark. Harness your Force powers and math skills to unlock the ancient Sith Vaults!</p>
+    <p>Crack the door codes, blast through security, and build your custom Sith Starfighter!</p>
+    <button class="lego-btn red-btn" id="start-btn">Begin Sith Mission</button>
   </div>
 
   <!-- Game Screen -->
   <div id="game-screen" class="screen">
-    <!-- Boss HP Bar (Visible in Boss Sectors) -->
+    <!-- Boss HP Bar (Visible in Sector 5 & 10) -->
     <div id="boss-container" class="boss-box hidden">
       <h3 id="boss-name">💥 JEDI BOSS</h3>
       <div class="hp-bar-outer">
@@ -43,7 +50,7 @@
       </div>
     </div>
 
-    <div id="story-text">Loading room...</div>
+    <div id="story-text" class="typewriter">Loading room...</div>
 
     <div class="puzzle-box" id="puzzle-box">
       <h3 id="puzzle-title">Sith Security Array</h3>
@@ -60,14 +67,14 @@
       <div class="lightsaber-blade" id="saber-blade"></div>
     </div>
     <p id="reward-text" class="glow-text"></p>
-    <button class="brick-btn red-btn" id="continue-btn">Continue Mission</button>
+    <button class="lego-btn red-btn" id="continue-btn">Continue Mission</button>
   </div>
 
   <!-- Victory Screen -->
   <div id="win-screen" class="screen">
     <h2>👑 SUPREME DARK JEDI ATHEN! 👑</h2>
     <p id="win-text"></p>
-    <button class="brick-btn red-btn" id="play-again-btn">Replay Conquest</button>
+    <button class="lego-btn red-btn" id="play-again-btn">Replay Conquest</button>
   </div>
 </div>
 

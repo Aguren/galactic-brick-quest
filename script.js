@@ -5,12 +5,17 @@ let forceCharge = 0;
 let bossHP = 100;
 let isBossSector = false;
 
-// Audio Synthesizer (Web Audio API)
+// Audio Synthesizer optimized for iOS Safari Web Audio Policy
 const AudioContext = window.AudioContext || window.webkitAudioContext;
-let audioCtx;
+let audioCtx = null;
 
-function initAudio() {
-  if (!audioCtx) audioCtx = new AudioContext();
+function unlockAudioContext() {
+  if (!audioCtx) {
+    audioCtx = new AudioContext();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
 }
 
 function playSound(type) {
@@ -24,29 +29,33 @@ function playSound(type) {
   const now = audioCtx.currentTime;
 
   if (type === 'saber') {
-    // Lightsaber slash sound
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(400, now);
-    osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
-    gain.gain.setValueAtTime(0.3, now);
+    osc.frequency.setValueAtTime(450, now);
+    osc.frequency.exponentialRampToValueAtTime(110, now + 0.3);
+    gain.gain.setValueAtTime(0.35, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
     osc.start(now);
     osc.stop(now + 0.3);
   } else if (type === 'force') {
-    // Force lightning Zap
     osc.type = 'square';
-    osc.frequency.setValueAtTime(800, now);
-    osc.frequency.setValueAtTime(200, now + 0.1);
-    osc.frequency.setValueAtTime(600, now + 0.2);
-    gain.gain.setValueAtTime(0.2, now);
+    osc.frequency.setValueAtTime(850, now);
+    osc.frequency.setValueAtTime(250, now + 0.1);
+    osc.frequency.setValueAtTime(650, now + 0.2);
+    gain.gain.setValueAtTime(0.25, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
     osc.start(now);
     osc.stop(now + 0.4);
+  } else if (type === 'click') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, now);
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+    osc.start(now);
+    osc.stop(now + 0.05);
   } else if (type === 'wrong') {
-    // Shield Deflection Glitch
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(150, now);
-    osc.frequency.setValueAtTime(80, now + 0.15);
+    osc.frequency.setValueAtTime(140, now);
+    osc.frequency.setValueAtTime(70, now + 0.15);
     gain.gain.setValueAtTime(0.3, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
     osc.start(now);
@@ -68,10 +77,28 @@ const stories = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("start-btn").addEventListener("click", () => { initAudio(); startGame(); });
-  document.getElementById("play-again-btn").addEventListener("click", startGame);
-  document.getElementById("continue-btn").addEventListener("click", continueMission);
-  document.getElementById("force-btn").addEventListener("click", useForceLightning);
+  // Bind both click and touchstart for instant response on iPad
+  const startBtn = document.getElementById("start-btn");
+  const playAgainBtn = document.getElementById("play-again-btn");
+  const continueBtn = document.getElementById("continue-btn");
+  const forceBtn = document.getElementById("force-btn");
+
+  const bindTouch = (el, handler) => {
+    el.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      unlockAudioContext();
+      handler(e);
+    }, { passive: false });
+    el.addEventListener("click", (e) => {
+      unlockAudioContext();
+      handler(e);
+    });
+  };
+
+  bindTouch(startBtn, startGame);
+  bindTouch(playAgainBtn, startGame);
+  bindTouch(continueBtn, continueMission);
+  bindTouch(forceBtn, useForceLightning);
 });
 
 function startGame() {
@@ -109,7 +136,6 @@ function getRandomInt(min, max) {
 function loadLevel() {
   document.getElementById("story-text").innerText = stories[sector - 1];
   
-  // Check for Boss Sectors
   const bossBox = document.getElementById("boss-container");
   if (sector === 5 || sector === 10) {
     isBossSector = true;
@@ -180,9 +206,21 @@ function loadLevel() {
   optContainer.innerHTML = "";
   options.forEach(opt => {
     const btn = document.createElement("button");
-    btn.className = "brick-btn red-btn option-btn";
+    btn.className = "lego-btn option-btn";
     btn.innerText = opt;
-    btn.onclick = (e) => checkAnswer(opt, e);
+    
+    // Bind touch for zero delay on iPad
+    btn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      unlockAudioContext();
+      checkAnswer(opt, e.touches[0]);
+    }, { passive: false });
+
+    btn.addEventListener("click", (e) => {
+      unlockAudioContext();
+      checkAnswer(opt, e);
+    });
+
     optContainer.appendChild(btn);
   });
 }
@@ -191,7 +229,7 @@ function updateBossHP() {
   document.getElementById("boss-hp-inner").style.width = `${bossHP}%`;
 }
 
-function checkAnswer(selected, event) {
+function checkAnswer(selected, touchEvent) {
   if (selected === currentAnswer) {
     bricks += 10;
     if (forceCharge < 2) forceCharge++;
@@ -199,7 +237,10 @@ function checkAnswer(selected, event) {
 
     playSound('saber');
     triggerSlashFX();
-    triggerFloatingText("+10 KYBER!", event.clientX, event.clientY);
+
+    const x = touchEvent.clientX || window.innerWidth / 2;
+    const y = touchEvent.clientY || window.innerHeight / 2;
+    triggerFloatingText("+10 KYBER!", x, y);
 
     if (isBossSector) {
       bossHP -= 50;
@@ -237,8 +278,8 @@ function triggerFloatingText(text, x, y) {
   const el = document.createElement("div");
   el.className = "floating-text";
   el.innerText = text;
-  el.style.left = `${x - 40}px`;
-  el.style.top = `${y - 40}px`;
+  el.style.left = `${x - 50}px`;
+  el.style.top = `${y - 50}px`;
   document.getElementById("floating-text-container").appendChild(el);
   setTimeout(() => el.remove(), 1200);
 }
