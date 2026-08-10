@@ -26,7 +26,8 @@ const ship = {
 };
 
 // Dynamic Game Objects
-let lasers = [];
+let lasers = [];        // Player lasers
+let enemyLasers = [];   // Incoming enemy lasers
 let enemies = [];
 let stars = [];
 let particles = [];
@@ -68,6 +69,14 @@ function playSound(type) {
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
     osc.start(now);
     osc.stop(now + 0.15);
+  } else if (type === 'enemylaser') {
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(250, now);
+    osc.frequency.exponentialRampToValueAtTime(80, now + 0.2);
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    osc.start(now);
+    osc.stop(now + 0.2);
   } else if (type === 'boom') {
     osc.type = 'square';
     osc.frequency.setValueAtTime(120, now);
@@ -96,7 +105,7 @@ canvas.addEventListener("mousemove", (e) => {
   }
 });
 
-// Automatic Blaster Fire
+// Automatic Player Blaster Fire
 setInterval(() => {
   if (gameRunning && !lockActive) {
     lasers.push({ x: ship.x, y: ship.y - 20, speed: 12 });
@@ -112,6 +121,7 @@ document.getElementById("start-btn").addEventListener("click", () => {
   shield = 100;
   enemies = [];
   lasers = [];
+  enemyLasers = [];
   document.getElementById("score-val").innerText = score;
   document.getElementById("shield-val").innerText = shield + "%";
   gameRunning = true;
@@ -120,13 +130,13 @@ document.getElementById("start-btn").addEventListener("click", () => {
 });
 
 function spawnEnemy() {
-  const isAsteroid = Math.random() > 0.5;
+  const isJediFighter = Math.random() > 0.4;
   enemies.push({
-    x: Math.random() * (canvas.width - 40) + 20,
-    y: -40,
-    size: isAsteroid ? 30 : 22,
-    speed: Math.random() * 2 + 2,
-    isAsteroid: isAsteroid
+    x: Math.random() * (canvas.width - 60) + 30,
+    y: -50,
+    type: isJediFighter ? 'jedi' : 'gunship',
+    speed: isJediFighter ? 2.5 : 1.8,
+    lastShoot: Date.now() + Math.random() * 500
   });
 }
 
@@ -191,30 +201,76 @@ function update() {
     if (s.y > canvas.height) s.y = 0;
   });
 
-  // Spawn Regular Enemies
+  // Spawn Enemies
   if (Date.now() - lastSpawn > 900) {
     spawnEnemy();
     lastSpawn = Date.now();
   }
 
-  // Spawn Math Target Lock Event every 14 seconds
+  // Spawn Math Target Event
   if (!lockActive && Date.now() - lastTargetSpawn > 14000) {
     spawnMathTarget();
   }
 
-  // Move Lasers
+  // Move Player Lasers
   lasers.forEach((l, index) => {
     l.y -= l.speed;
     if (l.y < 0) lasers.splice(index, 1);
   });
 
-  // Move Enemies & Check Laser Collisions
+  // Move Enemy Lasers & Check Collision with Player
+  enemyLasers.forEach((el, index) => {
+    el.x += el.vx;
+    el.y += el.vy;
+
+    // Check hit on player ship
+    if (Math.abs(el.x - ship.x) < 25 && Math.abs(el.y - ship.y) < 25) {
+      shield -= 10;
+      document.getElementById("shield-val").innerText = Math.max(0, shield) + "%";
+      createExplosion(el.x, el.y);
+      playSound('boom');
+      enemyLasers.splice(index, 1);
+
+      if (shield <= 0) {
+        gameRunning = false;
+        document.getElementById("menu-overlay").classList.remove("hidden");
+      }
+    } else if (el.y > canvas.height + 20 || el.x < 0 || el.x > canvas.width) {
+      enemyLasers.splice(index, 1);
+    }
+  });
+
+  // Move Enemies, Handle Shooting AI & Collisions
   enemies.forEach((e, eIdx) => {
     e.y += e.speed;
 
-    // Check collision with ship
-    if (Math.abs(e.x - ship.x) < 30 && Math.abs(e.y - ship.y) < 30) {
-      shield -= 15;
+    // Enemy Shooting AI
+    if (Date.now() - e.lastShoot > 1400 && e.y > 20 && e.y < canvas.height - 150) {
+      e.lastShoot = Date.now();
+      playSound('enemylaser');
+
+      if (e.type === 'jedi') {
+        // Aimed Laser targeting player position
+        const angle = Math.atan2(ship.y - e.y, ship.x - e.x);
+        enemyLasers.push({
+          x: e.x, y: e.y + 15,
+          vx: Math.cos(angle) * 6,
+          vy: Math.sin(angle) * 6,
+          color: '#ff0000'
+        });
+      } else {
+        // Straight-down Heavy Plasma Blast
+        enemyLasers.push({
+          x: e.x, y: e.y + 20,
+          vx: 0, vy: 7,
+          color: '#00ff66'
+        });
+      }
+    }
+
+    // Direct Ship Collision
+    if (Math.abs(e.x - ship.x) < 32 && Math.abs(e.y - ship.y) < 32) {
+      shield -= 20;
       document.getElementById("shield-val").innerText = Math.max(0, shield) + "%";
       createExplosion(e.x, e.y);
       enemies.splice(eIdx, 1);
@@ -226,10 +282,10 @@ function update() {
       }
     }
 
-    // Check collision with Lasers
+    // Check hit by Player Lasers
     lasers.forEach((l, lIdx) => {
       if (Math.abs(e.x - l.x) < 25 && Math.abs(e.y - l.y) < 25) {
-        score += 10;
+        score += e.type === 'jedi' ? 15 : 25;
         document.getElementById("score-val").innerText = score;
         createExplosion(e.x, e.y);
         playSound('boom');
@@ -238,7 +294,7 @@ function update() {
       }
     });
 
-    if (e.y > canvas.height + 40) enemies.splice(eIdx, 1);
+    if (e.y > canvas.height + 50) enemies.splice(eIdx, 1);
   });
 
   // Update Particles
@@ -248,6 +304,53 @@ function update() {
     p.life--;
     if (p.life <= 0) particles.splice(pIdx, 1);
   });
+}
+
+function drawJediStarfighter(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Blue Glowing Thruster Trail
+  ctx.fillStyle = "#00d2ff";
+  ctx.shadowBlur = 10;
+  ctx.shadowColor = "#00d2ff";
+  ctx.fillRect(-4, -22, 8, 6);
+
+  // Main Wedge Wings
+  ctx.fillStyle = "#4cc9f0";
+  ctx.beginPath();
+  ctx.moveTo(0, 20);      // Nose pointing down
+  ctx.lineTo(-20, -18);   // Left Wingtip
+  ctx.lineTo(0, -10);     // Engine Bay
+  ctx.lineTo(20, -18);    // Right Wingtip
+  ctx.closePath();
+  ctx.fill();
+
+  // Glass Canopy
+  ctx.fillStyle = "#00ffff";
+  ctx.fillRect(-3, 0, 6, 10);
+
+  ctx.restore();
+}
+
+function drawHeavyGunship(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Twin Heavy Engine Pods
+  ctx.fillStyle = "#888899";
+  ctx.fillRect(-18, -15, 8, 24);
+  ctx.fillRect(10, -15, 8, 24);
+
+  // Main Hull Body
+  ctx.fillStyle = "#aaaaaa";
+  ctx.fillRect(-12, -8, 24, 20);
+
+  // Front Turret Cannon
+  ctx.fillStyle = "#ffcc00";
+  ctx.fillRect(-2, 12, 4, 10);
+
+  ctx.restore();
 }
 
 function draw() {
@@ -261,7 +364,7 @@ function draw() {
     ctx.fill();
   });
 
-  // Draw Lasers
+  // Draw Player Lasers
   ctx.fillStyle = "#ff0033";
   ctx.shadowBlur = 10;
   ctx.shadowColor = "#ff0033";
@@ -269,19 +372,22 @@ function draw() {
     ctx.fillRect(l.x - 3, l.y, 6, 18);
   });
 
-  // Draw Enemies
+  // Draw Enemy Lasers
+  enemyLasers.forEach(el => {
+    ctx.fillStyle = el.color;
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = el.color;
+    ctx.beginPath();
+    ctx.arc(el.x, el.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // Draw Detailed Enemy Starships
   enemies.forEach(e => {
-    if (e.isAsteroid) {
-      ctx.fillStyle = "#777";
-      ctx.shadowBlur = 0;
-      ctx.beginPath();
-      ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
-      ctx.fill();
+    if (e.type === 'jedi') {
+      drawJediStarfighter(e.x, e.y);
     } else {
-      ctx.fillStyle = "#4cc9f0"; // Jedi Droid Blue
-      ctx.shadowColor = "#4cc9f0";
-      ctx.shadowBlur = 8;
-      ctx.fillRect(e.x - 15, e.y - 15, 30, 30);
+      drawHeavyGunship(e.x, e.y);
     }
   });
 
@@ -293,7 +399,7 @@ function draw() {
     ctx.fillRect(p.x, p.y, 4, 4);
   });
 
-  // Draw Player Starfighter (Sith Red Interceptor)
+  // Draw Player Starfighter (Lord Athen's Sith Interceptor)
   ctx.fillStyle = "#e60000";
   ctx.shadowColor = "#ff0033";
   ctx.shadowBlur = 15;
