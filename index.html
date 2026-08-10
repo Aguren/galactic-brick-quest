@@ -3,24 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Galactic Brick Quest: Sector 7</title>
+  <title>Lord Athen: Dark Side Brick Quest</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <div id="game-container">
-  <h1>🚀 GALACTIC BRICK QUEST 🧱</h1>
+  <h1>⚡ LORD ATHEN: DARK SIDE QUEST 🧱</h1>
   
   <div class="hud">
-    <div>Sector: <span id="sector-val">1</span> / 5</div>
-    <div>Bricks Collected: <span id="bricks-val">0</span> 🧱</div>
+    <div>Sector: <span id="sector-val">1</span> / 10</div>
+    <div>Sith Kyber Crystals: <span id="bricks-val">0</span> 💎</div>
   </div>
 
   <!-- Intro Screen -->
   <div id="intro-screen" class="screen active">
-    <p>A mysterious Lego Space Station has gone completely dark in Sector 7!</p>
-    <p>We need a Master Builder & Math Commander to crack the door codes, repair the power cores, and discover what is hidden inside!</p>
-    <button class="brick-btn" id="start-btn">Start Mission</button>
+    <h2>Greetings, Dark Commander Athen!</h2>
+    <p>A secret Star Destroyer in Sector 7 has gone dark. The galaxy needs your Force powers and math expertise to unlock the ancient Sith Vaults!</p>
+    <p>Crack the door codes, harness the Dark Side, and build your ultimate Red Lightsaber!</p>
+    <button class="brick-btn red-btn" id="start-btn">Begin Sith Mission</button>
   </div>
 
   <!-- Game Screen -->
@@ -28,17 +29,28 @@
     <div id="story-text">Loading room...</div>
 
     <div class="puzzle-box" id="puzzle-box">
-      <h3 id="puzzle-title">Door Lock System</h3>
+      <h3 id="puzzle-title">Sith Door Security</h3>
       <p id="puzzle-q"></p>
       <div class="options-grid" id="options-container"></div>
     </div>
   </div>
 
+  <!-- Reward Animation Screen (Triggers at Q5 & Q10) -->
+  <div id="reward-screen" class="screen">
+    <h2 id="reward-title">⚡ FORCE UNLEASHED! ⚡</h2>
+    <div id="lightsaber-container">
+      <div class="lightsaber-hilt"></div>
+      <div class="lightsaber-blade" id="saber-blade"></div>
+    </div>
+    <p id="reward-text" class="glow-text"></p>
+    <button class="brick-btn red-btn" id="continue-btn">Continue Mission</button>
+  </div>
+
   <!-- Victory Screen -->
   <div id="win-screen" class="screen">
-    <h2>🎉 MISSION ACCOMPLISHED! 🎉</h2>
+    <h2>👑 SUPREME DARK JEDI ATHEN! 👑</h2>
     <p id="win-text"></p>
-    <button class="brick-btn blue-btn" id="play-again-btn">Play Again</button>
+    <button class="brick-btn red-btn" id="play-again-btn">Replay Conquest</button>
   </div>
 </div>
 
