@@ -1,4 +1,4 @@
-const canvas = document.getElementById("arcadeCanvas");
+const canvas = document.getElementById("rpgCanvas");
 const ctx = canvas.getContext("2d");
 
 function resize() {
@@ -8,45 +8,41 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
-// Game State
+// Game Engine State
 let running = false;
-let score = 0;
-let shield = 100;
-let shakeTime = 0;
+let currentChapter = 1;
+let inventory = [];
 
-// Player Ship
+// Hero Definition (Lord Athen)
 const player = {
-  x: canvas.width / 2,
-  y: canvas.height - 120,
-  radius: 24
+  x: 100,
+  y: 200,
+  targetX: 100,
+  targetY: 200,
+  radius: 18,
+  speed: 3.5,
+  hasLightsaber: false
 };
 
-// Lists
-let stars = [];
-let lasers = [];
-let enemyLasers = [];
-let enemies = [];
-let particles = [];
-let targetMissiles = [];
+// RPG Map World Entities (Chapter 1 Zone)
+let chests = [
+  { id: 'chest1', x: 280, y: 150, opened: false, item: 'Broken Lightsaber Hilt' },
+  { id: 'chest2', x: 500, y: 320, opened: false, item: 'Red Kyber Crystal' }
+];
 
-let lastEnemySpawn = 0;
-let lastMissileSpawn = 0;
+let npcs = [
+  { id: 'droid', x: 220, y: 220, name: 'SITH ASTRO-DROID', dialogue: "Commander Athen! The Holocron vault is sealed ahead. Find the two missing components in the hangar chests to forge your Lightsaber!" }
+];
 
-// Parallax Starfield
-for (let i = 0; i < 90; i++) {
-  stars.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    size: Math.random() * 2 + 0.5,
-    speed: Math.random() * 3 + 1
-  });
-}
+let doors = [
+  { id: 'vaultDoor', x: 620, y: 180, width: 20, height: 120, locked: true, requiredItem: 'Forged Red Lightsaber' }
+];
 
-// Sound Synthesizer Engine
+// Audio Synthesizer Engine
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
-function initAudio() {
+function unlockAudio() {
   if (!audioCtx) audioCtx = new AudioContext();
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
@@ -59,301 +55,183 @@ function playFX(type) {
   gain.connect(audioCtx.destination);
   const now = audioCtx.currentTime;
 
-  if (type === 'laser') {
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(700, now);
-    osc.frequency.exponentialRampToValueAtTime(100, now + 0.12);
+  if (type === 'item') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.setValueAtTime(659.25, now + 0.1);
     gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
-    osc.start(now);
-    osc.stop(now + 0.12);
-  } else if (type === 'boom') {
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(120, now);
-    osc.frequency.exponentialRampToValueAtTime(20, now + 0.3);
-    gain.gain.setValueAtTime(0.4, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
     osc.start(now);
     osc.stop(now + 0.3);
+  } else if (type === 'saber') {
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    osc.start(now);
+    osc.stop(now + 0.2);
   }
 }
 
-// Touch Steering Controls
-canvas.addEventListener("touchmove", (e) => {
+// Touch & Click Tap-To-Move Navigation
+canvas.addEventListener("touchstart", (e) => {
   e.preventDefault();
-  initAudio();
+  unlockAudio();
   const touch = e.touches[0];
-  player.x = touch.clientX;
-  player.y = touch.clientY - 40;
+  player.targetX = touch.clientX;
+  player.targetY = touch.clientY;
 }, { passive: false });
 
-canvas.addEventListener("mousemove", (e) => {
-  if (running) {
-    player.x = e.clientX;
-    player.y = e.clientY;
-  }
+canvas.addEventListener("click", (e) => {
+  unlockAudio();
+  player.targetX = e.clientX;
+  player.targetY = e.clientY;
 });
 
-// Auto-blasters
-setInterval(() => {
-  if (running) {
-    lasers.push({ x: player.x - 12, y: player.y - 20, vy: -14 });
-    lasers.push({ x: player.x + 12, y: player.y - 20, vy: -14 });
-    playFX('laser');
-  }
-}, 200);
-
+// UI Event Handlers
 document.getElementById("start-btn").addEventListener("click", () => {
-  initAudio();
-  document.getElementById("menu-overlay").style.display = "none";
-  score = 0;
-  shield = 100;
-  enemies = [];
-  lasers = [];
-  enemyLasers = [];
-  targetMissiles = [];
+  unlockAudio();
+  document.getElementById("menu-overlay").classList.add("hidden");
   running = true;
-  lastMissileSpawn = Date.now();
   requestAnimationFrame(gameLoop);
 });
 
-function spawnMissileMatrix() {
-  const num1 = Math.floor(Math.random() * 8) + 4;
-  const num2 = Math.floor(Math.random() * 8) + 3;
-  const correct = num1 + num2;
+document.getElementById("dialogue-next-btn").addEventListener("click", () => {
+  document.getElementById("dialogue-box").classList.add("hidden");
+});
 
-  let choices = [correct];
-  while (choices.length < 3) {
-    let wrong = correct + (Math.floor(Math.random() * 6) - 3);
-    if (wrong > 0 && !choices.includes(wrong)) choices.push(wrong);
-  }
-  choices.sort(() => Math.random() - 0.5);
-
-  const laneWidth = canvas.width / 3;
-  choices.forEach((val, idx) => {
-    targetMissiles.push({
-      x: laneWidth * idx + laneWidth / 2,
-      y: -60,
-      val: val,
-      isCorrect: val === correct,
-      promptText: `${num1} + ${num2}`,
-      speed: 2.2
-    });
-  });
-}
-
-function addExplosion(x, y, count = 25) {
-  for (let i = 0; i < count; i++) {
-    particles.push({
-      x: x, y: y,
-      vx: (Math.random() - 0.5) * 10,
-      vy: (Math.random() - 0.5) * 10,
-      life: 30,
-      color: Math.random() > 0.5 ? "#ff0033" : "#ffcc00"
-    });
-  }
+function showDialogue(speaker, text) {
+  document.getElementById("dialogue-speaker").innerText = speaker;
+  document.getElementById("dialogue-text").innerText = text;
+  document.getElementById("dialogue-box").classList.remove("hidden");
 }
 
 function update() {
-  if (shakeTime > 0) shakeTime--;
+  if (!running) return;
 
-  // Stars
-  stars.forEach(s => {
-    s.y += s.speed;
-    if (s.y > canvas.height) s.y = 0;
-  });
+  // Move Player toward Target Destination
+  const dx = player.targetX - player.x;
+  const dy = player.targetY - player.y;
+  const dist = Math.hypot(dx, dy);
 
-  // Regular Enemies Spawning
-  if (Date.now() - lastEnemySpawn > 1000) {
-    enemies.push({
-      x: Math.random() * (canvas.width - 60) + 30,
-      y: -40,
-      speed: Math.random() * 2 + 2,
-      lastShoot: Date.now()
-    });
-    lastEnemySpawn = Date.now();
+  if (dist > 4) {
+    player.x += (dx / dist) * player.speed;
+    player.y += (dy / dist) * player.speed;
   }
 
-  // Math Missile Matrix Spawning (Every 12 seconds)
-  if (targetMissiles.length === 0 && Date.now() - lastMissileSpawn > 12000) {
-    spawnMissileMatrix();
-    lastMissileSpawn = Date.now();
-  }
-
-  // Lasers
-  lasers.forEach((l, idx) => {
-    l.y += l.vy;
-    if (l.y < 0) lasers.splice(idx, 1);
-  });
-
-  // Enemies & Combat AI
-  enemies.forEach((e, eIdx) => {
-    e.y += e.speed;
-
-    if (Date.now() - e.lastShoot > 1200 && e.y < canvas.height - 200) {
-      e.lastShoot = Date.now();
-      enemyLasers.push({ x: e.x, y: e.y + 15, vy: 6 });
-    }
-
-    // Player Hits Enemy
-    lasers.forEach((l, lIdx) => {
-      if (Math.hypot(e.x - l.x, e.y - l.y) < 25) {
-        addExplosion(e.x, e.y);
-        playFX('boom');
-        score += 20;
-        document.getElementById("score-val").innerText = score;
-        enemies.splice(eIdx, 1);
-        lasers.splice(lIdx, 1);
-      }
-    });
-
-    if (e.y > canvas.height + 40) enemies.splice(eIdx, 1);
-  });
-
-  // Enemy Lasers Hit Player
-  enemyLasers.forEach((el, elIdx) => {
-    el.y += el.vy;
-    if (Math.hypot(player.x - el.x, player.y - el.y) < player.radius) {
-      shield -= 10;
-      shakeTime = 12;
-      addExplosion(player.x, player.y, 10);
-      playFX('boom');
-      document.getElementById("shield-val").innerText = Math.max(0, shield) + "%";
-      enemyLasers.splice(elIdx, 1);
-
-      if (shield <= 0) {
-        running = false;
-        document.getElementById("menu-overlay").style.display = "flex";
-      }
+  // Check NPC Proximity Dialogue Trigger
+  npcs.forEach(npc => {
+    if (Math.hypot(player.x - npc.x, player.y - npc.y) < 35) {
+      showDialogue(npc.name, npc.dialogue);
+      player.targetX = player.x; // Stop movement
     }
   });
 
-  // Missile Matrix Target Intercepts
-  targetMissiles.forEach((m, mIdx) => {
-    m.y += m.speed;
-
-    // Player shoots a missile target
-    lasers.forEach((l, lIdx) => {
-      if (Math.hypot(m.x - l.x, m.y - l.y) < 35) {
-        lasers.splice(lIdx, 1);
-        if (m.isCorrect) {
-          addExplosion(m.x, m.y, 40);
-          playFX('boom');
-          score += 100;
-          document.getElementById("score-val").innerText = score;
-          targetMissiles = []; // Clear current matrix wave
-        } else {
-          shield -= 15;
-          shakeTime = 15;
-          document.getElementById("shield-val").innerText = Math.max(0, shield) + "%";
-          targetMissiles.splice(mIdx, 1);
-        }
-      }
-    });
-
-    if (m.y > canvas.height + 50) targetMissiles.splice(mIdx, 1);
+  // Check Chest Interaction & Item Pickups
+  chests.forEach(chest => {
+    if (!chest.opened && Math.hypot(player.x - chest.x, player.y - chest.y) < 30) {
+      chest.opened = true;
+      inventory.push(chest.item);
+      playFX('item');
+      showDialogue("TREASURE FOUND!", `Lord Athen acquired: [ ${chest.item} ]!`);
+      checkCraftingRecipe();
+    }
   });
 
-  // Particles
-  particles.forEach((p, pIdx) => {
-    p.x += p.vx;
-    p.y += p.vy;
-    p.life--;
-    if (p.life <= 0) particles.splice(pIdx, 1);
+  // Check Door Collision & Unlock Event
+  doors.forEach(door => {
+    if (door.locked && player.x + player.radius > door.x - 10) {
+      if (inventory.includes(door.requiredItem)) {
+        door.locked = false;
+        playFX('saber');
+        showDialogue("VAULT UNLOCKED!", "Lord Athen ignites his newly forged Red Lightsaber and cuts through the blast door!");
+        advanceChapter();
+      } else {
+        player.targetX = door.x - 30; // Block passage
+        showDialogue("SECURITY LOCK", `This vault door requires: [ ${door.requiredItem} ] to cut through!`);
+      }
+    }
   });
 }
 
-function draw() {
-  ctx.save();
-
-  // Screen Shake FX
-  if (shakeTime > 0) {
-    ctx.translate((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10);
+function checkCraftingRecipe() {
+  if (inventory.includes("Broken Lightsaber Hilt") && inventory.includes("Red Kyber Crystal") && !inventory.includes("Forged Red Lightsaber")) {
+    inventory.push("Forged Red Lightsaber");
+    player.hasLightsaber = true;
+    setTimeout(() => {
+      playFX('saber');
+      showDialogue("ITEM FORGED!", "Lord Athen combined the Hilt and Kyber Crystal to assemble his Red Sith Lightsaber!");
+      document.getElementById("quest-objective").innerText = "Objective: Slice through the Vault Blast Door ahead!";
+    }, 1500);
   }
+}
 
+function advanceChapter() {
+  currentChapter = 2;
+  document.getElementById("chapter-tag").innerText = "CHAPTER 2: THE ANCIENT SITH HOLOCRON";
+  document.getElementById("quest-objective").innerText = "Objective: Claim the ancient Sith Holocron inside the chamber!";
+}
+
+function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Stars
-  ctx.fillStyle = "#fff";
-  stars.forEach(s => {
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-    ctx.fill();
+  // Draw Space Station Floor Grid
+  ctx.strokeStyle = "#151525";
+  ctx.lineWidth = 1;
+  for (let x = 0; x < canvas.width; x += 50) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+  }
+  for (let y = 0; y < canvas.height; y += 50) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+  }
+
+  // Draw Blast Doors
+  doors.forEach(d => {
+    if (d.locked) {
+      ctx.fillStyle = "#ff0033";
+      ctx.shadowColor = "#ff0033";
+      ctx.shadowBlur = 15;
+      ctx.fillRect(d.x, d.y, d.width, d.height);
+      ctx.shadowBlur = 0;
+    }
   });
 
-  // Player Lasers (Glow)
-  ctx.fillStyle = "#ff0033";
-  ctx.shadowColor = "#ff0033";
-  ctx.shadowBlur = 12;
-  lasers.forEach(l => {
-    ctx.fillRect(l.x - 3, l.y, 6, 16);
+  // Draw Treasure Chests
+  chests.forEach(c => {
+    ctx.fillStyle = c.opened ? "#444" : "#ffcc00";
+    ctx.shadowColor = c.opened ? "none" : "#ffcc00";
+    ctx.shadowBlur = c.opened ? 0 : 10;
+    ctx.fillRect(c.x - 12, c.y - 12, 24, 24);
   });
 
-  // Enemy Lasers
-  ctx.fillStyle = "#00ffcc";
-  ctx.shadowColor = "#00ffcc";
-  enemyLasers.forEach(el => {
-    ctx.fillRect(el.x - 2, el.y, 4, 12);
-  });
-
-  // Enemy Ships
-  ctx.shadowBlur = 0;
-  enemies.forEach(e => {
+  // Draw NPCs (Astro-Droid)
+  npcs.forEach(n => {
     ctx.fillStyle = "#4cc9f0";
+    ctx.shadowColor = "#4cc9f0";
+    ctx.shadowBlur = 10;
     ctx.beginPath();
-    ctx.moveTo(e.x, e.y + 15);
-    ctx.lineTo(e.x - 18, e.y - 15);
-    ctx.lineTo(e.x + 18, e.y - 15);
-    ctx.closePath();
+    ctx.arc(n.x, n.y, 14, 0, Math.PI * 2);
     ctx.fill();
   });
 
-  // Missile Matrix (Math Targets)
-  targetMissiles.forEach(m => {
-    ctx.fillStyle = "#1a0005";
-    ctx.strokeStyle = "#ff0033";
-    ctx.lineWidth = 3;
-    ctx.shadowColor = "#ff0033";
-    ctx.shadowBlur = 15;
-
-    ctx.beginPath();
-    ctx.arc(m.x, m.y, 32, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // Text on missile
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = "#ffcc00";
-    ctx.font = "bold 20px -apple-system, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(m.val, m.x, m.y + 7);
-
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "12px -apple-system, sans-serif";
-    ctx.fillText(m.promptText, m.x, m.y - 38);
-  });
-
-  // Explosions
-  particles.forEach(p => {
-    ctx.fillStyle = p.color;
-    ctx.shadowColor = p.color;
-    ctx.shadowBlur = 8;
-    ctx.fillRect(p.x, p.y, 4, 4);
-  });
-
-  // Player Sith Ship (High Detail)
-  ctx.shadowColor = "#ff0033";
-  ctx.shadowBlur = 20;
+  // Draw Player (Lord Athen)
   ctx.fillStyle = "#e60000";
+  ctx.shadowColor = "#ff0033";
+  ctx.shadowBlur = 18;
   ctx.beginPath();
-  ctx.moveTo(player.x, player.y - 28);
-  ctx.lineTo(player.x - 24, player.y + 20);
-  ctx.lineTo(player.x, player.y + 10);
-  ctx.lineTo(player.x + 24, player.y + 20);
-  ctx.closePath();
+  ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.restore();
+  // Draw Equipped Red Lightsaber Blade
+  if (player.hasLightsaber) {
+    ctx.fillStyle = "#ffffff";
+    ctx.shadowColor = "#ff0033";
+    ctx.shadowBlur = 15;
+    ctx.fillRect(player.x + 12, player.y - 4, 26, 8);
+  }
+
+  ctx.shadowBlur = 0; // Reset
 }
 
 function gameLoop() {

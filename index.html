@@ -7,29 +7,45 @@
   <!-- Apple Fullscreen Web App Meta -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Dark Side Conquest" />
+  <meta name="apple-mobile-web-app-title" content="Dark Side RPG" />
   
-  <title>Lord Athen: Dark Side Conquest</title>
+  <title>Lord Athen: Dark Side RPG</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div id="game-viewport">
-  <canvas id="arcadeCanvas"></canvas>
+<div id="rpg-viewport">
+  <!-- Game Canvas World -->
+  <canvas id="rpgCanvas"></canvas>
 
-  <!-- Arcade HUD -->
-  <div id="hud">
-    <div class="hud-box">PILOT: <span>LORD ATHEN</span></div>
-    <div class="hud-box">SCORE: <span id="score-val">0</span></div>
-    <div class="hud-box">SHIELD: <span id="shield-val">100%</span></div>
+  <!-- Top Quest HUD -->
+  <div id="quest-hud">
+    <div id="chapter-tag">CHAPTER 1: THE DERELICT SHIP</div>
+    <div id="quest-objective">Objective: Search the Hangar for a Plasma Core</div>
   </div>
 
-  <!-- Launch Screen -->
+  <!-- Dialogue Box Overlay (NPCs & Clues) -->
+  <div id="dialogue-box" class="hidden">
+    <div id="dialogue-speaker">R2-SITH DROID</div>
+    <div id="dialogue-text">Greetings, Commander Athen. The main blast door is sealed...</div>
+    <button id="dialogue-next-btn" class="rpg-btn">CONTINUE</button>
+  </div>
+
+  <!-- Interactive Workbench / Item Combiner Overlay -->
+  <div id="workbench-overlay" class="overlay hidden">
+    <h2>🛠️ SITH CRAFTING BENCH</h2>
+    <p>Select items from inventory to combine into a Dark Side artifact:</p>
+    <div id="crafting-grid"></div>
+    <button id="craft-btn" class="rpg-btn red-btn">FORGE ITEM</button>
+    <button id="close-craft-btn" class="rpg-btn">EXIT BENCH</button>
+  </div>
+
+  <!-- Launch / Title Screen -->
   <div id="menu-overlay" class="overlay">
     <h1 class="glow-title">⚡ LORD ATHEN ⚡</h1>
-    <h2 class="sub-title">DARK SIDE CONQUEST</h2>
-    <p class="desc">Drag your finger across the screen to control your Sith Interceptor.<br>Destroy Jedi fighters and intercept incoming missile codes!</p>
-    <button id="start-btn" class="arcade-btn">LAUNCH MISSION</button>
+    <h3 class="sub-title">THE HOLOCRON OF SECTOR 7</h3>
+    <p class="desc">A story-driven Dark Side adventure. Explore alien vaults, solve ancient glyph puzzles, combine artifacts, and unlock your true Force potential!</p>
+    <button id="start-btn" class="rpg-btn red-btn">BEGIN ADVENTURE</button>
   </div>
 </div>
 
