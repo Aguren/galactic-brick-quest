@@ -1,6 +1,6 @@
-// Credentials & Settings
+// Credentials & Permanent Settings
 let agentName = "Athen";
-let sidekickName = "Poppy the Rainbow Bunny";
+const sidekickName = "Poppy the Rainbow Bunny";
 let selectedAvatar = "🔎";
 let bgmEnabled = false;
 let lastTransportChoice = "bus";
@@ -130,7 +130,7 @@ function runTeletype(text, containerId, callback) {
   }, 20);
 }
 
-// Canvas Confetti Triggered on Answers
+// Canvas Confetti
 let particles = [];
 function triggerConfetti() {
   const cvs = document.getElementById("fx-canvas");
@@ -204,16 +204,13 @@ document.addEventListener("DOMContentLoaded", () => {
       playSound('click');
 
       const nameInput = document.getElementById("input-agent-name");
-      const sidekickInput = document.getElementById("input-sidekick-name");
-
       if (nameInput && nameInput.value.trim()) agentName = nameInput.value.trim();
-      if (sidekickInput && sidekickInput.value.trim()) sidekickName = sidekickInput.value.trim();
 
       const hudName = document.getElementById("hud-name");
       if (hudName) hudName.innerText = agentName.toUpperCase();
 
       const hudSidekick = document.getElementById("hud-sidekick");
-      if (hudSidekick) hudSidekick.innerText = sidekickName.toUpperCase();
+      if (hudSidekick) hudSidekick.innerText = "POPPY 🐰";
 
       const hudAvatar = document.getElementById("hud-avatar");
       if (hudAvatar) hudAvatar.innerText = selectedAvatar;
