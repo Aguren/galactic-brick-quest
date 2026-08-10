@@ -9,7 +9,7 @@ let lastTransportChoice = "bus";
 // Progress Engine
 let currentMissionIndex = 1;
 let m1Count = 0;
-let scratchCount = 0;
+let m3NumbersFound = [];
 let currentVaultCombo = [];
 let dialAngle = 0;
 
@@ -29,7 +29,7 @@ const themes = {
 const animationsData = [
   { icon: "🎒", text: "Backpack packed for Manzanita Elementary!" },
   { icon: "🚌", text: "Transport departing down Manzanita Lane!" },
-  { icon: "📝", text: "Secret Numbers scratched and written safely!" },
+  { icon: "📝", text: "Secret Numbers found and written safely!" },
   { icon: "🤖", text: "Dual-Language System re-aligned!" },
   { icon: "🔓", text: "3D Vault Dial Lock Decoded!" },
   { icon: "🔍", text: "Detective Reading passage solved!" },
@@ -104,7 +104,7 @@ function toggleBGM() {
   } else if (bgmInterval) { clearInterval(bgmInterval); }
 }
 
-// Fixed Easy Typewriter Briefing
+// Teletype / Typewriter Briefing Effect
 function runTeletype(text, containerId, callback) {
   const el = document.getElementById(containerId); 
   if (!el) {
@@ -121,13 +121,12 @@ function runTeletype(text, containerId, callback) {
       if (char !== " " && char !== "\n") {
         playSound('click'); 
       }
-      const parentBox = el.parentElement;
-      if (parentBox) {
-        parentBox.scrollTop = parentBox.scrollHeight;
-      }
       i++;
     } else { 
       clearInterval(timer); 
+      // Ensure typewriter box scrolls to top after completion
+      const box = document.getElementById("briefing-box");
+      if (box) box.scrollTop = 0;
       if (callback) callback(); 
     }
   }, 20);
@@ -337,18 +336,21 @@ function loadMission(idx) {
     }));
 
   } else if (idx === 3) {
-    if (title) title.innerText = `${t.term} 3: SCRATCH-OFF SECRET CODES ${t.icon}`;
-    if (prompt) prompt.innerText = `Rub your finger/mouse across the metallic scratch cards to reveal secret Numbers!`;
+    if (title) title.innerText = `${t.term} 3: SEARCH THE CLASSROOM ${t.icon}`;
+    if (prompt) prompt.innerText = `Search the 6 classroom spots below! 3 contain secret Numbers, and 3 are empty decoys!`;
     if (area) {
       area.innerHTML = `
-        <div class="pencil-note">✏️ Write down the 3 revealed Numbers on real paper!</div>
-        <div class="scratch-card-box">
-          <div class="scratch-bg-text">${t.numSeq.join('  -  ')}</div>
-          <canvas id="scratch-cvs" class="scratch-canvas"></canvas>
+        <div class="pencil-note">✏️ <strong>AGENT MANDATE:</strong> Get real paper & write down the 3 secret Numbers you find!</div>
+        <div class="search-grid-6">
+          <div class="search-spot" id="spot-desk" onclick="searchSpot('desk', '${t.numSeq[0]}', true)">🗄️ Desk Drawer</div>
+          <div class="search-spot" id="spot-toys" onclick="searchSpot('toys', '', false)">🧸 Toy Chest</div>
+          <div class="search-spot" id="spot-globe" onclick="searchSpot('globe', '${t.numSeq[1]}', true)">🌐 World Globe</div>
+          <div class="search-spot" id="spot-clock" onclick="searchSpot('clock', '', false)">⏰ Wall Clock</div>
+          <div class="search-spot" id="spot-books" onclick="searchSpot('books', '${t.numSeq[2]}', true)">📚 Bookshelf</div>
+          <div class="search-spot" id="spot-crafts" onclick="searchSpot('crafts', '', false)">🎨 Craft Table</div>
         </div>`;
     }
-    scratchCount = 0;
-    setupScratchCanvas();
+    m3NumbersFound = [];
 
   } else if (idx === 4) {
     if (title) title.innerText = `${t.term} 4: SPANISH MATH CHALLENGE ${t.icon}`;
@@ -609,47 +611,33 @@ function loadMission(idx) {
   }
 }
 
-// Canvas Scratch Off Setup
-function setupScratchCanvas() {
-  const cvs = document.getElementById("scratch-cvs");
-  if (!cvs) return;
-  const ctx = cvs.getContext("2d");
-  cvs.width = cvs.offsetWidth || 300; 
-  cvs.height = cvs.offsetHeight || 100;
-  ctx.fillStyle = "#888899"; 
-  ctx.fillRect(0,0,cvs.width,cvs.height);
-  ctx.fillStyle = "#333"; 
-  ctx.font = "bold 16px sans-serif"; 
-  ctx.textAlign = "center";
-  ctx.fillText("SCRATCH HERE WITH FINGER / MOUSE", cvs.width/2, cvs.height/2 + 5);
+// Search Spot Logic (3 Real, 3 Decoys for Mission 3)
+function searchSpot(spotKey, numVal, isReal) {
+  initAudio();
+  const el = document.getElementById(`spot-${spotKey}`);
+  if (!el) return;
 
-  let scratchCount = 0;
-  let isScratching = false;
+  if (!el.classList.contains("found") && !el.classList.contains("empty-found")) {
+    if (isReal) {
+      el.classList.add("found");
+      playSound('click');
+      el.innerText = `Found Number: [ ${numVal} ]`;
+      m3NumbersFound.push(numVal);
 
-  function scratch(e) {
-    if (!isScratching) return;
-    const rect = cvs.getBoundingClientRect();
-    const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
-    const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath(); 
-    ctx.arc(x, y, 22, 0, Math.PI*2); 
-    ctx.fill();
-    playSound('click'); 
-    scratchCount++;
-    if (scratchCount > 25) { 
-      setTimeout(() => completeMission(), 1000); 
+      if (m3NumbersFound.length === 3) {
+        playSound('success');
+        const t = themes[selectedTheme] || themes['spy'];
+        setTimeout(() => {
+          alert(`📝 ${agentName}, make sure you wrote down ${t.numSeq.join(' - ')} on your paper! Proceeding!`);
+          completeMission();
+        }, 800);
+      }
+    } else {
+      el.classList.add("empty-found");
+      playSound('wrong');
+      el.innerText = `Empty Decoy! Nothing here!`;
     }
   }
-
-  cvs.addEventListener("mousedown", () => isScratching = true);
-  cvs.addEventListener("mouseup", () => isScratching = false);
-  cvs.addEventListener("mousemove", scratch);
-  cvs.addEventListener("touchstart", () => isScratching = true);
-  cvs.addEventListener("touchend", () => isScratching = false);
-  cvs.addEventListener("touchmove", scratch);
 }
 
 // 3D Vault Wheel Logic
@@ -692,7 +680,7 @@ function resetVault() {
   if (disp) disp.innerText = "_ _ _";
 }
 
-// Mission Completion Engine (Explicit Index Tracking)
+// Mission Completion Engine (Tracks 1 through 20)
 function completeMission() {
   playSound('success');
   const t = themes[selectedTheme] || themes['spy'];
