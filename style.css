@@ -125,31 +125,24 @@ h2 { color: var(--accent); margin-top: 0; }
 h3 { color: #f59e0b; margin-top: 0; }
 .warning-text { color: #ef4444; font-weight: bold; }
 
-/* Shortened Easy Typewriter Box */
+/* Compact Teletype Box (No Blank Space at Bottom) */
 .teletype-box {
   background: rgba(0, 0, 0, 0.4);
   border-left: 4px solid var(--accent);
   padding: 14px;
   border-radius: 6px;
   text-align: left;
-  min-height: 100px;
-  max-height: 180px;
-  margin: 15px 0;
+  margin: 12px 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 16px;
-  line-height: 1.6;
-  
-  overflow-y: auto;
+  line-height: 1.5;
   white-space: pre-wrap;
   word-wrap: break-word;
-  overflow-wrap: break-word;
 }
 
 .teletype-box p {
   margin: 0;
   padding: 0;
-  white-space: pre-wrap;
-  word-break: break-word;
 }
 
 /* Custom Inputs & Theme Buttons */
@@ -253,32 +246,35 @@ h3 { color: #f59e0b; margin-top: 0; }
   border-color: #059669;
 }
 
-/* Scratch Canvas Box */
-.scratch-card-box {
-  position: relative;
-  width: 100%;
-  height: 110px;
-  margin: 10px 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* Mission 3 Interactive Search Grid (6 Spots) */
+.search-grid-6 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 14px 0;
 }
 
-.scratch-bg-text {
-  font-size: 28px;
-  font-weight: 900;
-  color: #f59e0b;
-  letter-spacing: 4px;
-}
-
-.scratch-canvas {
-  position: absolute;
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%;
+.search-spot {
+  background: rgba(0,0,0,0.3);
+  border: 2px dashed var(--accent);
+  padding: 14px;
   border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
   cursor: pointer;
+}
+
+.search-spot.found {
+  background: #059669;
+  border-style: solid;
+  border-color: #10b981;
+}
+
+.search-spot.empty-found {
+  background: #4b5563;
+  border-style: solid;
+  border-color: #6b7280;
+  opacity: 0.7;
 }
 
 /* Reading Box */
@@ -476,8 +472,32 @@ h3 { color: #f59e0b; margin-top: 0; }
 .code-display { font-size: 32px; font-weight: 900; letter-spacing: 12px; color: #f59e0b; margin: 15px 0; }
 .hidden { display: none !important; }
 
+/* Print Styles: Hides non-certificate elements when printing */
 @media print {
-  body * { visibility: hidden; }
-  #printable-certificate, #printable-certificate * { visibility: visible; }
-  #printable-certificate { position: absolute; left: 0; top: 0; width: 100%; }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  #agent-hud, .no-print, #fx-canvas, .agent-btn {
+    display: none !important;
+  }
+  .warm-card {
+    border: 4px solid #000 !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .cert-border {
+    border: 2px dashed #000 !important;
+  }
+  .message-box {
+    background: #f3f4f6 !important;
+    color: #000 !important;
+    border-left: 4px solid #000 !important;
+  }
+  #printable-certificate {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
 }
