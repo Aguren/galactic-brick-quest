@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galactic Brick Quest: Sector 7</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="game-container">
+  <h1>🚀 GALACTIC BRICK QUEST 🧱</h1>
+  
+  <div class="hud">
+    <div>Sector: <span id="sector-val">1</span> / 5</div>
+    <div>Bricks Collected: <span id="bricks-val">0</span> 🧱</div>
+  </div>
+
+  <!-- Intro Screen -->
+  <div id="intro-screen" class="screen active">
+    <p>A mysterious Lego Space Station has gone completely dark in Sector 7!</p>
+    <p>We need a Master Builder & Math Commander to crack the door codes, repair the power cores, and discover what is hidden inside!</p>
+    <button class="brick-btn" id="start-btn">Start Mission</button>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="game-screen" class="screen">
+    <div id="story-text">Loading room...</div>
+
+    <div class="puzzle-box" id="puzzle-box">
+      <h3 id="puzzle-title">Door Lock System</h3>
+      <p id="puzzle-q"></p>
+      <div class="options-grid" id="options-container"></div>
+    </div>
+  </div>
+
+  <!-- Victory Screen -->
+  <div id="win-screen" class="screen">
+    <h2>🎉 MISSION ACCOMPLISHED! 🎉</h2>
+    <p id="win-text"></p>
+    <button class="brick-btn blue-btn" id="play-again-btn">Play Again</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

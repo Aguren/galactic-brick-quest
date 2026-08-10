@@ -1,0 +1,141 @@
+* { 
+  box-sizing: border-box; 
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #0b0d19;
+  color: #fff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+}
+
+#game-container {
+  max-width: 650px;
+  margin: 0 auto;
+  background: #161b33;
+  border: 4px solid #f2cf07; /* Lego yellow */
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 20px rgba(242, 207, 7, 0.3);
+}
+
+h1 {
+  color: #f2cf07;
+  margin-top: 0;
+  text-shadow: 2px 2px #d00000;
+  letter-spacing: 1px;
+}
+
+h2 {
+  color: #4cc9f0;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-around;
+  background: #0d1124;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  color: #4cc9f0;
+}
+
+.hud span { 
+  color: #f2cf07; 
+}
+
+.screen { 
+  display: none; 
+}
+
+.active { 
+  display: block; 
+}
+
+/* Lego Brick styling for UI */
+.brick-btn {
+  background: #d00000;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 10px;
+  box-shadow: 0 5px 0 #800000;
+  transition: transform 0.1s;
+}
+
+.brick-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #800000;
+}
+
+.blue-btn {
+  background: #0077b6;
+  box-shadow: 0 5px 0 #023e8a;
+}
+
+.blue-btn:active { 
+  box-shadow: 0 1px 0 #023e8a; 
+}
+
+.puzzle-box {
+  background: #212845;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+  border: 2px dashed #4cc9f0;
+}
+
+#puzzle-title {
+  color: #4cc9f0; 
+  margin-top: 0;
+}
+
+#puzzle-q {
+  font-size: 22px; 
+  font-weight: bold;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+#story-text {
+  font-size: 18px;
+  line-height: 1.5;
+  min-height: 60px;
+}
+
+.brick-graphic {
+  display: inline-block;
+  width: 30px;
+  height: 20px;
+  background: #d00000;
+  border-radius: 3px;
+  position: relative;
+  margin: 0 3px;
+  vertical-align: middle;
+}
+
+.brick-graphic::before, 
+.brick-graphic::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  width: 6px;
+  height: 4px;
+  background: #d00000;
+  border-radius: 1px;
+}
+
+.brick-graphic::before { left: 5px; }
+.brick-graphic::after { right: 5px; }
