@@ -9,7 +9,7 @@ let lastTransportChoice = "bus";
 // Progress Engine
 let currentMissionIndex = 1;
 let m1Count = 0;
-let m3ScratchCount = 0;
+let scratchCount = 0;
 let currentVaultCombo = [];
 let dialAngle = 0;
 
@@ -49,7 +49,7 @@ const animationsData = [
   { icon: "🏆", text: "GOLDEN SCHOOL BADGE RECOVERED!" }
 ];
 
-// Web Audio & Procedural BGM
+// Web Audio
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null, bgmInterval = null;
 
@@ -104,7 +104,7 @@ function toggleBGM() {
   } else if (bgmInterval) { clearInterval(bgmInterval); }
 }
 
-// Teletype / Typewriter Briefing Effect
+// Fixed Easy Typewriter Briefing
 function runTeletype(text, containerId, callback) {
   const el = document.getElementById(containerId); 
   if (!el) {
@@ -133,7 +133,7 @@ function runTeletype(text, containerId, callback) {
   }, 20);
 }
 
-// Canvas Particles / Confetti Cannon
+// Canvas Confetti
 let particles = [];
 function triggerConfetti() {
   const cvs = document.getElementById("fx-canvas");
@@ -231,7 +231,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       showScreen("screen-briefing");
 
-      const briefingText = `Welcome, ${agentName} and ${sidekickName}!\n\nToday is your first day of 2nd Grade at Manzanita Elementary, but the Golden School Badge has vanished across 20 secret sectors!\n\nSolve all 20 challenges, scratch off the secret Numbers, and decode the 3D Vault Dial before the final bell rings!`;
+      // Short, Easy 3-Bullet Briefing for a 7-Year-Old
+      const briefingText = `WELCOME 2ND GRADER!\n\n1. The Golden Badge is missing at Manzanita Elementary!\n2. Complete 20 fun mini-missions with ${sidekickName}.\n3. Find secret Numbers & unlock the Golden Vault!`;
       runTeletype(briefingText, "typewriter-text");
     });
   }
@@ -346,7 +347,7 @@ function loadMission(idx) {
           <canvas id="scratch-cvs" class="scratch-canvas"></canvas>
         </div>`;
     }
-    m3ScratchCount = 0;
+    scratchCount = 0;
     setupScratchCanvas();
 
   } else if (idx === 4) {
@@ -622,7 +623,9 @@ function setupScratchCanvas() {
   ctx.textAlign = "center";
   ctx.fillText("SCRATCH HERE WITH FINGER / MOUSE", cvs.width/2, cvs.height/2 + 5);
 
+  let scratchCount = 0;
   let isScratching = false;
+
   function scratch(e) {
     if (!isScratching) return;
     const rect = cvs.getBoundingClientRect();
@@ -635,8 +638,8 @@ function setupScratchCanvas() {
     ctx.arc(x, y, 22, 0, Math.PI*2); 
     ctx.fill();
     playSound('click'); 
-    m3ScratchCount++;
-    if (m3ScratchCount > 25) { 
+    scratchCount++;
+    if (scratchCount > 25) { 
       setTimeout(() => completeMission(), 1000); 
     }
   }
@@ -689,7 +692,7 @@ function resetVault() {
   if (disp) disp.innerText = "_ _ _";
 }
 
-// Mission Completion Engine
+// Mission Completion Engine (Explicit Index Tracking)
 function completeMission() {
   playSound('success');
   const t = themes[selectedTheme] || themes['spy'];
