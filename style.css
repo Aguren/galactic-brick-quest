@@ -5,39 +5,117 @@
 body {
   margin: 0;
   padding: 20px;
-  background: #050508;
+  background: #030308;
   color: #fff;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   text-align: center;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Moving Starfield Background */
+.stars, .twinkling {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  display: block;
+  z-index: -2;
+}
+
+.stars {
+  background: #000 url('https://www.script-tutorials.com/demos/259/images/stars.png') repeat top center;
+}
+
+.twinkling {
+  background: transparent url('https://www.script-tutorials.com/demos/259/images/twinkling.png') repeat top center;
+  z-index: -1;
+  animation: move-twink-back 200s linear infinite;
+}
+
+@keyframes move-twink-back {
+  from { background-position: 0 0; }
+  to { background-position: -10000px 5000px; }
 }
 
 #game-container {
-  max-width: 650px;
+  max-width: 680px;
   margin: 0 auto;
-  background: #110303;
-  border: 4px solid #ff0033; /* Sith Red Glow */
+  background: rgba(17, 3, 3, 0.92);
+  border: 4px solid #ff0033;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 0 25px rgba(255, 0, 51, 0.5);
+  padding: 24px;
+  box-shadow: 0 0 35px rgba(255, 0, 51, 0.6);
+  position: relative;
+}
+
+/* Screen Shake Class */
+.shake {
+  animation: shakeAnim 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shakeAnim {
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(4px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+  40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+/* Lightsaber Slash Effect */
+.slash-effect {
+  position: fixed;
+  top: 50%;
+  left: -20%;
+  width: 140%;
+  height: 8px;
+  background: #ffffff;
+  box-shadow: 0 0 20px #ff0033, 0 0 40px #ff0033;
+  transform: rotate(-25deg);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.slash-effect.active-slash {
+  animation: slashAnimation 0.35s ease-out;
+}
+
+@keyframes slashAnimation {
+  0% { opacity: 1; transform: scaleX(0) rotate(-25deg); }
+  50% { opacity: 1; transform: scaleX(1) rotate(-25deg); }
+  100% { opacity: 0; transform: scaleX(1) rotate(-25deg); }
+}
+
+/* Floating Points Text */
+.floating-text {
+  position: fixed;
+  color: #ff0033;
+  font-size: 28px;
+  font-weight: bold;
+  text-shadow: 0 0 10px #ff0033, 0 0 20px #ffffff;
+  pointer-events: none;
+  animation: floatUp 1.2s ease-out forwards;
+  z-index: 1000;
+}
+
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-80px) scale(1.3); }
 }
 
 h1 {
   color: #ff0033;
   margin-top: 0;
-  text-shadow: 0 0 10px #ff0033, 2px 2px #000;
-  letter-spacing: 1.5px;
+  text-shadow: 0 0 12px #ff0033, 2px 2px #000;
 }
 
-h2 {
-  color: #ff3355;
-  text-shadow: 0 0 8px rgba(255, 51, 85, 0.6);
-}
+h2 { color: #ff3355; }
 
 .hud {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+  align-items: center;
   background: #1c0505;
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
   margin-bottom: 20px;
   font-weight: bold;
@@ -50,17 +128,31 @@ h2 {
   font-size: 20px;
 }
 
-.screen { 
-  display: none; 
+.force-power-btn {
+  background: #4cc9f0;
+  color: #000;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 10px #4cc9f0;
 }
 
-.active { 
-  display: block; 
+.force-power-btn:disabled {
+  background: #333;
+  color: #777;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
-/* Lego Brick Buttons */
+.screen { display: none; }
+.active { display: block; }
+.hidden { display: none !important; }
+
+/* Lego Buttons */
 .brick-btn {
-  background: #b30000;
+  background: #e60000;
   color: white;
   border: none;
   padding: 14px 28px;
@@ -69,17 +161,13 @@ h2 {
   border-radius: 6px;
   cursor: pointer;
   margin: 10px;
-  box-shadow: 0 6px 0 #590000, 0 0 10px rgba(255, 0, 0, 0.4);
+  box-shadow: 0 6px 0 #590000, 0 0 12px rgba(255, 0, 0, 0.4);
   transition: all 0.1s ease;
 }
 
 .brick-btn:active {
   transform: translateY(4px);
   box-shadow: 0 2px 0 #590000;
-}
-
-.red-btn {
-  background: #e60000;
 }
 
 .puzzle-box {
@@ -90,17 +178,8 @@ h2 {
   border: 2px dashed #ff0033;
 }
 
-#puzzle-title {
-  color: #ff6677; 
-  margin-top: 0;
-}
-
-#puzzle-q {
-  font-size: 26px; 
-  font-weight: bold;
-  color: #ffffff;
-  text-shadow: 0 0 5px #ff0033;
-}
+#puzzle-title { color: #ff6677; margin-top: 0; }
+#puzzle-q { font-size: 28px; font-weight: bold; text-shadow: 0 0 8px #ff0033; }
 
 .options-grid {
   display: grid;
@@ -109,14 +188,33 @@ h2 {
   margin-top: 15px;
 }
 
-#story-text {
-  font-size: 19px;
-  line-height: 1.5;
-  min-height: 60px;
-  color: #ddd;
+/* Boss Health Bar */
+.boss-box {
+  background: #2b0000;
+  border: 2px solid #ffcc00;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 15px;
 }
 
-/* Lightsaber Ignite Animation System */
+.boss-box h3 { margin: 0 0 8px 0; color: #ffcc00; }
+
+.hp-bar-outer {
+  width: 100%;
+  height: 20px;
+  background: #444;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.hp-bar-inner {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to right, #ff0000, #ffcc00);
+  transition: width 0.4s ease;
+}
+
+/* Lightsaber Animation */
 #lightsaber-container {
   display: flex;
   justify-content: center;
@@ -126,29 +224,19 @@ h2 {
 }
 
 .lightsaber-hilt {
-  width: 20px;
-  height: 50px;
+  width: 20px; height: 50px;
   background: linear-gradient(to right, #888, #fff, #444);
   border-radius: 3px;
   border: 2px solid #222;
 }
 
 .lightsaber-blade {
-  width: 14px;
-  height: 0px;
+  width: 14px; height: 0px;
   background: #fff;
   border-radius: 0 8px 8px 0;
   box-shadow: 0 0 15px #ff0033, 0 0 30px #ff0033, 0 0 45px #ff0033;
   transition: width 1.5s ease-out;
 }
 
-.lightsaber-blade.ignite {
-  width: 260px;
-}
-
-.glow-text {
-  font-size: 20px;
-  color: #ff3355;
-  font-weight: bold;
-  text-shadow: 0 0 10px #ff0033;
-}
+.lightsaber-blade.ignite { width: 260px; }
+.glow-text { font-size: 20px; color: #ff3355; font-weight: bold; text-shadow: 0 0 10px #ff0033; }

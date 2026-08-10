@@ -8,34 +8,51 @@
 </head>
 <body>
 
+<!-- Animated Warp Speed Background -->
+<div class="stars"></div>
+<div class="twinkling"></div>
+
+<!-- FX Overlays -->
+<div id="slash-fx" class="slash-effect"></div>
+<div id="floating-text-container"></div>
+
 <div id="game-container">
   <h1>⚡ LORD ATHEN: DARK SIDE QUEST 🧱</h1>
   
   <div class="hud">
     <div>Sector: <span id="sector-val">1</span> / 10</div>
-    <div>Sith Kyber Crystals: <span id="bricks-val">0</span> 💎</div>
+    <div>Sith Kyber: <span id="bricks-val">0</span> 💎</div>
+    <button id="force-btn" class="force-power-btn" disabled>⚡ Force Lightning (0/2)</button>
   </div>
 
   <!-- Intro Screen -->
   <div id="intro-screen" class="screen active">
     <h2>Greetings, Dark Commander Athen!</h2>
     <p>A secret Star Destroyer in Sector 7 has gone dark. The galaxy needs your Force powers and math expertise to unlock the ancient Sith Vaults!</p>
-    <p>Crack the door codes, harness the Dark Side, and build your ultimate Red Lightsaber!</p>
+    <p>Crack the door codes, harness the Dark Side, use Force Lightning, and defeat the Jedi Bosses!</p>
     <button class="brick-btn red-btn" id="start-btn">Begin Sith Mission</button>
   </div>
 
   <!-- Game Screen -->
   <div id="game-screen" class="screen">
+    <!-- Boss HP Bar (Visible in Boss Sectors) -->
+    <div id="boss-container" class="boss-box hidden">
+      <h3 id="boss-name">💥 JEDI BOSS</h3>
+      <div class="hp-bar-outer">
+        <div id="boss-hp-inner" class="hp-bar-inner"></div>
+      </div>
+    </div>
+
     <div id="story-text">Loading room...</div>
 
     <div class="puzzle-box" id="puzzle-box">
-      <h3 id="puzzle-title">Sith Door Security</h3>
+      <h3 id="puzzle-title">Sith Security Array</h3>
       <p id="puzzle-q"></p>
       <div class="options-grid" id="options-container"></div>
     </div>
   </div>
 
-  <!-- Reward Animation Screen (Triggers at Q5 & Q10) -->
+  <!-- Reward Screen (Sector 5 & 10) -->
   <div id="reward-screen" class="screen">
     <h2 id="reward-title">⚡ FORCE UNLEASHED! ⚡</h2>
     <div id="lightsaber-container">
