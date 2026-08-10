@@ -55,7 +55,7 @@ body {
   z-index: 99;
 }
 
-/* Redesigned 2-Row Top HUD Bar (iPhone Cleaned) */
+/* Redesigned 2-Row Top HUD Bar */
 #agent-hud {
   flex-shrink: 0;
   display: flex;
