@@ -24,7 +24,7 @@
     <div class="hud-item">SIDEKICK: <span id="hud-sidekick">POPPY 🐰</span></div>
     <div class="hud-item hud-progress-container">
       <div class="progress-bar-bg">
-        <div id="hud-progress-fill" style="width: 0%;"></div>
+        <div id="hud-progress-fill"></div>
       </div>
       <span id="hud-progress-text">0/20</span>
     </div>
@@ -42,9 +42,13 @@
         <input type="text" id="input-agent-name" value="Athen" placeholder="Enter Child's Name" />
       </div>
 
+      <!-- Permanent Non-Editable Sidekick Display -->
       <div class="input-group">
-        <label for="input-sidekick-name">Special Sidekick / Compañero:</label>
-        <input type="text" id="input-sidekick-name" value="Poppy the Rainbow Bunny" placeholder="Enter Sidekick Name" />
+        <label>Your Official Case Sidekick / Tu Compañero Oficial:</label>
+        <div class="permanent-sidekick-badge">
+          <span class="sidekick-icon">🐰</span>
+          <span class="sidekick-label">Poppy the Rainbow Bunny</span>
+        </div>
       </div>
 
       <div class="input-group">
@@ -126,7 +130,7 @@
 
       <div class="cert-border">
         <h3>MANZANITA ELEMENTARY CERTIFICATE OF BRAVERY</h3>
-        <p>This certifies that <strong class="display-agent-name" style="font-size:22px; color:#f59e0b;">ATHEN</strong> (and Companion <span class="display-sidekick-name">Poppy</span>) successfully recovered the Golden Badge across all 20 Cases!</p>
+        <p>This certifies that <strong class="display-agent-name" style="font-size:22px; color:#f59e0b;">ATHEN</strong> (and Companion <span class="display-sidekick-name">Poppy the Rainbow Bunny</span>) successfully recovered the Golden Badge across all 20 Cases!</p>
       </div>
 
       <div class="message-box">
