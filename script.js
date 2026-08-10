@@ -647,7 +647,7 @@ function loadMission(idx) {
     if (correctM) correctM.addEventListener("click", () => { triggerConfetti(); completeMission(); });
     document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); triggerErrorShake(); }));
 
-  // NEW SPANISH READING FOCUS CASES (21 TO 25)
+  // SPANISH READING FOCUS CASES (21 TO 25)
   } else if (idx === 21) {
     if (title) title.innerText = `${t.term} 21: LECTURA EN ESPAÑOL - EL GATO 🐱 ${t.icon}`;
     if (prompt) prompt.innerText = `Read the Spanish story carefully to answer:`;
