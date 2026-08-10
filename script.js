@@ -15,7 +15,7 @@ let enteredKeypadCode = "";
 const detectiveTheme = {
   title: "MYSTERY DETECTIVE",
   icon: "🔎",
-  roleLabel: "SLEUTH",
+  roleLabel: "DETECTIVE",
   term: "CASE",
   stamp: "CONFIDENTIAL",
   numSeq: ["8", "3", "1"],
@@ -45,7 +45,12 @@ const animationsData = [
   { icon: "⏰", text: "School Bell Timer calibrated!" },
   { icon: "📅", text: "Spanish Days of the Week aligned!" },
   { icon: "🤝", text: "New Manzanita Friendship formed!" },
-  { icon: "🏆", text: "GOLDEN SCHOOL BADGE RECOVERED!" }
+  { icon: "🏆", text: "Classroom Rule master achieved!" },
+  { icon: "🐱", text: "Spanish Pet Story Mastered!" },
+  { icon: "🍎", text: "Spanish Apple Snack Story Solved!" },
+  { icon: "⚽", text: "Spanish Recess Story Decoded!" },
+  { icon: "🎨", text: "Spanish Color Painting Story Solved!" },
+  { icon: "🌟", text: "GOLDEN SCHOOL BADGE RECOVERED!" }
 ];
 
 // Web Audio
@@ -132,7 +137,23 @@ function runTeletype(text, containerId, callback) {
 
 // Canvas Confetti
 let particles = [];
+let animFrameId = null;
+
+function clearFxCanvas() {
+  const cvs = document.getElementById("fx-canvas");
+  if (cvs) {
+    const ctx = cvs.getContext("2d");
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+  }
+  if (animFrameId) {
+    cancelAnimationFrame(animFrameId);
+    animFrameId = null;
+  }
+  particles = [];
+}
+
 function triggerConfetti() {
+  clearFxCanvas();
   const cvs = document.getElementById("fx-canvas");
   if (!cvs) return;
   const ctx = cvs.getContext("2d");
@@ -148,7 +169,11 @@ function triggerConfetti() {
       ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size);
       if (p.life <= 0) particles.splice(idx, 1);
     });
-    if (particles.length > 0) requestAnimationFrame(loop);
+    if (particles.length > 0) {
+      animFrameId = requestAnimationFrame(loop);
+    } else {
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+    }
   }
   loop();
 }
@@ -173,11 +198,12 @@ function updatePoppyState(state, text) {
 function updateProgressHUD(idx) {
   const progressText = document.getElementById("hud-progress-text");
   const progressFill = document.getElementById("hud-progress-fill");
-  if (progressText) progressText.innerText = `${idx}/20`;
-  if (progressFill) progressFill.style.width = `${(idx / 20) * 100}%`;
+  if (progressText) progressText.innerText = `${idx}/25`;
+  if (progressFill) progressFill.style.width = `${(idx / 25) * 100}%`;
 }
 
 function showScreen(id) {
+  clearFxCanvas();
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const target = document.getElementById(id);
   if (target) {
@@ -220,7 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       showScreen("screen-briefing");
 
-      const briefingText = `WELCOME 2ND GRADER / ¡BIENVENIDO!\n\n1. The Golden Badge is missing at Manzanita Elementary!\n2. Complete 20 fun cases with ${sidekickName}.\n3. Find secret Numbers & unlock the Golden Vault!`;
+      const briefingText = `WELCOME 2ND GRADER / ¡BIENVENIDO!\n\n1. The Golden Badge is missing at Manzanita Elementary!\n2. Complete 25 fun cases with ${sidekickName}.\n3. Find secret Numbers & unlock the Golden Vault!`;
       runTeletype(briefingText, "typewriter-text");
     });
   }
@@ -239,7 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
     nextMissionBtn.addEventListener("click", () => {
       initAudio(); 
       playSound('click');
-      if (currentMissionIndex <= 20) { 
+      if (currentMissionIndex <= 25) { 
         loadMission(currentMissionIndex); 
       } else { 
         triggerConfetti(); 
@@ -256,8 +282,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// Full 20-Mission Load Engine with Dual-Language Prompts
+// Full 25-Mission Load Engine with Dual-Language Prompts & Spanish Reading Focus
 function loadMission(idx) {
+  clearFxCanvas();
   currentMissionIndex = idx;
   const t = detectiveTheme;
   updateProgressHUD(idx);
@@ -413,12 +440,12 @@ function loadMission(idx) {
   } else if (idx === 7) {
     if (title) title.innerText = `${t.term} 7: SPANISH PATTERN ARRAY ${t.icon}`;
     if (prompt) prompt.innerText = `¿Qué sigue en el patrón? / What comes next?`;
-    if (promptEs) promptEs.innerText = `${t.m7Seq} | ${t.m7Seq} | [ ? ]`;
+    if (promptEs) promptEs.innerText = `Yellow | Brown | Yellow | Brown | [ ? ]`;
     if (area) {
       area.innerHTML = `
         <div class="choice-grid">
-          <button class="choice-btn correct-m">${t.m7Seq.split('|')[0]}</button>
-          <button class="choice-btn wrong-m">⚪ White / Blanco</button>
+          <button class="choice-btn correct-m">Yellow / Amarillo</button>
+          <button class="choice-btn wrong-m">White / Blanco</button>
         </div>`;
     }
     const correctM = document.querySelector(".correct-m");
@@ -478,7 +505,7 @@ function loadMission(idx) {
       area.innerHTML = `
         <div class="choice-grid">
           <button class="choice-btn wrong-m">Purple / Morado</button>
-          <button class="choice-btn correct-m">Orange 🟠 / Naranja</button>
+          <button class="choice-btn correct-m">Orange / Naranja</button>
         </div>`;
     }
     const correctM = document.querySelector(".correct-m");
@@ -606,14 +633,114 @@ function loadMission(idx) {
     document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); triggerErrorShake(); }));
 
   } else if (idx === 20) {
-    if (title) title.innerText = `${t.term} 20: RECOVER THE GOLDEN BADGE ${t.icon}`;
-    if (prompt) prompt.innerText = `Final Challenge! What is the official rule of 2nd Grade at Manzanita Elementary?`;
-    if (promptEs) promptEs.innerText = `¡Desafío Final! ¿Cuál es la regla oficial de 2º Grado?`;
+    if (title) title.innerText = `${t.term} 20: CLASSROOM RULE ${t.icon}`;
+    if (prompt) prompt.innerText = `What is the official rule of 2nd Grade at Manzanita Elementary?`;
+    if (promptEs) promptEs.innerText = `¿Cuál es la regla oficial de 2º Grado?`;
     if (area) {
       area.innerHTML = `
         <div class="choice-grid">
-          <button class="choice-btn correct-m">Try your best & have fun! ⭐ / ¡Hacer tu mejor esfuerzo y divertirte!</button>
+          <button class="choice-btn correct-m">Try your best & have fun! ⭐ / ¡Hacer tu mejor esfuerzo!</button>
           <button class="choice-btn wrong-m">Be perfect at everything / Ser perfecto en todo</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => { triggerConfetti(); completeMission(); });
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); triggerErrorShake(); }));
+
+  // NEW SPANISH READING FOCUS CASES (21 TO 25)
+  } else if (idx === 21) {
+    if (title) title.innerText = `${t.term} 21: LECTURA EN ESPAÑOL - EL GATO 🐱 ${t.icon}`;
+    if (prompt) prompt.innerText = `Read the Spanish story carefully to answer:`;
+    if (promptEs) promptEs.innerText = `Lee la historia con atención para responder:`;
+    if (area) {
+      area.innerHTML = `
+        <div class="reading-pass-box">
+          El gato de ${agentName} se llama Pelusa. Pelusa es de color blanco y le gusta jugar con una pelota roja en el jardín de Manzanita Elementary.
+        </div>
+        <p style="font-weight:bold; margin-top:10px;">¿De qué color es Pelusa?</p>
+        <div class="choice-grid">
+          <button class="choice-btn wrong-m">Azul / Blue</button>
+          <button class="choice-btn correct-m">Blanco / White</button>
+          <button class="choice-btn wrong-m">Verde / Green</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => { triggerConfetti(); completeMission(); });
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); triggerErrorShake(); }));
+
+  } else if (idx === 22) {
+    if (title) title.innerText = `${t.term} 22: LECTURA EN ESPAÑOL - LA MERIENDA 🍎 ${t.icon}`;
+    if (prompt) prompt.innerText = `Read the Spanish story carefully to answer:`;
+    if (promptEs) promptEs.innerText = `Lee la historia con atención para responder:`;
+    if (area) {
+      area.innerHTML = `
+        <div class="reading-pass-box">
+          A las doce del día, ${sidekickName} abre su lonchera. Tiene una manzana roja y un bocadillo de queso delicioso.
+        </div>
+        <p style="font-weight:bold; margin-top:10px;">¿Qué fruta tiene en la lonchera?</p>
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">Manzana / Apple 🍎</button>
+          <button class="choice-btn wrong-m">Plátano / Banana 🍌</button>
+          <button class="choice-btn wrong-m">Uvas / Grapes 🍇</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => { triggerConfetti(); completeMission(); });
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); triggerErrorShake(); }));
+
+  } else if (idx === 23) {
+    if (title) title.innerText = `${t.term} 23: LECTURA EN ESPAÑOL - EL RECREO ⚽ ${t.icon}`;
+    if (prompt) prompt.innerText = `Read the Spanish story carefully to answer:`;
+    if (promptEs) promptEs.innerText = `Lee la historia con atención para responder:`;
+    if (area) {
+      area.innerHTML = `
+        <div class="reading-pass-box">
+          En el recreo, los estudiantes corren al patio. ${agentName} juega al fútbol con sus amigos bajo el sol brillante.
+        </div>
+        <p style="font-weight:bold; margin-top:10px;">¿A qué juego juegan en el patio?</p>
+        <div class="choice-grid">
+          <button class="choice-btn wrong-m">Baloncesto / Basketball 🏀</button>
+          <button class="choice-btn correct-m">Fútbol / Soccer ⚽</button>
+          <button class="choice-btn wrong-m">Tenis / Tennis 🎾</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => { triggerConfetti(); completeMission(); });
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); triggerErrorShake(); }));
+
+  } else if (idx === 24) {
+    if (title) title.innerText = `${t.term} 24: LECTURA EN ESPAÑOL - LA CLASE DE ARTE 🎨 ${t.icon}`;
+    if (prompt) prompt.innerText = `Read the Spanish story carefully to answer:`;
+    if (promptEs) promptEs.innerText = `Lee la historia con atención para responder:`;
+    if (area) {
+      area.innerHTML = `
+        <div class="reading-pass-box">
+          En la clase de arte, la maestra dice: "Hoy pintamos un arcoíris con pintura azul, amarilla y roja".
+        </div>
+        <p style="font-weight:bold; margin-top:10px;">¿Qué pintan hoy en la clase de arte?</p>
+        <div class="choice-grid">
+          <button class="choice-btn wrong-m">Un coche / A car 🚗</button>
+          <button class="choice-btn correct-m">Un arcoíris / A rainbow 🌈</button>
+          <button class="choice-btn wrong-m">Un árbol / A tree 🌳</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => { triggerConfetti(); completeMission(); });
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); triggerErrorShake(); }));
+
+  } else if (idx === 25) {
+    if (title) title.innerText = `${t.term} 25: LECTURA EN ESPAÑOL - LA PLACA DORADA 🌟 ${t.icon}`;
+    if (prompt) prompt.innerText = `Read the final Spanish mystery passage:`;
+    if (promptEs) promptEs.innerText = `Lee la pista final en español:`;
+    if (area) {
+      area.innerHTML = `
+        <div class="reading-pass-box">
+          ¡Felicidades Detective ${agentName}! La Placa Dorada de Manzanita Elementary estaba dentro de la caja fuerte del segundo grado. ¡Lo lograste con éxito junto a ${sidekickName}!
+        </div>
+        <p style="font-weight:bold; margin-top:10px;">¿Dónde estaba la Placa Dorada?</p>
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">En la caja fuerte / In the vault safe 🔐</button>
+          <button class="choice-btn wrong-m">En el autobús / In the bus 🚌</button>
         </div>`;
     }
     const correctM = document.querySelector(".correct-m");
