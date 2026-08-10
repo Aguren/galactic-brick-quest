@@ -1,182 +1,694 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+// Credentials & Settings
+let agentName = "Athen";
+let sidekickName = "Poppy the Rainbow Bunny";
+let selectedAvatar = "🕵️";
+let selectedTheme = "spy";
+let bgmEnabled = false;
+let lastTransportChoice = "bus";
+
+// Progress Engine
+let currentMissionIndex = 1;
+let m1Count = 0;
+let m3NumbersFound = [];
+let enteredKeypadCode = "";
+
+// Themes Config
+const themes = {
+  spy: { title: "CYBER SPY", icon: "🕵️", roleLabel: "AGENT", term: "MISSION", stamp: "TOP SECRET", numSeq: ["7", "2", "9"], targetCode: "729", m4Math: { q: "El robot tiene 8 baterías. Le das 6 más. ¿Cuántas baterías tiene?", ans: 14, options: [12, 14, 16] }, m6Color: "silver key", m7Seq: "🔴 Red | 🔵 Blue" },
+  space: { title: "SPACE RANGER", icon: "🚀", roleLabel: "RANGER", term: "EXPEDITION", stamp: "COSMIC CLEARANCE", numSeq: ["4", "1", "8"], targetCode: "418", m4Math: { q: "El cohete tiene 9 celdas de energía. Cargas 5 más. ¿Total de celdas?", ans: 14, options: [11, 14, 15] }, m6Color: "purple crystal", m7Seq: "🟣 Purple | 🟢 Green" },
+  dino: { title: "DINO EXPLORER", icon: "🦖", roleLabel: "TRACKER", term: "SAFARI", stamp: "JURASSIC PERMIT", numSeq: ["3", "6", "5"], targetCode: "365", m4Math: { q: "El dinosaurio encontró 7 fósiles en la mañana y 8 en la tarde. ¿Total?", ans: 15, options: [13, 15, 17] }, m6Color: "golden fossil", m7Seq: "🟠 Orange | 🟤 Brown" },
+  unicorn: { title: "RAINBOW UNICORN", icon: "🦄", roleLabel: "GUARDIAN", term: "QUEST", stamp: "ROYAL DECREE", numSeq: ["5", "3", "8"], targetCode: "538", m4Math: { q: "El unicornio recolectó 9 gemas mágicas y luego 4 más. ¿Total?", ans: 13, options: [11, 13, 16] }, m6Color: "pink crown", m7Seq: "💖 Pink | 💜 Violet" },
+  fairy: { title: "ENCHANTED FAIRY", icon: "🧚", roleLabel: "SPRITE", term: "QUEST", stamp: "FAIRY SPELL", numSeq: ["2", "8", "4"], targetCode: "284", m4Math: { q: "El hada preparó 6 pociones brillantes y 7 pociones de luz. ¿Total?", ans: 13, options: [12, 13, 15] }, m6Color: "emerald wand", m7Seq: "✨ Gold | 🌸 Pink" },
+  popstar: { title: "ACADEMY POPSTAR", icon: "🎤", roleLabel: "PERFORMER", term: "TOUR", stamp: "VIP PASS", numSeq: ["6", "2", "7"], targetCode: "627", m4Math: { q: "La banda cantó 8 canciones en la práctica y 7 en el show. ¿Total?", ans: 15, options: [13, 15, 18] }, m6Color: "gold microphone", m7Seq: "🩵 Cyan | 🩷 Magenta" },
+  detective: { title: "MYSTERY DETECTIVE", icon: "🔎", roleLabel: "SLEUTH", term: "CASE", stamp: "CONFIDENTIAL", numSeq: ["8", "3", "1"], targetCode: "831", m4Math: { q: "El detective examinó 7 pistas en la biblioteca y 6 en el patio. ¿Total?", ans: 13, options: [11, 13, 14] }, m6Color: "bronze magnifying glass", m7Seq: "🟡 Yellow | 🟤 Brown" },
+  safari: { title: "JUNGLE SAFARI", icon: "🦁", roleLabel: "RANGER", term: "TREK", stamp: "WILD PERMIT", numSeq: ["1", "9", "4"], targetCode: "194", m4Math: { q: "El explorador vio 9 leones y 6 jirafas. ¿Cuántos animales en total?", ans: 15, options: [14, 15, 17] }, m6Color: "emerald compass", m7Seq: "🟢 Green | 🟡 Yellow" },
+  superhero: { title: "SCHOOL SUPERHERO", icon: "🦸", roleLabel: "HERO", term: "MISSION", stamp: "HERO LEAGUE", numSeq: ["9", "1", "6"], targetCode: "916", m4Math: { q: "El superhéroe rescató 8 mochilas en el pasillo y 7 en el aula. ¿Total?", ans: 15, options: [13, 15, 16] }, m6Color: "red cape", m7Seq: "🔴 Red | 🟡 Yellow" }
+};
+
+const animationsData = [
+  { icon: "🎒", text: "Backpack packed for Manzanita Elementary!" },
+  { icon: "🚌", text: "Transport departing down Manzanita Lane!" },
+  { icon: "📝", text: "Secret Numbers found and written safely!" },
+  { icon: "🤖", text: "Dual-Language System re-aligned!" },
+  { icon: "🔓", text: "Digital Vault Console Decoded!" },
+  { icon: "🔍", text: "Detective Reading passage solved!" },
+  { icon: "🎨", text: "Spanish Pattern Array completed!" },
+  { icon: "🍕", text: "Cafeteria Energy recharged!" },
+  { icon: "⚽", text: "Recess Kickball Goal scored!" },
+  { icon: "🌱", text: "Science Garden Sprout grown!" },
+  { icon: "🎨", text: "Art Studio masterpiece finished!" },
+  { icon: "🎵", text: "Music Class rhythm synthesized!" },
+  { icon: "📚", text: "Library Map Search completed!" },
+  { icon: "💻", text: "Computer Lab code activated!" },
+  { icon: "🐕", text: "Spanish Vocabulary decoded!" },
+  { icon: "🌻", text: "Garden Sunflower measured!" },
+  { icon: "⏰", text: "School Bell Timer calibrated!" },
+  { icon: "📅", text: "Spanish Days of the Week aligned!" },
+  { icon: "🤝", text: "New Manzanita Friendship formed!" },
+  { icon: "🏆", text: "GOLDEN SCHOOL BADGE RECOVERED!" }
+];
+
+// Web Audio
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null, bgmInterval = null;
+
+function initAudio() {
+  try {
+    if (!audioCtx) audioCtx = new AudioContext();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch (e) {
+    console.log("Audio API not supported");
+  }
+}
+
+function playSound(type) {
+  if (!audioCtx) return;
+  try {
+    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+
+    if (type === 'click') {
+      osc.type = 'sine'; osc.frequency.setValueAtTime(600, now);
+      gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+      osc.start(now); osc.stop(now + 0.05);
+    } else if (type === 'success') {
+      osc.type = 'triangle'; osc.frequency.setValueAtTime(400, now); osc.frequency.setValueAtTime(800, now + 0.1);
+      gain.gain.setValueAtTime(0.25, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.start(now); osc.stop(now + 0.3);
+    } else if (type === 'wrong') {
+      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(140, now);
+      gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+      osc.start(now); osc.stop(now + 0.2);
+    }
+  } catch (e) {}
+}
+
+function toggleBGM() {
+  initAudio(); bgmEnabled = !bgmEnabled;
+  const btn = document.getElementById("music-toggle-btn");
+  if (btn) btn.innerText = bgmEnabled ? "🎵 BGM: ON" : "🎵 BGM: OFF";
+  if (bgmEnabled) {
+    let noteIdx = 0; const scale = [261.63, 293.66, 329.63, 392.00, 440.00];
+    bgmInterval = setInterval(() => {
+      if (!bgmEnabled || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = 'sine'; osc.frequency.setValueAtTime(scale[noteIdx % scale.length], audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.03, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.15); noteIdx++;
+      } catch (e) {}
+    }, 280);
+  } else if (bgmInterval) { clearInterval(bgmInterval); }
+}
+
+// Teletype / Typewriter Briefing Effect
+function runTeletype(text, containerId, callback) {
+  const el = document.getElementById(containerId); 
+  if (!el) {
+    if (callback) callback();
+    return;
+  }
+  el.innerText = "";
+  let i = 0;
+
+  const timer = setInterval(() => {
+    if (i < text.length) {
+      const char = text.charAt(i);
+      el.innerText += char;
+      if (char !== " " && char !== "\n") {
+        playSound('click'); 
+      }
+      i++;
+    } else { 
+      clearInterval(timer); 
+      const box = document.getElementById("briefing-box");
+      if (box) box.scrollTop = 0;
+      if (callback) callback(); 
+    }
+  }, 20);
+}
+
+// Canvas Confetti
+let particles = [];
+function triggerConfetti() {
+  const cvs = document.getElementById("fx-canvas");
+  if (!cvs) return;
+  const ctx = cvs.getContext("2d");
+  cvs.width = window.innerWidth; cvs.height = window.innerHeight;
+  particles = [];
+  for (let i = 0; i < 70; i++) {
+    particles.push({ x: cvs.width/2, y: cvs.height/2, vx: (Math.random()-0.5)*12, vy: (Math.random()-0.5)*12-4, color: `hsl(${Math.random()*360}, 100%, 50%)`, size: Math.random()*8+4, life: 60 });
+  }
+  function loop() {
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    particles.forEach((p, idx) => {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.life--;
+      ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size);
+      if (p.life <= 0) particles.splice(idx, 1);
+    });
+    if (particles.length > 0) requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+}
+
+function applyThemeColors(tKey) {
+  document.body.className = `theme-${tKey}`;
+  const t = themes[tKey] || themes['spy'];
+
+  const roleLabel = document.getElementById("hud-role-label");
+  if (roleLabel) roleLabel.innerText = t.roleLabel;
+
+  const hudTheme = document.getElementById("hud-theme");
+  if (hudTheme) hudTheme.innerText = `${t.icon} ${t.title}`;
+
+  const stampBadge = document.getElementById("stamp-badge");
+  if (stampBadge) stampBadge.innerText = t.stamp;
+
+  const briefingHeader = document.getElementById("briefing-header");
+  if (briefingHeader) briefingHeader.innerText = `${t.stamp} BRIEFING`;
+
+  const setupTitle = document.getElementById("setup-title");
+  if (setupTitle) setupTitle.innerText = `MANZANITA ELEMENTARY ${t.title}`;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const musicBtn = document.getElementById("music-toggle-btn");
+  if (musicBtn) musicBtn.addEventListener("click", toggleBGM);
+
+  document.querySelectorAll(".avatar-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".avatar-btn").forEach(b => b.classList.remove("active-avatar"));
+      btn.classList.add("active-avatar"); 
+      selectedAvatar = btn.getAttribute("data-avatar");
+    });
+  });
+
+  document.querySelectorAll(".theme-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".theme-btn").forEach(b => b.classList.remove("active-theme"));
+      btn.classList.add("active-theme"); 
+      selectedTheme = btn.getAttribute("data-theme");
+      applyThemeColors(selectedTheme);
+    });
+  });
+
+  const saveBtn = document.getElementById("save-setup-btn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", () => {
+      initAudio(); 
+      playSound('click');
+
+      const nameInput = document.getElementById("input-agent-name");
+      const sidekickInput = document.getElementById("input-sidekick-name");
+
+      if (nameInput && nameInput.value.trim()) agentName = nameInput.value.trim();
+      if (sidekickInput && sidekickInput.value.trim()) sidekickName = sidekickInput.value.trim();
+
+      applyThemeColors(selectedTheme);
+
+      const hudName = document.getElementById("hud-name");
+      if (hudName) hudName.innerText = agentName.toUpperCase();
+
+      const hudSidekick = document.getElementById("hud-sidekick");
+      if (hudSidekick) hudSidekick.innerText = sidekickName.toUpperCase();
+
+      const hudAvatar = document.getElementById("hud-avatar");
+      if (hudAvatar) hudAvatar.innerText = selectedAvatar;
+
+      document.querySelectorAll(".display-agent-name").forEach(el => el.innerText = agentName);
+      document.querySelectorAll(".display-sidekick-name").forEach(el => el.innerText = sidekickName);
+
+      showScreen("screen-briefing");
+
+      // Short, Easy 3-Bullet Briefing for a 7-Year-Old
+      const briefingText = `WELCOME 2ND GRADER!\n\n1. The Golden Badge is missing at Manzanita Elementary!\n2. Complete 20 fun mini-missions with ${sidekickName}.\n3. Find secret Numbers & unlock the Golden Vault!`;
+      runTeletype(briefingText, "typewriter-text");
+    });
+  }
+
+  const startMissionBtn = document.getElementById("start-mission-btn");
+  if (startMissionBtn) {
+    startMissionBtn.addEventListener("click", () => {
+      initAudio(); 
+      playSound('click'); 
+      loadMission(1);
+    });
+  }
+
+  const nextMissionBtn = document.getElementById("next-mission-btn");
+  if (nextMissionBtn) {
+    nextMissionBtn.addEventListener("click", () => {
+      initAudio(); 
+      playSound('click');
+      if (currentMissionIndex <= 20) { 
+        loadMission(currentMissionIndex); 
+      } else { 
+        triggerConfetti(); 
+        showScreen("screen-final"); 
+      }
+    });
+  }
+
+  const parentIntelBtn = document.getElementById("parent-intel-btn");
+  if (parentIntelBtn) {
+    parentIntelBtn.addEventListener("click", () => { 
+      showScreen("screen-parent"); 
+    });
+  }
+});
+
+// Full 20-Mission Load Engine
+function loadMission(idx) {
+  currentMissionIndex = idx;
+  const t = themes[selectedTheme] || themes['spy'];
+  const progress = document.getElementById("hud-progress");
+  if (progress) progress.innerText = `${idx}/20`;
+
+  showScreen("screen-mission");
+
+  const area = document.getElementById("mission-interactive-area"); 
+  if (area) area.innerHTML = "";
   
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Operation 2nd Grade" />
-  
-  <title>Operation: Second Grade - Manzanita Elementary</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body class="theme-spy">
+  const title = document.getElementById("mission-title");
+  const prompt = document.getElementById("mission-prompt");
 
-<div id="game-container">
-  <!-- FX Canvas Layer for Confetti -->
-  <canvas id="fx-canvas"></canvas>
+  if (idx === 1) {
+    if (title) title.innerText = `${t.term} 1: MORNING LAUNCH ${t.icon}`;
+    if (prompt) prompt.innerText = `Find the 5 essential 2nd grade items ${agentName} needs!`;
+    if (area) {
+      area.innerHTML = `
+        <div id="m1-grid" class="item-grid">
+          <button class="grid-item correct-m1">🎒 Backpack</button>
+          <button class="grid-item wrong-m1">🌙 Pajamas</button>
+          <button class="grid-item correct-m1">👟 Shoes</button>
+          <button class="grid-item wrong-m1">📺 Remote</button>
+          <button class="grid-item correct-m1">🍱 Lunchbox</button>
+          <button class="grid-item correct-m1">💧 Water Bottle</button>
+          <button class="grid-item correct-m1">✏️ Pencils</button>
+          <button class="grid-item wrong-m1">🛌 Pillow</button>
+        </div>`;
+    }
+    m1Count = 0;
+    document.querySelectorAll(".correct-m1").forEach(b => b.addEventListener("click", () => {
+      initAudio();
+      if (!b.classList.contains("selected")) { 
+        b.classList.add("selected"); 
+        m1Count++; 
+        playSound('click'); 
+        if (m1Count === 5) completeMission(); 
+      }
+    }));
+    document.querySelectorAll(".wrong-m1").forEach(b => b.addEventListener("click", () => { 
+      initAudio(); 
+      playSound('wrong'); 
+      alert("⚠️ You don't need that at school!"); 
+    }));
 
-  <!-- Top Agent HUD -->
-  <div id="agent-hud">
-    <div class="hud-item"><span id="hud-role-label">AGENT</span>: <span id="hud-name">ATHEN</span></div>
-    <div class="hud-item">AVATAR: <span id="hud-avatar">🕵️</span></div>
-    <div class="hud-item">THEME: <span id="hud-theme">CYBER SPY</span></div>
-    <div class="hud-item">PROGRESS: <span id="hud-progress">0/20</span></div>
-    <button id="music-toggle-btn" class="hud-btn">🎵 BGM: OFF</button>
-  </div>
+  } else if (idx === 2) {
+    if (title) title.innerText = `${t.term} 2: THE ROAD TO MANZANITA ${t.icon}`;
+    if (prompt) prompt.innerText = `${agentName}, how do you travel to Manzanita Elementary this morning?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m2" data-trans="car">🚗 Family Car</button>
+          <button class="choice-btn correct-m2" data-trans="bus">🚌 School Bus</button>
+          <button class="choice-btn wrong-m2">🚀 Space Rocket</button>
+          <button class="choice-btn wrong-m2">🐘 Elephant</button>
+        </div>`;
+    }
+    document.querySelectorAll(".correct-m2").forEach(b => b.addEventListener("click", (e) => { 
+      lastTransportChoice = e.target.getAttribute("data-trans"); 
+      completeMission(); 
+    }));
+    document.querySelectorAll(".wrong-m2").forEach(b => b.addEventListener("click", () => { 
+      initAudio(); 
+      playSound('wrong'); 
+    }));
 
-  <!-- Screen 0: Registration, Avatar & Theme Customization -->
-  <div id="screen-setup" class="screen active">
-    <div class="terminal-card">
-      <div class="top-secret-stamp" id="stamp-badge">TOP SECRET</div>
-      <h2 id="setup-title">MANZANITA ELEMENTARY REGISTRATION</h2>
+  } else if (idx === 3) {
+    if (title) title.innerText = `${t.term} 3: SEARCH THE CLASSROOM ${t.icon}`;
+    if (prompt) prompt.innerText = `Search the 6 classroom spots below! 3 contain secret Numbers, and 3 are empty decoys!`;
+    if (area) {
+      area.innerHTML = `
+        <div class="pencil-note">✏️ <strong>AGENT MANDATE:</strong> Get real paper & write down the 3 secret Numbers you find!</div>
+        <div class="search-grid-6">
+          <div class="search-spot" id="spot-desk" onclick="searchSpot('desk', '${t.numSeq[0]}', true)">🗄️ Desk Drawer</div>
+          <div class="search-spot" id="spot-toys" onclick="searchSpot('toys', '', false)">🧸 Toy Chest</div>
+          <div class="search-spot" id="spot-globe" onclick="searchSpot('globe', '${t.numSeq[1]}', true)">🌐 World Globe</div>
+          <div class="search-spot" id="spot-clock" onclick="searchSpot('clock', '', false)">⏰ Wall Clock</div>
+          <div class="search-spot" id="spot-books" onclick="searchSpot('books', '${t.numSeq[2]}', true)">📚 Bookshelf</div>
+          <div class="search-spot" id="spot-crafts" onclick="searchSpot('crafts', '', false)">🎨 Craft Table</div>
+        </div>`;
+    }
+    m3NumbersFound = [];
 
-      <div class="input-group">
-        <label for="input-agent-name">Hero Name:</label>
-        <input type="text" id="input-agent-name" value="Athen" placeholder="Enter Child's Name" />
-      </div>
+  } else if (idx === 4) {
+    if (title) title.innerText = `${t.term} 4: SPANISH MATH CHALLENGE ${t.icon}`;
+    if (prompt) prompt.innerText = `Desafío en Español: "${t.m4Math.q}"`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn ${t.m4Math.options[0] === t.m4Math.ans ? 'correct-m' : 'wrong-m'}">${t.m4Math.options[0]}</button>
+          <button class="choice-btn ${t.m4Math.options[1] === t.m4Math.ans ? 'correct-m' : 'wrong-m'}">${t.m4Math.options[1]}</button>
+          <button class="choice-btn ${t.m4Math.options[2] === t.m4Math.ans ? 'correct-m' : 'wrong-m'}">${t.m4Math.options[2]}</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-      <div class="input-group">
-        <label for="input-sidekick-name">Special Sidekick / Companion:</label>
-        <input type="text" id="input-sidekick-name" value="Poppy the Rainbow Bunny" placeholder="Enter Sidekick Name" />
-      </div>
+  } else if (idx === 5) {
+    if (title) title.innerText = `${t.term} 5: DIGITAL VAULT CONSOLE ${t.icon}`;
+    if (prompt) prompt.innerText = `Enter the 3 secret Numbers you wrote on your paper (${t.numSeq.join(' - ')})!`;
+    if (area) {
+      area.innerHTML = `
+        <div class="keypad-console">
+          <div class="code-display" id="vault-combo-disp">_ _ _</div>
+          <div class="keypad-grid-3x3">
+            <button class="digit-btn" onclick="pressPadDigit('1')">1</button>
+            <button class="digit-btn" onclick="pressPadDigit('2')">2</button>
+            <button class="digit-btn" onclick="pressPadDigit('3')">3</button>
+            <button class="digit-btn" onclick="pressPadDigit('4')">4</button>
+            <button class="digit-btn" onclick="pressPadDigit('5')">5</button>
+            <button class="digit-btn" onclick="pressPadDigit('6')">6</button>
+            <button class="digit-btn" onclick="pressPadDigit('7')">7</button>
+            <button class="digit-btn" onclick="pressPadDigit('8')">8</button>
+            <button class="digit-btn" onclick="pressPadDigit('9')">9</button>
+          </div>
+          <button class="agent-btn clear-btn" style="margin-top:10px;" onclick="resetVaultPad()">CLEAR CODE</button>
+        </div>`;
+    }
+    enteredKeypadCode = "";
 
-      <div class="input-group">
-        <label>Select Avatar Icon:</label>
-        <div class="avatar-options">
-          <button class="avatar-btn active-avatar" data-avatar="🕵️">🕵️</button>
-          <button class="avatar-btn" data-avatar="🚀">🚀</button>
-          <button class="avatar-btn" data-avatar="🦖">🦖</button>
-          <button class="avatar-btn" data-avatar="🦄">🦄</button>
-          <button class="avatar-btn" data-avatar="🧚">🧚</button>
-          <button class="avatar-btn" data-avatar="🦸">🦸</button>
+  } else if (idx === 6) {
+    if (title) title.innerText = `${t.term} 6: DETECTIVE READING MYSTERY ${t.icon}`;
+    if (prompt) prompt.innerText = `Read the passage carefully to answer the question!`;
+    if (area) {
+      area.innerHTML = `
+        <div class="reading-pass-box">
+          It was a sunny morning at Manzanita Elementary. ${agentName} and ${sidekickName} walked quietly down the hallway toward the library. Suddenly, a polite parrot flew over the bookshelves holding a sparkling object in its beak. The parrot dropped the item carefully under the teacher's large oak desk. ${sidekickName} gasped with excitement. It turned out to be the special ${t.m6Color} needed for 2nd grade! Everyone cheered softly so they wouldn't disturb the reading class.
         </div>
-      </div>
+        <p style="font-weight:bold; margin-top:10px;">Where did the parrot drop the ${t.m6Color}?</p>
+        <div class="choice-grid">
+          <button class="choice-btn wrong-m">In a blue backpack</button>
+          <button class="choice-btn correct-m">Under the teacher's desk</button>
+          <button class="choice-btn wrong-m">On top of the bookshelf</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-      <div class="input-group">
-        <label>Select Theme:</label>
-        <div class="theme-category">🚀 ACTION THEMES</div>
-        <div class="theme-options">
-          <button class="theme-btn active-theme" data-theme="spy">🕵️ Cyber Spy</button>
-          <button class="theme-btn" data-theme="space">🚀 Space Ranger</button>
-          <button class="theme-btn" data-theme="dino">🦖 Dino Explorer</button>
-        </div>
+  } else if (idx === 7) {
+    if (title) title.innerText = `${t.term} 7: SPANISH PATTERN ARRAY ${t.icon}`;
+    if (prompt) prompt.innerText = `¿Qué sigue en el patrón? ${t.m7Seq} | ${t.m7Seq} | [ ? ]`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">${t.m7Seq.split('|')[0]}</button>
+          <button class="choice-btn wrong-m">⚪ White</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-        <div class="theme-category">✨ MAGICAL THEMES</div>
-        <div class="theme-options">
-          <button class="theme-btn" data-theme="unicorn">🦄 Rainbow Unicorn</button>
-          <button class="theme-btn" data-theme="fairy">🧚 Enchanted Fairy</button>
-          <button class="theme-btn" data-theme="popstar">🎤 Popstar</button>
-        </div>
+  } else if (idx === 8) {
+    if (title) title.innerText = `${t.term} 8: CAFETERIA FRACTIONS ${t.icon}`;
+    if (prompt) prompt.innerText = `${agentName} splits a snack into 2 equal parts with ${sidekickName}. What is each part called?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">One Half (1/2)</button>
+          <button class="choice-btn wrong-m">One Quarter (1/4)</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-        <div class="theme-category">🌟 UNIVERSAL THEMES</div>
-        <div class="theme-options">
-          <button class="theme-btn" data-theme="detective">🔎 Detective</button>
-          <button class="theme-btn" data-theme="safari">🦁 Safari</button>
-          <button class="theme-btn" data-theme="superhero">🦸 Superhero</button>
-        </div>
-      </div>
+  } else if (idx === 9) {
+    if (title) title.innerText = `${t.term} 9: RECESS GAME CALCULATION ${t.icon}`;
+    if (prompt) prompt.innerText = `Your 2nd grade team scored 6 points in game 1 and 5 points in game 2. Total points?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn wrong-m">10 Points</button>
+          <button class="choice-btn correct-m">11 Points</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-      <button class="agent-btn glow-btn" id="save-setup-btn">INITIALIZE PROTOCOL</button>
-    </div>
-  </div>
+  } else if (idx === 10) {
+    if (title) title.innerText = `${t.term} 10: SCIENCE LAB DISCOVERY ${t.icon}`;
+    if (prompt) prompt.innerText = `En Español: ¿Qué necesita una planta para crecer en Manzanita Elementary?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">Agua y Luz del Sol ☀️</button>
+          <button class="choice-btn wrong-m">Refresco y Dulces 🍬</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-  <!-- Screen Briefing -->
-  <div id="screen-briefing" class="screen">
-    <div class="terminal-card">
-      <h3 id="briefing-header">SECRET BRIEFING</h3>
-      <p class="warning-text">⚠️ MANZANITA ELEMENTARY ALERT</p>
-      
-      <div class="teletype-box" id="briefing-box">
-        <p id="typewriter-text"></p>
-      </div>
+  } else if (idx === 11) {
+    if (title) title.innerText = `${t.term} 11: ART STUDIO COLOR MIXING ${t.icon}`;
+    if (prompt) prompt.innerText = `What color do you get when you mix Red and Yellow paint together?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn wrong-m">Purple</button>
+          <button class="choice-btn correct-m">Orange 🟠</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-      <button class="agent-btn" id="start-mission-btn">ACCEPT ADVENTURE & LAUNCH</button>
-    </div>
-  </div>
+  } else if (idx === 12) {
+    if (title) title.innerText = `${t.term} 12: MUSIC CLASS RHYTHM ${t.icon}`;
+    if (prompt) prompt.innerText = `Count the beats in two 4-beat measures (4 + 4 = ?);`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">8 Beats</button>
+          <button class="choice-btn wrong-m">6 Beats</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-  <!-- Main Dynamic Mission Screen -->
-  <div id="screen-mission" class="screen">
-    <div class="terminal-card" id="mission-card">
-      <h3 id="mission-title">MISSION 1</h3>
-      <p id="mission-prompt">Prompt details...</p>
-      
-      <div id="mission-interactive-area"></div>
-      
-      <div class="status-box" id="mission-status">STATUS: IN PROGRESS</div>
-    </div>
-  </div>
+  } else if (idx === 13) {
+    if (title) title.innerText = `${t.term} 13: LIBRARY MAP COORDINATES ${t.icon}`;
+    if (prompt) prompt.innerText = `Find the 2nd grade book shelf at coordinates (5 + 3). What is 5 + 3?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn wrong-m">7</button>
+          <button class="choice-btn correct-m">8</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-  <!-- Post-Mission Animation Cutscene Overlay -->
-  <div id="screen-cutscene" class="screen">
-    <div class="terminal-card">
-      <h3 id="cutscene-title">SECTOR COMPLETE!</h3>
-      <div id="animation-container">
-        <div id="anim-stage"></div>
-      </div>
-      <p id="cutscene-subtext">Calibrating next Manzanita Sector...</p>
-      <button class="agent-btn glow-btn" id="next-mission-btn">CONTINUE ➔</button>
-    </div>
-  </div>
+  } else if (idx === 14) {
+    if (title) title.innerText = `${t.term} 14: COMPUTER LAB CODING ${t.icon}`;
+    if (prompt) prompt.innerText = `Fill in the missing code sequence: 10, 20, 30, [ ? ], 50`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">40</button>
+          <button class="choice-btn wrong-m">35</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-  <!-- Final Screen: Certificate & Sunset Silhouette -->
-  <div id="screen-final" class="screen">
-    <div class="warm-card" id="printable-certificate">
-      <h2>🎉 ALL 20 SECTORS ACCOMPLISHED! 🎉</h2>
-      
-      <div id="sunset-silhouette-stage">
-        <div class="sun"></div>
-        <div class="ground"></div>
-        <div class="kids-silhouette">
-          <div class="kid k1"></div>
-          <div class="kid k2"></div>
-          <div class="kid k3"></div>
-          <div class="ball"></div>
-        </div>
-      </div>
+  } else if (idx === 15) {
+    if (title) title.innerText = `${t.term} 15: SPANISH ANIMAL IDENTIFIER ${t.icon}`;
+    if (prompt) prompt.innerText = `¿Cómo se dice "dog" en Español?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">El Perro 🐕</button>
+          <button class="choice-btn wrong-m">El Gato 🐈</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-      <div class="cert-border">
-        <h3>MANZANITA ELEMENTARY CERTIFICATE OF BRAVERY</h3>
-        <p>This certifies that <strong class="display-agent-name" style="font-size:22px; color:#f59e0b;">ATHEN</strong> (and Companion <span class="display-sidekick-name">Poppy</span>) successfully recovered the Golden Badge across all 20 Sectors!</p>
-      </div>
+  } else if (idx === 16) {
+    if (title) title.innerText = `${t.term} 16: GARDEN MEASUREMENT ${t.icon}`;
+    if (prompt) prompt.innerText = `A sunflower is 12 inches tall. It grows 6 more inches. How tall is it now?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn wrong-m">16 inches</button>
+          <button class="choice-btn correct-m">18 inches</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-      <div class="message-box">
-        <h4>❤️ A SPECIAL MESSAGE FOR <span class="display-agent-name">ATHEN</span> ❤️</h4>
-        <p>Your goal today in 2nd Grade isn't to be perfect. It's to try new things, make friends, and have fun!</p>
-        <p>If you get nervous, that's okay. If you don't know something, that's okay too! That's how 2nd graders learn!</p>
-        <p><strong>Everyone at home is so proud of you! ❤️</strong></p>
-      </div>
+  } else if (idx === 17) {
+    if (title) title.innerText = `${t.term} 17: BELL TIMER CALIBRATION ${t.icon}`;
+    if (prompt) prompt.innerText = `School starts at 8:00 AM. It is 7:45 AM. How many minutes until the bell rings?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">15 Minutes</button>
+          <button class="choice-btn wrong-m">30 Minutes</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-      <div class="btn-group-row no-print">
-        <button class="agent-btn glow-btn" onclick="window.print()">🖨️ PRINT CERTIFICATE</button>
-        <button class="agent-btn" id="parent-intel-btn">👨‍👩‍👦 PARENT INTEL DEBRIEF</button>
-      </div>
-    </div>
-  </div>
+  } else if (idx === 18) {
+    if (title) title.innerText = `${t.term} 18: SPANISH DAYS OF THE WEEK ${t.icon}`;
+    if (prompt) prompt.innerText = `¿Qué día viene después del Lunes (Monday)?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">Martes (Tuesday)</button>
+          <button class="choice-btn wrong-m">Domingo (Sunday)</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-  <!-- Parent Intel Debrief -->
-  <div id="screen-parent" class="screen">
-    <div class="parent-card">
-      <h2>📋 PARENT INTEL DEBRIEF</h2>
-      <p><span class="display-agent-name">Athen</span> completed all 20 Manzanita Preparation Challenges!</p>
-      <ul>
-        <li>🔎 <strong>Observation:</strong> Discovered secret Numbers hidden across Manzanita Elementary</li>
-        <li>🇲🇽 <strong>Dual-Language Mastery:</strong> Solved Spanish and English 2nd grade challenges</li>
-        <li>🧠 <strong>Problem Solving:</strong> Decoded transport, pattern, math, and library puzzles</li>
-      </ul>
+  } else if (idx === 19) {
+    if (title) title.innerText = `${t.term} 19: FRIENDSHIP PROTOCOL ${t.icon}`;
+    if (prompt) prompt.innerText = `${agentName} sees a classmate sitting alone at recess. What should you do?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">Invite them to play! 🤝</button>
+          <button class="choice-btn wrong-m">Ignore them</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-      <div class="debrief-box">
-        <h4>Recommended Real-World Conversation Starter:</h4>
-        <p>When <span class="display-agent-name">Athen</span> comes home today, ask:</p>
-        <p class="quote">"What was the coolest secret discovery you made at Manzanita Elementary today?"</p>
-      </div>
+  } else if (idx === 20) {
+    if (title) title.innerText = `${t.term} 20: RECOVER THE GOLDEN BADGE ${t.icon}`;
+    if (prompt) prompt.innerText = `Final Challenge! What is the official rule of 2nd Grade at Manzanita Elementary?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">Try your best & have fun! ⭐</button>
+          <button class="choice-btn wrong-m">Be perfect at everything</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
+  }
+}
 
-      <button class="agent-btn" onclick="location.reload()">REPLAY ADVENTURE</button>
-    </div>
-  </div>
-</div>
+// Search Spot Logic (3 Real, 3 Decoys for Mission 3)
+function searchSpot(spotKey, numVal, isReal) {
+  initAudio();
+  const el = document.getElementById(`spot-${spotKey}`);
+  if (!el) return;
 
-<script src="script.js"></script>
-</body>
-</html>
+  if (!el.classList.contains("found") && !el.classList.contains("empty-found")) {
+    if (isReal) {
+      el.classList.add("found");
+      playSound('click');
+      el.innerText = `Found Number: [ ${numVal} ]`;
+      m3NumbersFound.push(numVal);
+
+      if (m3NumbersFound.length === 3) {
+        playSound('success');
+        const t = themes[selectedTheme] || themes['spy'];
+        setTimeout(() => {
+          alert(`📝 ${agentName}, make sure you wrote down ${t.numSeq.join(' - ')} on your paper! Proceeding!`);
+          completeMission();
+        }, 800);
+      }
+    } else {
+      el.classList.add("empty-found");
+      playSound('wrong');
+      el.innerText = `Empty Decoy! Nothing here!`;
+    }
+  }
+}
+
+// Digital Keypad Console Logic (Mission 5)
+function pressPadDigit(digit) {
+  initAudio();
+  if (enteredKeypadCode.length < 3) {
+    enteredKeypadCode += digit;
+    playSound('click');
+    const disp = document.getElementById("vault-combo-disp");
+    if (disp) disp.innerText = enteredKeypadCode;
+
+    if (enteredKeypadCode.length === 3) {
+      const t = themes[selectedTheme] || themes['spy'];
+      if (enteredKeypadCode === t.targetCode) {
+        playSound('success'); 
+        triggerConfetti();
+        setTimeout(() => completeMission(), 600);
+      } else {
+        playSound('wrong');
+        alert(`❌ CONSOLE CODE REJECTED! Recalculate your Numbers (${t.numSeq.join(' - ')})`);
+        resetVaultPad();
+      }
+    }
+  }
+}
+
+function resetVaultPad() {
+  enteredKeypadCode = "";
+  const disp = document.getElementById("vault-combo-disp");
+  if (disp) disp.innerText = "_ _ _";
+}
+
+// Mission Completion Engine (Tracks 1 through 20)
+function completeMission() {
+  playSound('success');
+  const t = themes[selectedTheme] || themes['spy'];
+  const anim = animationsData[currentMissionIndex - 1] || { icon: "⭐", text: "Sector Completed!" };
+
+  const cutsceneTitle = document.getElementById("cutscene-title");
+  if (cutsceneTitle) cutsceneTitle.innerText = `${t.term} ${currentMissionIndex} COMPLETE!`;
+
+  const cutsceneSubtext = document.getElementById("cutscene-subtext");
+  if (cutsceneSubtext) cutsceneSubtext.innerText = anim.text;
+
+  const stage = document.getElementById("anim-stage");
+  if (stage) {
+    if (currentMissionIndex === 2 && lastTransportChoice === "car") {
+      stage.innerHTML = `<div class="anim-vehicle">🚗</div>`;
+      if (cutsceneSubtext) cutsceneSubtext.innerText = "Vroom! Your Family Car arrives safely at Manzanita Elementary!";
+    } else if (currentMissionIndex === 2 && lastTransportChoice === "bus") {
+      stage.innerHTML = `<div class="anim-vehicle">🚌</div>`;
+      if (cutsceneSubtext) cutsceneSubtext.innerText = "Honk Honk! The Manzanita School Bus pulls up to the school doors!";
+    } else {
+      stage.innerHTML = `<div class="anim-icon">${anim.icon}</div>`;
+    }
+  }
+
+  showScreen("screen-cutscene");
+  currentMissionIndex++;
+}
