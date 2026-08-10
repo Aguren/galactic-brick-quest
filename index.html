@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- viewport-fit=cover enables Apple Safe Area Insets -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -89,7 +88,10 @@
       <p id="mission-prompt">Prompt details...</p>
       <p id="mission-prompt-es" class="spanish-subtext"></p>
       
-      <div id="mission-interactive-area"></div>
+      <!-- Scrollable Middle Section for Options -->
+      <div id="mission-content-scroll">
+        <div id="mission-interactive-area"></div>
+      </div>
       
       <!-- Interactive Animated Poppy Companion Element -->
       <div id="poppy-companion" class="poppy-idle">
@@ -131,7 +133,7 @@
 
       <div class="cert-border">
         <h3>MANZANITA ELEMENTARY CERTIFICATE OF BRAVERY</h3>
-        <p>This certifies that <strong class="display-agent-name" style="font-size:22px; color:#f59e0b;">ATHEN</strong> (and Companion <span class="display-sidekick-name">Poppy the Rainbow Bunny</span>) successfully recovered the Golden Badge across all 25 Cases!</p>
+        <p>This certifies that <strong class="display-agent-name" style="font-size:20px; color:#f59e0b;">ATHEN</strong> (and Companion <span class="display-sidekick-name">Poppy the Rainbow Bunny</span>) successfully recovered the Golden Badge across all 25 Cases!</p>
       </div>
 
       <div class="message-box">
