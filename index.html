@@ -2,10 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- Responsive layout scaling for Portrait & Landscape on iPhone, iPad, & Desktop -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
-  <!-- Fullscreen Web App Support -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Operation 2nd Grade" />
@@ -20,16 +18,16 @@
   <div id="agent-hud">
     <div class="hud-item">AGENT: <span id="hud-name">ATHEN</span></div>
     <div class="hud-item">SIDEKICK: <span id="hud-sidekick">POPPY 🐰</span></div>
-    <div class="hud-item">LOCATION: <span id="hud-loc">HQ</span></div>
-    <div class="hud-item">CODES: <span id="hud-codes">0/3</span></div>
+    <div class="hud-item">THEME: <span id="hud-theme">CYBER SPY</span></div>
+    <div class="hud-item">PROGRESS: <span id="hud-progress">0/20</span></div>
   </div>
 
-  <!-- Screen 0: Agent Setup & Customization -->
+  <!-- Screen 0: Agent Setup & Theme Selection -->
   <div id="screen-setup" class="screen active">
     <div class="terminal-card">
       <div class="top-secret-stamp">TOP SECRET</div>
-      <h2>JUNIOR AGENT REGISTRATION</h2>
-      <p>Configure Agent Credentials for the Manzanita Elementary Mission:</p>
+      <h2>MANZANITA ELEMENTARY REGISTRATION</h2>
+      <p>Configure Credentials for 2nd Grade Operation:</p>
 
       <div class="input-group">
         <label for="input-agent-name">Agent Name:</label>
@@ -41,151 +39,95 @@
         <input type="text" id="input-sidekick-name" value="Poppy the Rainbow Bunny" placeholder="Enter Sidekick Name" />
       </div>
 
-      <button class="agent-btn glow-btn" id="save-setup-btn">INITIALIZE AGENT PROTOCOL</button>
+      <div class="input-group">
+        <label>Select Mission Theme:</label>
+        
+        <div class="theme-category">🚀 ACTION / BOYISH THEMES</div>
+        <div class="theme-options">
+          <button class="theme-btn active-theme" data-theme="spy">🕵️ Cyber Spy Agent</button>
+          <button class="theme-btn" data-theme="space">🚀 Space Ranger</button>
+          <button class="theme-btn" data-theme="dino">🦖 Dino Explorer</button>
+        </div>
+
+        <div class="theme-category">✨ MAGICAL / GIRLY THEMES</div>
+        <div class="theme-options">
+          <button class="theme-btn" data-theme="unicorn">🦄 Rainbow Unicorn</button>
+          <button class="theme-btn" data-theme="fairy">🧚 Enchanted Fairy</button>
+          <button class="theme-btn" data-theme="popstar">🎤 Academy Popstar</button>
+        </div>
+
+        <div class="theme-category">🌟 UNIVERSAL THEMES</div>
+        <div class="theme-options">
+          <button class="theme-btn" data-theme="detective">🔎 Mystery Detective</button>
+          <button class="theme-btn" data-theme="safari">🦁 Jungle Safari</button>
+          <button class="theme-btn" data-theme="superhero">🦸 School Superhero</button>
+        </div>
+      </div>
+
+      <button class="agent-btn glow-btn" id="save-setup-btn">INITIALIZE MISSION PROTOCOL</button>
     </div>
   </div>
 
-  <!-- Screen 1: Briefing -->
+  <!-- Screen Briefing -->
   <div id="screen-briefing" class="screen">
     <div class="terminal-card">
       <h3>TOP SECRET MISSION BRIEFING</h3>
       <p class="warning-text">⚠️ URGENT: MANZANITA ELEMENTARY ALERT</p>
       <p>Welcome, <strong class="display-agent-name">Agent Athen</strong> and <strong class="display-sidekick-name">Poppy</strong>!</p>
-      <p>Today is the first day of <strong>2nd Grade at Manzanita Elementary</strong>, but the school's <strong>Golden School Badge</strong> has vanished!</p>
-      <p>Only a brave, observant 2nd grade agent can solve the clues, repair the dual-language robot, and open the Golden Vault before the bell rings!</p>
-      <button class="agent-btn" id="start-m1-btn">ACCEPT MISSION & LAUNCH</button>
+      <p>Today is your first day of <strong>2nd Grade at Manzanita Elementary</strong>, but the <strong>Golden School Badge</strong> has vanished across 20 secret sectors!</p>
+      <p>Solve 20 mini-missions in English and Spanish, discover the hidden Numbers, and unlock the Golden Vault before the final bell rings!</p>
+      <button class="agent-btn" id="start-mission-btn">ACCEPT MISSION & LAUNCH</button>
     </div>
   </div>
 
-  <!-- Mission 1: Morning Launch (Multi-Stage) -->
-  <div id="screen-m1" class="screen">
-    <div class="terminal-card">
-      <h3>🚀 MISSION 1: MORNING LAUNCH PROTOCOL</h3>
-      <p>Find the 5 essential 2nd grade items for Manzanita Elementary!</p>
+  <!-- Main Dynamic Mission Screen (Missions 1 through 20) -->
+  <div id="screen-mission" class="screen">
+    <div class="terminal-card" id="mission-card">
+      <h3 id="mission-title">MISSION 1: MORNING LAUNCH</h3>
+      <p id="mission-prompt">Find the 5 essential 2nd grade items for Manzanita Elementary!</p>
       
-      <div id="m1-grid" class="item-grid">
-        <button class="grid-item correct-item" data-name="Backpack">🎒 Backpack</button>
-        <button class="grid-item wrong-item" data-name="Pajamas">🌙 Pajamas</button>
-        <button class="grid-item correct-item" data-name="Shoes">👟 Shoes</button>
-        <button class="grid-item wrong-item" data-name="TV Remote">📺 TV Remote</button>
-        <button class="grid-item correct-item" data-name="Lunchbox">🍱 Lunchbox</button>
-        <button class="grid-item correct-item" data-name="Water Bottle">💧 Water Bottle</button>
-        <button class="grid-item correct-item" data-name="Pencils">✏️ Pencils</button>
-        <button class="grid-item wrong-item" data-name="Pillow">🛌 Pillow</button>
-      </div>
-
-      <div class="status-box">GEAR SECURED: <span id="m1-count">0</span>/5</div>
-    </div>
-  </div>
-
-  <!-- Mission 2: Mystery Ride to Manzanita -->
-  <div id="screen-m2" class="screen">
-    <div class="terminal-card">
-      <h3>🚌 MISSION 2: THE ROAD TO MANZANITA</h3>
-      <p>Select your transport code to travel to Manzanita Elementary!</p>
+      <div id="mission-interactive-area"></div>
       
-      <div class="clue-box">
-        <p><strong>TRANSPORT CLUE:</strong> "I carry 2nd grade agents safely to Manzanita Elementary every morning. What am I?"</p>
-      </div>
-
-      <div class="choice-grid">
-        <button class="choice-btn correct-transport">🚗 Family Car</button>
-        <button class="choice-btn correct-transport">🚌 School Bus</button>
-        <button class="choice-btn wrong-transport">🚀 Space Rocket</button>
-        <button class="choice-btn wrong-transport">🐘 Elephant</button>
-      </div>
-      <p class="sub-text"><em>Note: Both Cars and Buses are official Agent Transports!</em></p>
+      <div class="status-box" id="mission-status">STATUS: IN PROGRESS</div>
     </div>
   </div>
 
-  <!-- Mission 3: Interactive Infiltration & Search -->
-  <div id="screen-m3" class="screen">
+  <!-- Post-Mission Animation Cutscene Overlay -->
+  <div id="screen-cutscene" class="screen">
     <div class="terminal-card">
-      <h3>🏫 MISSION 3: INFILTRATE MANZANITA ELEMENTARY</h3>
-      <p class="pencil-warning">✏️ <strong>AGENT MANDATE:</strong> Get a real pencil and paper! Write down the 3 hidden secret digits you find below—you will need them to open the final vault!</p>
-      
-      <div id="search-container">
-        <!-- Interactive Hiding Spots -->
-        <div class="search-spot" id="spot-desk" onclick="inspectSpot('desk')">🗄️ Desk Drawer</div>
-        <div class="search-spot" id="spot-globe" onclick="inspectSpot('globe')">🌐 World Globe</div>
-        <div class="search-spot" id="spot-books" onclick="inspectSpot('books')">📚 Bookshelf</div>
+      <h3 id="cutscene-title">MISSION COMPLETE!</h3>
+      <div id="animation-container">
+        <!-- CSS Animated Scenes Inserted Dynamically -->
+        <div id="anim-stage"></div>
       </div>
-
-      <div id="found-codes-display">
-        <p>CODES DISCOVERED: <span id="m3-found-text">None yet</span></p>
-      </div>
+      <p id="cutscene-subtext">Calibrating next Manzanita Elementary Sector...</p>
+      <button class="agent-btn glow-btn" id="next-mission-btn">CONTINUE TO NEXT MISSION ➔</button>
     </div>
   </div>
 
-  <!-- Mission 4: Dual-Language Robot Repair Array (Spanish & English) -->
-  <div id="screen-m4" class="screen">
-    <div class="terminal-card">
-      <h3>🔬 MISSION 4: REPAIR THE DUAL-LANGUAGE ROBOT</h3>
-      <p class="warning-text">⚠️ El robot de Manzanita está descalibrado! Solve both English and Spanish challenges to repair it!</p>
-
-      <!-- Challenge 1: Spanish Math -->
-      <div id="m4-step1" class="challenge-step">
-        <p><strong>Desafío 1 (Matemáticas en Español):</strong></p>
-        <p>"El robot tiene 8 baterías. Le das 6 baterías más. ¿Cuántas baterías tiene en total?"</p>
-        <div class="choice-grid">
-          <button class="choice-btn m4-wrong">12</button>
-          <button class="choice-btn m4-correct-1">14 (Catorce)</button>
-          <button class="choice-btn m4-wrong">16</button>
-        </div>
-      </div>
-
-      <!-- Challenge 2: English Reading -->
-      <div id="m4-step2" class="challenge-step hidden">
-        <p><strong>Challenge 2 (English Reading):</strong></p>
-        <p>"The green iguana hid the silver key inside the yellow lunchbox."</p>
-        <p><em>Where is the silver key hidden?</em></p>
-        <div class="choice-grid">
-          <button class="choice-btn m4-wrong">Under the desk</button>
-          <button class="choice-btn m4-correct-2">Inside the yellow lunchbox</button>
-          <button class="choice-btn m4-wrong">On the playground</button>
-        </div>
-      </div>
-
-      <!-- Challenge 3: Spanish Colors & Pattern -->
-      <div id="m4-step3" class="challenge-step hidden">
-        <p><strong>Desafío 3 (Patrón en Español):</strong></p>
-        <p>¿Qué figura sigue en el patrón?</p>
-        <p class="pattern-display">🔴 Rojo | 🔵 Azul | 🔴 Rojo | 🔵 Azul | [ ? ]</p>
-        <div class="choice-grid">
-          <button class="choice-btn m4-correct-3">🔴 Rojo (Red Star)</button>
-          <button class="choice-btn m4-wrong">🟡 Amarillo</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Mission 5: Golden Vault Safe Decryption -->
-  <div id="screen-m5" class="screen">
-    <div class="terminal-card">
-      <h3>🏆 MISSION 5: THE MANZANITA GOLDEN SAFE</h3>
-      <p>Enter the 3 secret digits you wrote down on your paper!</p>
-
-      <div class="code-display" id="code-input">_ _ _</div>
-
-      <div class="keypad-grid">
-        <button class="key-btn" onclick="pressKey('7')">7</button>
-        <button class="key-btn" onclick="pressKey('2')">2</button>
-        <button class="key-btn" onclick="pressKey('9')">9</button>
-        <button class="key-btn clear-key" onclick="clearKey()">CLEAR</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Final Screen: Certificate & Ceremony -->
+  <!-- Final Screen: Certificate & Sunset Silhouette Animation -->
   <div id="screen-final" class="screen">
     <div class="warm-card">
-      <h2>🎉 MISSION ACCOMPLISHED! 🎉</h2>
+      <h2>🎉 ALL 20 MISSIONS ACCOMPLISHED! 🎉</h2>
+      
+      <!-- Sunset Silhouette Animation Stage -->
+      <div id="sunset-silhouette-stage">
+        <div class="sun"></div>
+        <div class="ground"></div>
+        <div class="kids-silhouette">
+          <div class="kid k1"></div>
+          <div class="kid k2"></div>
+          <div class="kid k3"></div>
+          <div class="ball"></div>
+        </div>
+      </div>
+
       <h3>MANZANITA ELEMENTARY CERTIFICATE OF BRAVERY</h3>
-      <p>This certifies that <strong>AGENT <span class="display-agent-name">ATHEN</span></strong> (and Assistant <span class="display-sidekick-name">Poppy</span>) successfully recovered the Golden Badge!</p>
+      <p>This certifies that <strong>AGENT <span class="display-agent-name">ATHEN</span></strong> (and Assistant <span class="display-sidekick-name">Poppy</span>) successfully recovered the Golden Badge across all 20 Sectors!</p>
 
       <div class="message-box">
         <h4>❤️ A SPECIAL MESSAGE FOR <span class="display-agent-name">ATHEN</span> ❤️</h4>
-        <p>Your mission today in 2nd Grade isn't to be perfect. It's to try new things and have fun!</p>
+        <p>Your mission today in 2nd Grade isn't to be perfect. It's to try new things, make friends, and have fun!</p>
         <p>If you get nervous, that's okay. If you don't know something, that's okay too! That's how 2nd graders learn!</p>
         <p><strong>Everyone at home is so proud of you! ❤️</strong></p>
       </div>
@@ -198,11 +140,11 @@
   <div id="screen-parent" class="screen">
     <div class="parent-card">
       <h2>📋 PARENT INTEL DEBRIEF</h2>
-      <p>Agent <span class="display-agent-name">Athen</span> completed the Manzanita Preparation Mission!</p>
+      <p>Agent <span class="display-agent-name">Athen</span> completed all 20 Manzanita Preparation Missions!</p>
       <ul>
-        <li>🔎 <strong>Observation:</strong> Discovered code digits hidden across Manzanita Elementary</li>
-        <li>🇲🇽 <strong>Dual-Language Fluency:</strong> Repaired the classroom robot in Spanish and English</li>
-        <li>🧠 <strong>Problem Solving:</strong> Deciphered transport & sequence codes</li>
+        <li>🔎 <strong>Observation:</strong> Discovered secret Numbers hidden across Manzanita Elementary</li>
+        <li>🇲🇽 <strong>Dual-Language Mastery:</strong> Solved Spanish and English 2nd grade challenges</li>
+        <li>🧠 <strong>Problem Solving:</strong> Decoded transport, pattern, math, and library puzzles</li>
       </ul>
 
       <div class="debrief-box">
