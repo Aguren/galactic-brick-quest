@@ -1,8 +1,7 @@
 // Credentials & Settings
 let agentName = "Athen";
 let sidekickName = "Poppy the Rainbow Bunny";
-let selectedAvatar = "🕵️";
-let selectedTheme = "spy";
+let selectedAvatar = "🔎";
 let bgmEnabled = false;
 let lastTransportChoice = "bus";
 
@@ -12,17 +11,18 @@ let m1Count = 0;
 let m3NumbersFound = [];
 let enteredKeypadCode = "";
 
-// Themes Config
-const themes = {
-  spy: { title: "CYBER SPY", icon: "🕵️", roleLabel: "AGENT", term: "MISSION", stamp: "TOP SECRET", numSeq: ["7", "2", "9"], targetCode: "729", m4Math: { q: "El robot tiene 8 baterías. Le das 6 más. ¿Cuántas baterías tiene?", ans: 14, options: [12, 14, 16] }, m6Color: "silver key", m7Seq: "🔴 Red | 🔵 Blue" },
-  space: { title: "SPACE RANGER", icon: "🚀", roleLabel: "RANGER", term: "EXPEDITION", stamp: "COSMIC CLEARANCE", numSeq: ["4", "1", "8"], targetCode: "418", m4Math: { q: "El cohete tiene 9 celdas de energía. Cargas 5 más. ¿Total de celdas?", ans: 14, options: [11, 14, 15] }, m6Color: "purple crystal", m7Seq: "🟣 Purple | 🟢 Green" },
-  dino: { title: "DINO EXPLORER", icon: "🦖", roleLabel: "TRACKER", term: "SAFARI", stamp: "JURASSIC PERMIT", numSeq: ["3", "6", "5"], targetCode: "365", m4Math: { q: "El dinosaurio encontró 7 fósiles en la mañana y 8 en la tarde. ¿Total?", ans: 15, options: [13, 15, 17] }, m6Color: "golden fossil", m7Seq: "🟠 Orange | 🟤 Brown" },
-  unicorn: { title: "RAINBOW UNICORN", icon: "🦄", roleLabel: "GUARDIAN", term: "QUEST", stamp: "ROYAL DECREE", numSeq: ["5", "3", "8"], targetCode: "538", m4Math: { q: "El unicornio recolectó 9 gemas mágicas y luego 4 más. ¿Total?", ans: 13, options: [11, 13, 16] }, m6Color: "pink crown", m7Seq: "💖 Pink | 💜 Violet" },
-  fairy: { title: "ENCHANTED FAIRY", icon: "🧚", roleLabel: "SPRITE", term: "QUEST", stamp: "FAIRY SPELL", numSeq: ["2", "8", "4"], targetCode: "284", m4Math: { q: "El hada preparó 6 pociones brillantes y 7 pociones de luz. ¿Total?", ans: 13, options: [12, 13, 15] }, m6Color: "emerald wand", m7Seq: "✨ Gold | 🌸 Pink" },
-  popstar: { title: "ACADEMY POPSTAR", icon: "🎤", roleLabel: "PERFORMER", term: "TOUR", stamp: "VIP PASS", numSeq: ["6", "2", "7"], targetCode: "627", m4Math: { q: "La banda cantó 8 canciones en la práctica y 7 en el show. ¿Total?", ans: 15, options: [13, 15, 18] }, m6Color: "gold microphone", m7Seq: "🩵 Cyan | 🩷 Magenta" },
-  detective: { title: "MYSTERY DETECTIVE", icon: "🔎", roleLabel: "SLEUTH", term: "CASE", stamp: "CONFIDENTIAL", numSeq: ["8", "3", "1"], targetCode: "831", m4Math: { q: "El detective examinó 7 pistas en la biblioteca y 6 en el patio. ¿Total?", ans: 13, options: [11, 13, 14] }, m6Color: "bronze magnifying glass", m7Seq: "🟡 Yellow | 🟤 Brown" },
-  safari: { title: "JUNGLE SAFARI", icon: "🦁", roleLabel: "RANGER", term: "TREK", stamp: "WILD PERMIT", numSeq: ["1", "9", "4"], targetCode: "194", m4Math: { q: "El explorador vio 9 leones y 6 jirafas. ¿Cuántos animales en total?", ans: 15, options: [14, 15, 17] }, m6Color: "emerald compass", m7Seq: "🟢 Green | 🟡 Yellow" },
-  superhero: { title: "SCHOOL SUPERHERO", icon: "🦸", roleLabel: "HERO", term: "MISSION", stamp: "HERO LEAGUE", numSeq: ["9", "1", "6"], targetCode: "916", m4Math: { q: "El superhéroe rescató 8 mochilas en el pasillo y 7 en el aula. ¿Total?", ans: 15, options: [13, 15, 16] }, m6Color: "red cape", m7Seq: "🔴 Red | 🟡 Yellow" }
+// Unified Detective Theme Config
+const detectiveTheme = {
+  title: "MYSTERY DETECTIVE",
+  icon: "🔎",
+  roleLabel: "SLEUTH",
+  term: "CASE",
+  stamp: "CONFIDENTIAL",
+  numSeq: ["8", "3", "1"],
+  targetCode: "831",
+  m4Math: { q: "El detective examinó 7 pistas en la biblioteca y 6 en el patio. ¿Total?", ans: 13, options: [11, 13, 14] },
+  m6Color: "bronze magnifying glass",
+  m7Seq: "🟡 Yellow | 🟤 Brown"
 };
 
 const animationsData = [
@@ -159,26 +159,6 @@ function showScreen(id) {
   if (target) target.classList.add('active');
 }
 
-function applyThemeColors(tKey) {
-  document.body.className = `theme-${tKey}`;
-  const t = themes[tKey] || themes['spy'];
-
-  const roleLabel = document.getElementById("hud-role-label");
-  if (roleLabel) roleLabel.innerText = t.roleLabel;
-
-  const hudTheme = document.getElementById("hud-theme");
-  if (hudTheme) hudTheme.innerText = `${t.icon} ${t.title}`;
-
-  const stampBadge = document.getElementById("stamp-badge");
-  if (stampBadge) stampBadge.innerText = t.stamp;
-
-  const briefingHeader = document.getElementById("briefing-header");
-  if (briefingHeader) briefingHeader.innerText = `${t.stamp} BRIEFING`;
-
-  const setupTitle = document.getElementById("setup-title");
-  if (setupTitle) setupTitle.innerText = `MANZANITA ELEMENTARY ${t.title}`;
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   const musicBtn = document.getElementById("music-toggle-btn");
   if (musicBtn) musicBtn.addEventListener("click", toggleBGM);
@@ -188,15 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll(".avatar-btn").forEach(b => b.classList.remove("active-avatar"));
       btn.classList.add("active-avatar"); 
       selectedAvatar = btn.getAttribute("data-avatar");
-    });
-  });
-
-  document.querySelectorAll(".theme-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".theme-btn").forEach(b => b.classList.remove("active-theme"));
-      btn.classList.add("active-theme"); 
-      selectedTheme = btn.getAttribute("data-theme");
-      applyThemeColors(selectedTheme);
     });
   });
 
@@ -212,8 +183,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (nameInput && nameInput.value.trim()) agentName = nameInput.value.trim();
       if (sidekickInput && sidekickInput.value.trim()) sidekickName = sidekickInput.value.trim();
 
-      applyThemeColors(selectedTheme);
-
       const hudName = document.getElementById("hud-name");
       if (hudName) hudName.innerText = agentName.toUpperCase();
 
@@ -228,8 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       showScreen("screen-briefing");
 
-      // Short, Easy 3-Bullet Briefing for a 7-Year-Old
-      const briefingText = `WELCOME 2ND GRADER!\n\n1. The Golden Badge is missing at Manzanita Elementary!\n2. Complete 20 fun mini-missions with ${sidekickName}.\n3. Find secret Numbers & unlock the Golden Vault!`;
+      const briefingText = `WELCOME 2ND GRADER!\n\n1. The Golden Badge is missing at Manzanita Elementary!\n2. Complete 20 fun cases with ${sidekickName}.\n3. Find secret Numbers & unlock the Golden Vault!`;
       runTeletype(briefingText, "typewriter-text");
     });
   }
@@ -268,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Full 20-Mission Load Engine
 function loadMission(idx) {
   currentMissionIndex = idx;
-  const t = themes[selectedTheme] || themes['spy'];
+  const t = detectiveTheme;
   const progress = document.getElementById("hud-progress");
   if (progress) progress.innerText = `${idx}/20`;
 
@@ -338,7 +306,7 @@ function loadMission(idx) {
     if (prompt) prompt.innerText = `Search the 6 classroom spots below! 3 contain secret Numbers, and 3 are empty decoys!`;
     if (area) {
       area.innerHTML = `
-        <div class="pencil-note">✏️ <strong>AGENT MANDATE:</strong> Get real paper & write down the 3 secret Numbers you find!</div>
+        <div class="pencil-note">✏️ <strong>SLEUTH MANDATE:</strong> Get real paper & write down the 3 secret Numbers you find!</div>
         <div class="search-grid-6">
           <div class="search-spot" id="spot-desk" onclick="searchSpot('desk', '${t.numSeq[0]}', true)">🗄️ Desk Drawer</div>
           <div class="search-spot" id="spot-toys" onclick="searchSpot('toys', '', false)">🧸 Toy Chest</div>
@@ -620,7 +588,7 @@ function searchSpot(spotKey, numVal, isReal) {
 
       if (m3NumbersFound.length === 3) {
         playSound('success');
-        const t = themes[selectedTheme] || themes['spy'];
+        const t = detectiveTheme;
         setTimeout(() => {
           alert(`📝 ${agentName}, make sure you wrote down ${t.numSeq.join(' - ')} on your paper! Proceeding!`);
           completeMission();
@@ -644,7 +612,7 @@ function pressPadDigit(digit) {
     if (disp) disp.innerText = enteredKeypadCode;
 
     if (enteredKeypadCode.length === 3) {
-      const t = themes[selectedTheme] || themes['spy'];
+      const t = detectiveTheme;
       if (enteredKeypadCode === t.targetCode) {
         playSound('success'); 
         triggerConfetti();
@@ -664,10 +632,10 @@ function resetVaultPad() {
   if (disp) disp.innerText = "_ _ _";
 }
 
-// Mission Completion Engine (Tracks 1 through 20)
+// Mission Completion Engine
 function completeMission() {
   playSound('success');
-  const t = themes[selectedTheme] || themes['spy'];
+  const t = detectiveTheme;
   const anim = animationsData[currentMissionIndex - 1] || { icon: "⭐", text: "Sector Completed!" };
 
   const cutsceneTitle = document.getElementById("cutscene-title");

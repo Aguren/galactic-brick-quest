@@ -18,16 +18,13 @@ html, body {
   align-items: center;
 }
 
-/* Dynamic Theme Color Variables Applied to Body */
-body.theme-spy       { --accent: #3b82f6; --bg-card: #1f2937; --bg-dark: #111827; --btn-bg: #2563eb; }
-body.theme-space     { --accent: #a855f7; --bg-card: #2e1065; --bg-dark: #0f172a; --btn-bg: #7c3aed; }
-body.theme-dino      { --accent: #10b981; --bg-card: #064e3b; --bg-dark: #022c22; --btn-bg: #059669; }
-body.theme-unicorn   { --accent: #f472b6; --bg-card: #831843; --bg-dark: #500724; --btn-bg: #db2777; }
-body.theme-fairy     { --accent: #fb7185; --bg-card: #881337; --bg-dark: #4c0519; --btn-bg: #e11d48; }
-body.theme-popstar   { --accent: #facc15; --bg-card: #713f12; --bg-dark: #451a03; --btn-bg: #ca8a04; }
-body.theme-detective { --accent: #f97316; --bg-card: #7c2d12; --bg-dark: #431407; --btn-bg: #ea580c; }
-body.theme-safari    { --accent: #84cc16; --bg-card: #365314; --bg-dark: #1a2e05; --btn-bg: #65a30d; }
-body.theme-superhero { --accent: #ef4444; --bg-card: #7f1d1d; --bg-dark: #450a0a; --btn-bg: #dc2626; }
+/* Single Detective Theme Color Palette */
+body {
+  --accent: #f97316;
+  --bg-card: #3c1a0e;
+  --bg-dark: #180903;
+  --btn-bg: #ea580c;
+}
 
 #game-container {
   width: 100vw;
@@ -40,7 +37,6 @@ body.theme-superhero { --accent: #ef4444; --bg-card: #7f1d1d; --bg-dark: #450a0a
   position: relative;
   box-shadow: 0 0 45px rgba(0, 0, 0, 0.95);
   overflow: hidden;
-  transition: background 0.4s ease;
 }
 
 #fx-canvas {
@@ -65,7 +61,6 @@ body.theme-superhero { --accent: #ef4444; --bg-card: #7f1d1d; --bg-dark: #450a0a
   font-weight: 800;
   color: #d1d5db;
   z-index: 10;
-  transition: background 0.4s ease, border-color 0.4s ease;
 }
 
 #agent-hud span { color: var(--accent); }
@@ -105,7 +100,6 @@ body.theme-superhero { --accent: #ef4444; --bg-card: #7f1d1d; --bg-dark: #450a0a
   text-align: center;
   position: relative;
   box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
-  transition: background 0.4s ease, border-color 0.4s ease;
 }
 
 .top-secret-stamp {
@@ -145,56 +139,48 @@ h3 { color: #f59e0b; margin-top: 0; }
   padding: 0;
 }
 
-/* Custom Inputs & Theme Buttons */
+/* Custom Inputs */
 .input-group {
-  margin: 10px 0;
+  margin: 12px 0;
   text-align: left;
 }
 
 .input-group label {
   display: block;
   font-weight: bold;
-  color: #9ca3af;
-  margin-bottom: 4px;
+  color: #d1d5db;
+  margin-bottom: 6px;
 }
 
 .input-group input {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
-  border: 2px solid #374151;
-  background: #111827;
+  border: 2px solid #522315;
+  background: #180903;
   color: #fff;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: bold;
 }
 
-.theme-category {
-  font-size: 11px;
-  font-weight: 900;
-  color: #f59e0b;
-  margin: 8px 0 4px 0;
-  letter-spacing: 1px;
-}
-
-.avatar-options, .theme-options {
+.avatar-options {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 
-.avatar-btn, .theme-btn {
-  background: #374151;
+.avatar-btn {
+  background: #2a110a;
   color: #fff;
-  border: 2px solid #4b5563;
-  padding: 8px;
-  font-size: 13px;
+  border: 2px solid #522315;
+  padding: 10px;
+  font-size: 18px;
   font-weight: bold;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
-.avatar-btn.active-avatar, .theme-btn.active-theme {
+.avatar-btn.active-avatar {
   background: var(--btn-bg);
   border-color: #fff;
 }
@@ -208,15 +194,17 @@ h3 { color: #f59e0b; margin-top: 0; }
   font-weight: 800;
   border-radius: 10px;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 12px;
   box-shadow: 0 4px 0 rgba(0,0,0,0.4);
   width: 100%;
   touch-action: manipulation;
 }
 
-.glow-btn {
+.start-btn-lg {
   background: #059669;
-  box-shadow: 0 4px 0 #047857, 0 0 15px rgba(16, 185, 129, 0.4);
+  font-size: 20px;
+  padding: 18px 28px;
+  box-shadow: 0 5px 0 #047857, 0 0 20px rgba(16, 185, 129, 0.4);
 }
 
 .agent-btn:active { transform: translateY(2px); }
@@ -246,7 +234,7 @@ h3 { color: #f59e0b; margin-top: 0; }
   border-color: #059669 !important;
 }
 
-/* Mission 3 Interactive Search Grid Fixes (Prevents Green Pixel Leak) */
+/* Mission 3 Interactive Search Grid */
 .search-grid-6 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -304,7 +292,6 @@ h3 { color: #f59e0b; margin-top: 0; }
   border-radius: 8px;
   cursor: pointer;
   touch-action: manipulation;
-  transition: background 0.15s ease, transform 0.1s ease;
 }
 
 .digit-btn:active {

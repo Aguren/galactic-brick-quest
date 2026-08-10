@@ -11,7 +11,7 @@
   <title>Operation: Second Grade - Manzanita Elementary</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="theme-spy">
+<body class="theme-detective">
 
 <div id="game-container">
   <!-- FX Canvas Layer for Confetti -->
@@ -19,21 +19,21 @@
 
   <!-- Top Agent HUD -->
   <div id="agent-hud">
-    <div class="hud-item"><span id="hud-role-label">HERO</span>: <span id="hud-name">ATHEN</span></div>
-    <div class="hud-item">AVATAR: <span id="hud-avatar">🕵️</span></div>
-    <div class="hud-item">THEME: <span id="hud-theme">CYBER SPY</span></div>
+    <div class="hud-item"><span id="hud-role-label">SLEUTH</span>: <span id="hud-name">ATHEN</span></div>
+    <div class="hud-item">AVATAR: <span id="hud-avatar">🔎</span></div>
+    <div class="hud-item">THEME: <span id="hud-theme">🔎 DETECTIVE</span></div>
     <div class="hud-item">PROGRESS: <span id="hud-progress">0/20</span></div>
     <button id="music-toggle-btn" class="hud-btn">🎵 BGM: OFF</button>
   </div>
 
-  <!-- Screen 0: Registration, Avatar & Theme Customization -->
+  <!-- Screen 0: Registration & Avatar Customization -->
   <div id="screen-setup" class="screen active">
     <div class="terminal-card">
-      <div class="top-secret-stamp" id="stamp-badge">TOP SECRET</div>
-      <h2 id="setup-title">MANZANITA ELEMENTARY REGISTRATION</h2>
+      <div class="top-secret-stamp" id="stamp-badge">CONFIDENTIAL</div>
+      <h2 id="setup-title">MANZANITA ELEMENTARY DETECTIVE HQ</h2>
 
       <div class="input-group">
-        <label for="input-agent-name">Hero Name:</label>
+        <label for="input-agent-name">Detective Name:</label>
         <input type="text" id="input-agent-name" value="Athen" placeholder="Enter Child's Name" />
       </div>
 
@@ -45,36 +45,12 @@
       <div class="input-group">
         <label>Select Avatar Icon:</label>
         <div class="avatar-options">
-          <button class="avatar-btn active-avatar" data-avatar="🕵️">🕵️</button>
-          <button class="avatar-btn" data-avatar="🚀">🚀</button>
-          <button class="avatar-btn" data-avatar="🦖">🦖</button>
-          <button class="avatar-btn" data-avatar="🦄">🦄</button>
-          <button class="avatar-btn" data-avatar="🧚">🧚</button>
+          <button class="avatar-btn active-avatar" data-avatar="🔎">🔎</button>
+          <button class="avatar-btn" data-avatar="🕵️">🕵️</button>
+          <button class="avatar-btn" data-avatar="🧭">🧭</button>
+          <button class="avatar-btn" data-avatar="🎒">🎒</button>
+          <button class="avatar-btn" data-avatar="⭐">⭐</button>
           <button class="avatar-btn" data-avatar="🦸">🦸</button>
-        </div>
-      </div>
-
-      <div class="input-group">
-        <label>Select Theme:</label>
-        <div class="theme-category">🚀 ACTION THEMES</div>
-        <div class="theme-options">
-          <button class="theme-btn active-theme" data-theme="spy">🕵️ Cyber Spy</button>
-          <button class="theme-btn" data-theme="space">🚀 Space Ranger</button>
-          <button class="theme-btn" data-theme="dino">🦖 Dino Explorer</button>
-        </div>
-
-        <div class="theme-category">✨ MAGICAL THEMES</div>
-        <div class="theme-options">
-          <button class="theme-btn" data-theme="unicorn">🦄 Rainbow Unicorn</button>
-          <button class="theme-btn" data-theme="fairy">🧚 Enchanted Fairy</button>
-          <button class="theme-btn" data-theme="popstar">🎤 Popstar</button>
-        </div>
-
-        <div class="theme-category">🌟 UNIVERSAL THEMES</div>
-        <div class="theme-options">
-          <button class="theme-btn" data-theme="detective">🔎 Detective</button>
-          <button class="theme-btn" data-theme="safari">🦁 Safari</button>
-          <button class="theme-btn" data-theme="superhero">🦸 Superhero</button>
         </div>
       </div>
 
@@ -85,21 +61,21 @@
   <!-- Screen Briefing -->
   <div id="screen-briefing" class="screen">
     <div class="terminal-card">
-      <h3 id="briefing-header">SECRET BRIEFING</h3>
+      <h3 id="briefing-header">CONFIDENTIAL BRIEFING</h3>
       <p class="warning-text">⚠️ MANZANITA ELEMENTARY ALERT</p>
       
       <div class="teletype-box" id="briefing-box">
         <p id="typewriter-text"></p>
       </div>
 
-      <button class="agent-btn start-btn-lg" id="start-mission-btn">ACCEPT MISSION & LAUNCH</button>
+      <button class="agent-btn start-btn-lg" id="start-mission-btn">ACCEPT CASE & LAUNCH</button>
     </div>
   </div>
 
   <!-- Main Dynamic Mission Screen -->
   <div id="screen-mission" class="screen">
     <div class="terminal-card" id="mission-card">
-      <h3 id="mission-title">MISSION 1</h3>
+      <h3 id="mission-title">CASE 1</h3>
       <p id="mission-prompt">Prompt details...</p>
       
       <div id="mission-interactive-area"></div>
@@ -111,7 +87,7 @@
   <!-- Post-Mission Animation Cutscene Overlay -->
   <div id="screen-cutscene" class="screen">
     <div class="terminal-card">
-      <h3 id="cutscene-title">SECTOR COMPLETE!</h3>
+      <h3 id="cutscene-title">CASE COMPLETE!</h3>
       <div id="animation-container">
         <div id="anim-stage"></div>
       </div>
@@ -123,7 +99,7 @@
   <!-- Final Screen: Certificate & Sunset Silhouette -->
   <div id="screen-final" class="screen">
     <div class="warm-card" id="printable-certificate">
-      <h2>🎉 ALL 20 SECTORS ACCOMPLISHED! 🎉</h2>
+      <h2>🎉 ALL 20 CASES ACCOMPLISHED! 🎉</h2>
       
       <div id="sunset-silhouette-stage">
         <div class="sun"></div>
@@ -138,7 +114,7 @@
 
       <div class="cert-border">
         <h3>MANZANITA ELEMENTARY CERTIFICATE OF BRAVERY</h3>
-        <p>This certifies that <strong class="display-agent-name" style="font-size:22px; color:#f59e0b;">ATHEN</strong> (and Companion <span class="display-sidekick-name">Poppy</span>) successfully recovered the Golden Badge across all 20 Sectors!</p>
+        <p>This certifies that <strong class="display-agent-name" style="font-size:22px; color:#f59e0b;">ATHEN</strong> (and Companion <span class="display-sidekick-name">Poppy</span>) successfully recovered the Golden Badge across all 20 Cases!</p>
       </div>
 
       <div class="message-box">
@@ -159,7 +135,7 @@
   <div id="screen-parent" class="screen">
     <div class="parent-card">
       <h2>📋 PARENT INTEL DEBRIEF</h2>
-      <p><span class="display-agent-name">Athen</span> completed all 20 Manzanita Preparation Challenges!</p>
+      <p><span class="display-agent-name">Athen</span> completed all 20 Manzanita Detective Cases!</p>
       <ul>
         <li>🔎 <strong>Observation:</strong> Discovered secret Numbers hidden across Manzanita Elementary</li>
         <li>🇲🇽 <strong>Dual-Language Mastery:</strong> Solved Spanish and English 2nd grade challenges</li>
