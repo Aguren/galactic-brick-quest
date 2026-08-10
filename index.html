@@ -17,18 +17,21 @@
   <!-- FX Canvas Layer for Confetti -->
   <canvas id="fx-canvas"></canvas>
 
-  <!-- Top Agent HUD -->
+  <!-- Cleaned 2-Row Top HUD (No BGM Button) -->
   <div id="agent-hud">
-    <div class="hud-item"><span id="hud-role-label">DETECTIVE</span>: <span id="hud-name">ATHEN</span></div>
-    <div class="hud-item">AVATAR: <span id="hud-avatar">🔎</span></div>
-    <div class="hud-item">SIDEKICK: <span id="hud-sidekick">POPPY 🐰</span></div>
-    <div class="hud-item hud-progress-container">
-      <div class="progress-bar-bg">
-        <div id="hud-progress-fill"></div>
+    <div class="hud-row hud-row-top">
+      <div class="hud-item"><span id="hud-role-label">DETECTIVE</span>: <span id="hud-name">ATHEN</span></div>
+      <div class="hud-item hud-progress-container">
+        <div class="progress-bar-bg">
+          <div id="hud-progress-fill"></div>
+        </div>
+        <span id="hud-progress-text">0/25</span>
       </div>
-      <span id="hud-progress-text">0/25</span>
     </div>
-    <button id="music-toggle-btn" class="hud-btn">🎵 BGM: OFF</button>
+    <div class="hud-row hud-row-bottom">
+      <div class="hud-item">AVATAR: <span id="hud-avatar">🔎</span></div>
+      <div class="hud-item">SIDEKICK: <span id="hud-sidekick">POPPY 🐰</span></div>
+    </div>
   </div>
 
   <!-- Screen 0: Registration & Avatar Customization -->
