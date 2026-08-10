@@ -1,9 +1,13 @@
-// Game Progress State
-let m1ItemsCount = 0;
-let m3SymbolsCount = 0;
-let currentCode = "";
+// Dynamic Agent Profile
+let agentName = "Athen";
+let sidekickName = "Poppy the Rainbow Bunny";
 
-// Audio Synthesizer (Web Audio API)
+// Mission Progress Tracker
+let m1Count = 0;
+let m3CodesFound = [];
+let currentEnteredCode = "";
+
+// Web Audio API Sound FX Engine
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
@@ -22,22 +26,22 @@ function playSound(type) {
 
   if (type === 'beep') {
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(600, now);
+    osc.frequency.setValueAtTime(650, now);
     gain.gain.setValueAtTime(0.2, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
     osc.start(now);
     osc.stop(now + 0.1);
   } else if (type === 'success') {
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(400, now);
-    osc.frequency.setValueAtTime(800, now + 0.1);
+    osc.frequency.setValueAtTime(450, now);
+    osc.frequency.setValueAtTime(900, now + 0.12);
     gain.gain.setValueAtTime(0.3, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
     osc.start(now);
     osc.stop(now + 0.3);
   } else if (type === 'wrong') {
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(150, now);
+    osc.frequency.setValueAtTime(140, now);
     gain.gain.setValueAtTime(0.2, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
     osc.start(now);
@@ -50,114 +54,164 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
-// Event Bindings
+function updateHUDLocation(locText) {
+  document.getElementById("hud-loc").innerText = locText;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("start-mission-btn").addEventListener("click", () => {
+  // Screen 0: Save Custom Setup
+  document.getElementById("save-setup-btn").addEventListener("click", () => {
     initAudio();
     playSound('beep');
+
+    const nameInput = document.getElementById("input-agent-name").value.trim();
+    const sidekickInput = document.getElementById("input-sidekick-name").value.trim();
+
+    if (nameInput) agentName = nameInput;
+    if (sidekickInput) sidekickName = sidekickInput;
+
+    // Update UI elements with custom names
+    document.getElementById("hud-name").innerText = agentName.toUpperCase();
+    document.getElementById("hud-sidekick").innerText = sidekickName.toUpperCase();
+
+    document.querySelectorAll(".display-agent-name").forEach(el => el.innerText = agentName);
+    document.querySelectorAll(".display-sidekick-name").forEach(el => el.innerText = sidekickName);
+
+    showScreen("screen-briefing");
+  });
+
+  // Briefing Launch Button
+  document.getElementById("start-m1-btn").addEventListener("click", () => {
+    initAudio(); playSound('beep');
+    updateHUDLocation("HOME BASE");
     showScreen("screen-m1");
   });
 
-  // Mission 1 Grid Click
+  // Mission 1 Grid Logic
   document.querySelectorAll("#m1-grid .grid-item").forEach(btn => {
-    btn.addEventListener("click", (e) => {
+    btn.addEventListener("click", () => {
       initAudio();
       if (btn.classList.contains("correct-item") && !btn.classList.contains("selected")) {
         btn.classList.add("selected");
-        m1ItemsCount++;
+        m1Count++;
         playSound('beep');
-        document.getElementById("m1-count").innerText = m1ItemsCount;
+        document.getElementById("m1-count").innerText = m1Count;
 
-        if (m1ItemsCount === 5) {
+        if (m1Count === 5) {
           playSound('success');
-          setTimeout(() => showScreen("screen-m2"), 800);
+          setTimeout(() => {
+            updateHUDLocation("IN TRANSIT");
+            showScreen("screen-m2");
+          }, 800);
         }
       } else if (btn.classList.contains("wrong-item")) {
         playSound('wrong');
-        alert("⚠️ Agent Athen, you don't need that for 2nd grade! Try another item.");
+        alert(`⚠️ Agent ${agentName}, you don't need that item at Manzanita Elementary!`);
       }
     });
   });
 
-  // Mission 2 Choice Click
-  document.getElementById("m2-correct-btn").addEventListener("click", () => {
-    initAudio();
-    playSound('success');
-    showScreen("screen-m3");
-  });
-
-  document.querySelectorAll(".choice-grid .wrong-choice").forEach(btn => {
+  // Mission 2 Transport Code Logic (Car and Bus are both valid)
+  document.querySelectorAll(".correct-transport").forEach(btn => {
     btn.addEventListener("click", () => {
-      initAudio();
-      playSound('wrong');
-      alert("❌ Transport code incorrect! Try again, Agent!");
+      initAudio(); playSound('success');
+      alert(`✅ Transport Code Approved! Agent ${agentName} & ${sidekickName} are arriving at Manzanita Elementary!`);
+      updateHUDLocation("MANZANITA ELEM");
+      showScreen("screen-m3");
     });
   });
 
-  // Mission 3 Symbol Click
-  document.querySelectorAll(".symbol-item").forEach(sym => {
-    sym.addEventListener("click", () => {
-      initAudio();
-      if (!sym.classList.contains("found")) {
-        sym.classList.add("found");
-        m3SymbolsCount++;
-        playSound('beep');
-
-        if (m3SymbolsCount === 3) {
-          playSound('success');
-          document.getElementById("intel-count").innerText = "3/3 CODES";
-          setTimeout(() => showScreen("screen-m4"), 800);
-        }
-      }
-    });
-  });
-
-  // Mission 4 Challenges
-  document.querySelector(".chal-a-correct").addEventListener("click", () => {
-    initAudio(); playSound('success');
-    document.getElementById("chal-a").classList.add("hidden");
-    document.getElementById("chal-b").classList.remove("hidden");
-  });
-
-  document.querySelector(".chal-b-correct").addEventListener("click", () => {
-    initAudio(); playSound('success');
-    document.getElementById("chal-b").classList.add("hidden");
-    document.getElementById("chal-c").classList.remove("hidden");
-  });
-
-  document.querySelector(".chal-c-correct").addEventListener("click", () => {
-    initAudio(); playSound('success');
-    setTimeout(() => showScreen("screen-m5"), 800);
-  });
-
-  document.querySelectorAll(".chal-a-wrong, .chal-b-wrong, .chal-c-wrong").forEach(btn => {
+  document.querySelectorAll(".wrong-transport").forEach(btn => {
     btn.addEventListener("click", () => {
       initAudio(); playSound('wrong');
-      alert("⚠️ Robot recalibrating! Double check your calculation, Agent!");
+      alert("❌ Transport Code Rejected! Select Car or Bus, Agent!");
     });
   });
 
-  // Parent Intel Toggle
+  // Mission 4 Dual-Language Handlers
+  document.querySelector(".m4-correct-1").addEventListener("click", () => {
+    initAudio(); playSound('success');
+    document.getElementById("m4-step1").classList.add("hidden");
+    document.getElementById("m4-step2").classList.remove("hidden");
+  });
+
+  document.querySelector(".m4-correct-2").addEventListener("click", () => {
+    initAudio(); playSound('success');
+    document.getElementById("m4-step2").classList.add("hidden");
+    document.getElementById("m4-step3").classList.remove("hidden");
+  });
+
+  document.querySelector(".m4-correct-3").addEventListener("click", () => {
+    initAudio(); playSound('success');
+    alert(`🤖 "¡GRACIAS AGENTE ${agentName.toUpperCase()}! ROBOT REPAIRED!"`);
+    setTimeout(() => {
+      updateHUDLocation("GOLDEN VAULT");
+      showScreen("screen-m5");
+    }, 800);
+  });
+
+  document.querySelectorAll(".m4-wrong").forEach(btn => {
+    btn.addEventListener("click", () => {
+      initAudio(); playSound('wrong');
+      alert("⚠️ Robot recalibrating! Recalculate your answer!");
+    });
+  });
+
+  // Parent Intel
   document.getElementById("parent-intel-btn").addEventListener("click", () => {
     showScreen("screen-parent");
   });
 });
 
-// Keypad Input for Mission 5
-function pressKey(num) {
+// Mission 3 Interactive Hiding Spots
+function inspectSpot(spotType) {
   initAudio();
-  if (currentCode.length < 3) {
-    currentCode += num;
-    playSound('beep');
-    document.getElementById("code-input").innerText = currentCode;
+  const spotEl = document.getElementById(`spot-${spotType}`);
 
-    if (currentCode.length === 3) {
-      if (currentCode === "729") {
+  if (!spotEl.classList.contains("found")) {
+    spotEl.classList.add("found");
+    playSound('beep');
+
+    if (spotType === 'desk') {
+      m3CodesFound.push("Digit 1: [ 7 ]");
+      spotEl.innerText = "🗄️ Found Digit 1: [ 7 ]";
+    } else if (spotType === 'globe') {
+      m3CodesFound.push("Digit 2: [ 2 ]");
+      spotEl.innerText = "🌐 Found Digit 2: [ 2 ]";
+    } else if (spotType === 'books') {
+      m3CodesFound.push("Digit 3: [ 9 ]");
+      spotEl.innerText = "📚 Found Digit 3: [ 9 ]";
+    }
+
+    document.getElementById("m3-found-text").innerText = m3CodesFound.join(" | ");
+    document.getElementById("hud-codes").innerText = `${m3CodesFound.length}/3`;
+
+    if (m3CodesFound.length === 3) {
+      playSound('success');
+      setTimeout(() => {
+        alert(`📝 Agent ${agentName}, make sure you wrote down 7 - 2 - 9 on your paper! Proceeding to Robot Repair!`);
+        updateHUDLocation("ROBOT LAB");
+        showScreen("screen-m4");
+      }, 1000);
+    }
+  }
+}
+
+// Mission 5 Keypad Logic
+function pressKey(numStr) {
+  initAudio();
+  if (currentEnteredCode.length < 3) {
+    currentEnteredCode += numStr;
+    playSound('beep');
+    document.getElementById("code-input").innerText = currentEnteredCode;
+
+    if (currentEnteredCode.length === 3) {
+      if (currentEnteredCode === "729") {
         playSound('success');
         setTimeout(() => showScreen("screen-final"), 800);
       } else {
         playSound('wrong');
-        alert("❌ CODE INCORRECT! Hint: Star [7], Lightning [2], Key [9]");
+        alert("❌ VAULT CODE INCORRECT! Check the paper you wrote 7 - 2 - 9 on!");
         clearKey();
       }
     }
@@ -165,6 +219,6 @@ function pressKey(num) {
 }
 
 function clearKey() {
-  currentCode = "";
+  currentEnteredCode = "";
   document.getElementById("code-input").innerText = "_ _ _";
 }
