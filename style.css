@@ -214,13 +214,9 @@ h3 { color: #f59e0b; margin-top: 0; }
   touch-action: manipulation;
 }
 
-/* Large Kid-Friendly Start Button */
-.start-btn-lg {
+.glow-btn {
   background: #059669;
-  font-size: 20px;
-  padding: 18px 28px;
-  letter-spacing: 1px;
-  box-shadow: 0 5px 0 #047857, 0 0 20px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 4px 0 #047857, 0 0 15px rgba(16, 185, 129, 0.4);
 }
 
 .agent-btn:active { transform: translateY(2px); }
@@ -246,11 +242,11 @@ h3 { color: #f59e0b; margin-top: 0; }
 }
 
 .grid-item.selected {
-  background: #10b981;
-  border-color: #059669;
+  background: #10b981 !important;
+  border-color: #059669 !important;
 }
 
-/* Mission 3 Interactive Search Grid */
+/* Mission 3 Interactive Search Grid Fixes (Prevents Green Pixel Leak) */
 .search-grid-6 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -269,15 +265,15 @@ h3 { color: #f59e0b; margin-top: 0; }
 }
 
 .search-spot.found {
-  background: #059669;
-  border-style: solid;
-  border-color: #10b981;
+  background: #059669 !important;
+  border-style: solid !important;
+  border-color: #10b981 !important;
 }
 
 .search-spot.empty-found {
-  background: #4b5563;
-  border-style: solid;
-  border-color: #6b7280;
+  background: #4b5563 !important;
+  border-style: solid !important;
+  border-color: #6b7280 !important;
   opacity: 0.7;
 }
 
