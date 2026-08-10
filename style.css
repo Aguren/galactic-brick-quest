@@ -125,7 +125,7 @@ h2 { color: var(--accent); margin-top: 0; }
 h3 { color: #f59e0b; margin-top: 0; }
 .warning-text { color: #ef4444; font-weight: bold; }
 
-/* Compact Teletype Box (No Blank Space at Bottom) */
+/* Teletype / Typewriter Box */
 .teletype-box {
   background: rgba(0, 0, 0, 0.4);
   border-left: 4px solid var(--accent);
@@ -246,7 +246,7 @@ h3 { color: #f59e0b; margin-top: 0; }
   border-color: #059669;
 }
 
-/* Mission 3 Interactive Search Grid (6 Spots) */
+/* Mission 3 Interactive Search Grid */
 .search-grid-6 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -277,6 +277,46 @@ h3 { color: #f59e0b; margin-top: 0; }
   opacity: 0.7;
 }
 
+/* Digital Keypad Console (Mission 5) */
+.keypad-console {
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  padding: 15px;
+  max-width: 280px;
+  margin: 10px auto;
+}
+
+.keypad-grid-3x3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.digit-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 2px solid var(--accent);
+  padding: 14px;
+  font-size: 20px;
+  font-weight: 800;
+  border-radius: 8px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.digit-btn:active {
+  background: var(--accent);
+  transform: scale(0.95);
+}
+
+.clear-btn {
+  background: #991b1b;
+  border-color: #ef4444;
+}
+
 /* Reading Box */
 .reading-pass-box {
   background: rgba(0,0,0,0.4);
@@ -287,46 +327,6 @@ h3 { color: #f59e0b; margin-top: 0; }
   font-size: 15px;
   line-height: 1.5;
   margin: 12px 0;
-}
-
-/* 3D Spinning Vault Dial */
-.vault-dial-container {
-  width: 160px;
-  height: 160px;
-  margin: 15px auto;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.vault-wheel {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: radial-gradient(circle, #4b5563 0%, #111827 100%);
-  border: 6px solid #f59e0b;
-  position: relative;
-  transition: transform 0.2s ease;
-  cursor: pointer;
-}
-
-.vault-pointer {
-  position: absolute;
-  top: -10px;
-  width: 0; 
-  height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-top: 15px solid #ef4444;
-  z-index: 10;
-}
-
-.vault-number {
-  position: absolute;
-  font-weight: 900;
-  font-size: 16px;
-  color: #fff;
 }
 
 .btn-group-row {
@@ -472,7 +472,7 @@ h3 { color: #f59e0b; margin-top: 0; }
 .code-display { font-size: 32px; font-weight: 900; letter-spacing: 12px; color: #f59e0b; margin: 15px 0; }
 .hidden { display: none !important; }
 
-/* Print Styles: Hides non-certificate elements when printing */
+/* Print Styles */
 @media print {
   body {
     background: #fff !important;
