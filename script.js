@@ -27,16 +27,26 @@ const themes = {
 };
 
 const animationsData = [
-  { icon: "🎒", text: "Backpack packed for Manzanita Elementary!" }, { icon: "🚌", text: "Transport departing down Manzanita Lane!" },
-  { icon: "📝", text: "Secret Numbers scratched and written safely!" }, { icon: "🤖", text: "Dual-Language System re-aligned!" },
-  { icon: "🔓", text: "3D Vault Dial Lock Decoded!" }, { icon: "🔍", text: "Detective Reading passage solved!" },
-  { icon: "🎨", text: "Spanish Pattern Array completed!" }, { icon: "🍕", text: "Cafeteria Energy recharged!" },
-  { icon: "⚽", text: "Recess Kickball Goal scored!" }, { icon: "🌱", text: "Science Garden Sprout grown!" },
-  { icon: "🎨", text: "Art Studio masterpiece finished!" }, { icon: "🎵", text: "Music Class rhythm synthesized!" },
-  { icon: "📚", text: "Library Map Search completed!" }, { icon: "💻", text: "Computer Lab code activated!" },
-  { icon: "🐕", text: "Spanish Vocabulary decoded!" }, { icon: "🌻", text: "Garden Sunflower measured!" },
-  { icon: "⏰", text: "School Bell Timer calibrated!" }, { icon: "📅", text: "Spanish Days of the Week aligned!" },
-  { icon: "🤝", text: "New Manzanita Friendship formed!" }, { icon: "🏆", text: "GOLDEN SCHOOL BADGE RECOVERED!" }
+  { icon: "🎒", text: "Backpack packed for Manzanita Elementary!" },
+  { icon: "🚌", text: "Transport departing down Manzanita Lane!" },
+  { icon: "📝", text: "Secret Numbers scratched and written safely!" },
+  { icon: "🤖", text: "Dual-Language System re-aligned!" },
+  { icon: "🔓", text: "3D Vault Dial Lock Decoded!" },
+  { icon: "🔍", text: "Detective Reading passage solved!" },
+  { icon: "🎨", text: "Spanish Pattern Array completed!" },
+  { icon: "🍕", text: "Cafeteria Energy recharged!" },
+  { icon: "⚽", text: "Recess Kickball Goal scored!" },
+  { icon: "🌱", text: "Science Garden Sprout grown!" },
+  { icon: "🎨", text: "Art Studio masterpiece finished!" },
+  { icon: "🎵", text: "Music Class rhythm synthesized!" },
+  { icon: "📚", text: "Library Map Search completed!" },
+  { icon: "💻", text: "Computer Lab code activated!" },
+  { icon: "🐕", text: "Spanish Vocabulary decoded!" },
+  { icon: "🌻", text: "Garden Sunflower measured!" },
+  { icon: "⏰", text: "School Bell Timer calibrated!" },
+  { icon: "📅", text: "Spanish Days of the Week aligned!" },
+  { icon: "🤝", text: "New Manzanita Friendship formed!" },
+  { icon: "🏆", text: "GOLDEN SCHOOL BADGE RECOVERED!" }
 ];
 
 // Web Audio & Procedural BGM
@@ -87,7 +97,9 @@ function toggleBGM() {
 
 // Teletype / Typewriter Briefing Effect
 function runTeletype(text, containerId, callback) {
-  const el = document.getElementById(containerId); el.innerText = "";
+  const el = document.getElementById(containerId); 
+  if (!el) return;
+  el.innerText = "";
   let i = 0;
   const timer = setInterval(() => {
     if (i < text.length) {
@@ -99,7 +111,9 @@ function runTeletype(text, containerId, callback) {
 // Canvas Particles / Confetti Cannon
 let particles = [];
 function triggerConfetti() {
-  const cvs = document.getElementById("fx-canvas"), ctx = cvs.getContext("2d");
+  const cvs = document.getElementById("fx-canvas");
+  if (!cvs) return;
+  const ctx = cvs.getContext("2d");
   cvs.width = window.innerWidth; cvs.height = window.innerHeight;
   particles = [];
   for (let i = 0; i < 70; i++) {
@@ -119,17 +133,22 @@ function triggerConfetti() {
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
 }
 
 function applyThemeColors(tKey) {
   document.body.className = `theme-${tKey}`;
   const t = themes[tKey];
-  document.getElementById("hud-role-label").innerText = t.roleLabel;
-  document.getElementById("hud-theme").innerText = `${t.icon} ${t.title}`;
-  document.getElementById("stamp-badge").innerText = t.stamp;
-  document.getElementById("briefing-header").innerText = `${t.stamp} BRIEFING`;
-  document.getElementById("setup-title").innerText = `MANZANITA ELEMENTARY ${t.title}`;
+
+  const roleLabel = document.getElementById("hud-role-label");
+  if (roleLabel) roleLabel.innerText = t.roleLabel;
+
+  const hudTheme = document.getElementById("hud-theme");
+  if (hudTheme) hudTheme.innerText = `${t.icon} ${t.title}`;
+
+  const setupTitle = document.getElementById("setup-title");
+  if (setupTitle) setupTitle.innerText = `MANZANITA ELEMENTARY ${t.title}`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -151,11 +170,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("save-setup-btn").addEventListener("click", () => {
-    initAudio(); playSound('click');
+    initAudio(); 
+    playSound('click');
+
     const nameInput = document.getElementById("input-agent-name").value.trim();
     const sidekickInput = document.getElementById("input-sidekick-name").value.trim();
     if (nameInput) agentName = nameInput;
     if (sidekickInput) sidekickName = sidekickInput;
+
+    applyThemeColors(selectedTheme);
 
     document.getElementById("hud-name").innerText = agentName.toUpperCase();
     document.getElementById("hud-sidekick").innerText = sidekickName.toUpperCase();
@@ -165,6 +188,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".display-sidekick-name").forEach(el => el.innerText = sidekickName);
 
     showScreen("screen-briefing");
+
+    const t = themes[selectedTheme];
     const briefingText = `Welcome, ${agentName} and ${sidekickName}!\n\nToday is your first day of 2nd Grade at Manzanita Elementary, but the Golden School Badge has vanished across 20 secret sectors!\n\nSolve all 20 challenges, scratch off the secret Numbers, and decode the 3D Vault Dial before the final bell rings!`;
     runTeletype(briefingText, "typewriter-text");
   });
@@ -287,7 +312,9 @@ function loadMission(idx) {
 
 // Canvas Scratch Off Setup
 function setupScratchCanvas() {
-  const cvs = document.getElementById("scratch-cvs"), ctx = cvs.getContext("2d");
+  const cvs = document.getElementById("scratch-cvs");
+  if (!cvs) return;
+  const ctx = cvs.getContext("2d");
   cvs.width = cvs.offsetWidth; cvs.height = cvs.offsetHeight;
   ctx.fillStyle = "#888899"; ctx.fillRect(0,0,cvs.width,cvs.height);
   ctx.fillStyle = "#333"; ctx.font = "bold 16px sans-serif"; ctx.textAlign = "center";
@@ -318,7 +345,8 @@ let currentWheelVal = 1;
 function rotateVaultWheel() {
   initAudio(); playSound('click');
   dialAngle += 40;
-  document.getElementById("v-wheel").style.transform = `rotate(${dialAngle}deg)`;
+  const wheel = document.getElementById("v-wheel");
+  if (wheel) wheel.style.transform = `rotate(${dialAngle}deg)`;
   currentWheelVal = ((currentWheelVal) % 9) + 1;
 }
 
@@ -327,7 +355,8 @@ function addVaultNum() {
   if (currentVaultCombo.length < 3) {
     currentVaultCombo.push(currentWheelVal.toString());
     playSound('click');
-    document.getElementById("vault-combo-disp").innerText = currentVaultCombo.join(" ");
+    const disp = document.getElementById("vault-combo-disp");
+    if (disp) disp.innerText = currentVaultCombo.join(" ");
 
     if (currentVaultCombo.length === 3) {
       const t = themes[selectedTheme];
@@ -345,7 +374,8 @@ function addVaultNum() {
 
 function resetVault() {
   currentVaultCombo = [];
-  document.getElementById("vault-combo-disp").innerText = "_ _ _";
+  const disp = document.getElementById("vault-combo-disp");
+  if (disp) disp.innerText = "_ _ _";
 }
 
 // Mission Completion Engine
