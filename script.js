@@ -9,6 +9,7 @@ let lastTransportChoice = "bus";
 // Progress Engine
 let currentMissionIndex = 1;
 let m1Count = 0;
+let m3NumbersFound = [];
 let m3ScratchCount = 0;
 let currentVaultCombo = [];
 let dialAngle = 0;
@@ -58,7 +59,7 @@ function initAudio() {
     if (!audioCtx) audioCtx = new AudioContext();
     if (audioCtx.state === 'suspended') audioCtx.resume();
   } catch (e) {
-    console.log("Audio not supported");
+    console.log("Audio API not supported");
   }
 }
 
@@ -104,7 +105,7 @@ function toggleBGM() {
   } else if (bgmInterval) { clearInterval(bgmInterval); }
 }
 
-// Teletype / Typewriter Briefing Effect
+// Fixed Teletype / Typewriter Briefing Effect
 function runTeletype(text, containerId, callback) {
   const el = document.getElementById(containerId); 
   if (!el) {
@@ -113,16 +114,24 @@ function runTeletype(text, containerId, callback) {
   }
   el.innerText = "";
   let i = 0;
+
   const timer = setInterval(() => {
     if (i < text.length) {
-      el.innerText += text.charAt(i); 
-      playSound('click'); 
+      const char = text.charAt(i);
+      el.innerText += char;
+      if (char !== " " && char !== "\n") {
+        playSound('click'); 
+      }
+      const parentBox = el.parentElement;
+      if (parentBox) {
+        parentBox.scrollTop = parentBox.scrollHeight;
+      }
       i++;
     } else { 
       clearInterval(timer); 
       if (callback) callback(); 
     }
-  }, 25);
+  }, 20);
 }
 
 // Canvas Particles / Confetti Cannon
@@ -384,8 +393,47 @@ function loadMission(idx) {
     }
     currentVaultCombo = []; dialAngle = 0;
 
+  } else if (idx === 6) {
+    if (title) title.innerText = `${t.term} 6: DETECTIVE READING MYSTERY ${t.icon}`;
+    if (prompt) prompt.innerText = `Read the passage carefully to answer the question!`;
+    if (area) {
+      area.innerHTML = `
+        <div class="reading-pass-box">
+          It was a sunny morning at Manzanita Elementary. ${agentName} and ${sidekickName} walked quietly down the hallway toward the library. Suddenly, a polite parrot flew over the bookshelves holding a sparkling object in its beak. The parrot dropped the item carefully under the teacher's large oak desk. ${sidekickName} gasped with excitement. It turned out to be the special ${t.m6Color} needed for 2nd grade! Everyone cheered softly so they wouldn't disturb the reading class.
+        </div>
+        <p style="font-weight:bold; margin-top:10px;">Where did the parrot drop the ${t.m6Color}?</p>
+        <div class="choice-grid">
+          <button class="choice-btn wrong-m">In a blue backpack</button>
+          <button class="choice-btn correct-m">Under the teacher's desk</button>
+          <button class="choice-btn wrong-m">On top of the bookshelf</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { 
+      initAudio(); 
+      playSound('wrong'); 
+    }));
+
+  } else if (idx === 12) {
+    if (title) title.innerText = `${t.term} 12: MUSIC CLASS RHYTHM ${t.icon}`;
+    if (prompt) prompt.innerText = `Count the beats in two 4-beat measures (4 + 4 = ?);`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">8 Beats</button>
+          <button class="choice-btn wrong-m">6 Beats</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { 
+      initAudio(); 
+      playSound('wrong'); 
+    }));
+
   } else {
-    // Missions 6 to 20 Standard Routing
+    // Missions 7-11, 13-20 Standard Routing
     if (title) title.innerText = `${t.term} ${idx} ${t.icon}`;
     if (prompt) prompt.innerText = `Complete 2nd Grade Challenge Sector ${idx}!`;
     if (area) {
@@ -396,6 +444,35 @@ function loadMission(idx) {
     }
     const correctM = document.querySelector(".correct-m");
     if (correctM) correctM.addEventListener("click", () => completeMission());
+  }
+}
+
+// Search Spot Logic (for interactive search mechanics)
+function searchSpot(spotKey, numVal, isReal) {
+  initAudio();
+  const el = document.getElementById(`spot-${spotKey}`);
+  if (!el) return;
+
+  if (!el.classList.contains("found") && !el.classList.contains("empty-found")) {
+    if (isReal) {
+      el.classList.add("found");
+      playSound('click');
+      el.innerText = `Found Number: [ ${numVal} ]`;
+      m3NumbersFound.push(numVal);
+
+      if (m3NumbersFound.length === 3) {
+        playSound('success');
+        const t = themes[selectedTheme] || themes['spy'];
+        setTimeout(() => {
+          alert(`📝 ${agentName}, make sure you wrote down ${t.numSeq.join(' - ')} on your paper! Proceeding!`);
+          completeMission();
+        }, 800);
+      }
+    } else {
+      el.classList.add("empty-found");
+      playSound('wrong');
+      el.innerText = `Empty Decoy! Nothing here!`;
+    }
   }
 }
 
