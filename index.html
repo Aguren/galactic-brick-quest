@@ -3,36 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
+  <!-- Apple Fullscreen Web App Meta -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Lord Athen: Starfighter Conquest</title>
+  <meta name="apple-mobile-web-app-title" content="Dark Side Conquest" />
+  
+  <title>Lord Athen: Dark Side Conquest</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div id="game-container">
-  <!-- Full Screen Arcade Canvas -->
+<div id="game-viewport">
   <canvas id="arcadeCanvas"></canvas>
 
-  <!-- Top HUD Bar -->
+  <!-- Arcade HUD -->
   <div id="hud">
-    <div class="hud-item">LORD ATHEN</div>
-    <div class="hud-item">SCORE: <span id="score-val">0</span></div>
-    <div class="hud-item">SITH SHIELD: <span id="shield-val">100%</span></div>
+    <div class="hud-box">PILOT: <span>LORD ATHEN</span></div>
+    <div class="hud-box">SCORE: <span id="score-val">0</span></div>
+    <div class="hud-box">SHIELD: <span id="shield-val">100%</span></div>
   </div>
 
-  <!-- Target Lock Math Array (Appears when Boss/Cruiser Spawns) -->
-  <div id="target-lock-bar" class="hidden">
-    <div id="lock-target-q">LOCK TARGET: 12 + 8 = ?</div>
-    <div id="lock-options"></div>
-  </div>
-
-  <!-- Full Screen Start / Game Over Overlay -->
+  <!-- Launch Screen -->
   <div id="menu-overlay" class="overlay">
     <h1 class="glow-title">⚡ LORD ATHEN ⚡</h1>
-    <h3 style="color: #ff3355;">SITH STARFIGHTER CONQUEST</h3>
-    <p class="instructions">Drag your finger across the iPad screen to steer your Starfighter and fire blasters!</p>
-    <button id="start-btn" class="arcade-btn">LAUNCH STARFIGHTER</button>
+    <h2 class="sub-title">DARK SIDE CONQUEST</h2>
+    <p class="desc">Drag your finger across the screen to control your Sith Interceptor.<br>Destroy Jedi fighters and intercept incoming missile codes!</p>
+    <button id="start-btn" class="arcade-btn">LAUNCH MISSION</button>
   </div>
 </div>
 

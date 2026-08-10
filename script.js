@@ -1,59 +1,57 @@
 const canvas = document.getElementById("arcadeCanvas");
 const ctx = canvas.getContext("2d");
 
-// Full Screen Canvas Resizer
-function resizeCanvas() {
+function resize() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
+window.addEventListener("resize", resize);
+resize();
 
-// Game State Setup
-let gameRunning = false;
+// Game State
+let running = false;
 let score = 0;
 let shield = 100;
-let currentTargetAns = 0;
-let lockActive = false;
+let shakeTime = 0;
 
-// Starfighter (Lord Athen)
-const ship = {
+// Player Ship
+const player = {
   x: canvas.width / 2,
   y: canvas.height - 120,
-  width: 44,
-  height: 44,
-  speed: 8
+  radius: 24
 };
 
-// Dynamic Game Objects
-let lasers = [];        // Player lasers
-let enemyLasers = [];   // Incoming enemy lasers
-let enemies = [];
+// Lists
 let stars = [];
+let lasers = [];
+let enemyLasers = [];
+let enemies = [];
 let particles = [];
-let lastSpawn = 0;
-let lastTargetSpawn = 0;
+let targetMissiles = [];
 
-// Generate Starfield Background
-for (let i = 0; i < 70; i++) {
+let lastEnemySpawn = 0;
+let lastMissileSpawn = 0;
+
+// Parallax Starfield
+for (let i = 0; i < 90; i++) {
   stars.push({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
-    size: Math.random() * 2 + 1,
+    size: Math.random() * 2 + 0.5,
     speed: Math.random() * 3 + 1
   });
 }
 
-// Audio Synthesizer (iOS Web Audio Compliant)
+// Sound Synthesizer Engine
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
-function unlockAudio() {
+function initAudio() {
   if (!audioCtx) audioCtx = new AudioContext();
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
-function playSound(type) {
+function playFX(type) {
   if (!audioCtx) return;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -63,24 +61,16 @@ function playSound(type) {
 
   if (type === 'laser') {
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(600, now);
-    osc.frequency.exponentialRampToValueAtTime(150, now + 0.15);
+    osc.frequency.setValueAtTime(700, now);
+    osc.frequency.exponentialRampToValueAtTime(100, now + 0.12);
     gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
     osc.start(now);
-    osc.stop(now + 0.15);
-  } else if (type === 'enemylaser') {
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(250, now);
-    osc.frequency.exponentialRampToValueAtTime(80, now + 0.2);
-    gain.gain.setValueAtTime(0.15, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-    osc.start(now);
-    osc.stop(now + 0.2);
+    osc.stop(now + 0.12);
   } else if (type === 'boom') {
     osc.type = 'square';
     osc.frequency.setValueAtTime(120, now);
-    osc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
+    osc.frequency.exponentialRampToValueAtTime(20, now + 0.3);
     gain.gain.setValueAtTime(0.4, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
     osc.start(now);
@@ -88,216 +78,183 @@ function playSound(type) {
   }
 }
 
-// iPad Touch Drag Steering & Continuous Auto-Firing
+// Touch Steering Controls
 canvas.addEventListener("touchmove", (e) => {
   e.preventDefault();
-  unlockAudio();
+  initAudio();
   const touch = e.touches[0];
-  ship.x = touch.clientX;
-  ship.y = touch.clientY - 30; // Position ship slightly above finger so he can see it
+  player.x = touch.clientX;
+  player.y = touch.clientY - 40;
 }, { passive: false });
 
-// Desktop Mouse Steering Fallback
 canvas.addEventListener("mousemove", (e) => {
-  if (gameRunning) {
-    ship.x = e.clientX;
-    ship.y = e.clientY;
+  if (running) {
+    player.x = e.clientX;
+    player.y = e.clientY;
   }
 });
 
-// Automatic Player Blaster Fire
+// Auto-blasters
 setInterval(() => {
-  if (gameRunning && !lockActive) {
-    lasers.push({ x: ship.x, y: ship.y - 20, speed: 12 });
-    playSound('laser');
+  if (running) {
+    lasers.push({ x: player.x - 12, y: player.y - 20, vy: -14 });
+    lasers.push({ x: player.x + 12, y: player.y - 20, vy: -14 });
+    playFX('laser');
   }
-}, 220);
+}, 200);
 
-// Menu & Start Trigger
 document.getElementById("start-btn").addEventListener("click", () => {
-  unlockAudio();
-  document.getElementById("menu-overlay").classList.add("hidden");
+  initAudio();
+  document.getElementById("menu-overlay").style.display = "none";
   score = 0;
   shield = 100;
   enemies = [];
   lasers = [];
   enemyLasers = [];
-  document.getElementById("score-val").innerText = score;
-  document.getElementById("shield-val").innerText = shield + "%";
-  gameRunning = true;
-  lastTargetSpawn = Date.now();
+  targetMissiles = [];
+  running = true;
+  lastMissileSpawn = Date.now();
   requestAnimationFrame(gameLoop);
 });
 
-function spawnEnemy() {
-  const isJediFighter = Math.random() > 0.4;
-  enemies.push({
-    x: Math.random() * (canvas.width - 60) + 30,
-    y: -50,
-    type: isJediFighter ? 'jedi' : 'gunship',
-    speed: isJediFighter ? 2.5 : 1.8,
-    lastShoot: Date.now() + Math.random() * 500
+function spawnMissileMatrix() {
+  const num1 = Math.floor(Math.random() * 8) + 4;
+  const num2 = Math.floor(Math.random() * 8) + 3;
+  const correct = num1 + num2;
+
+  let choices = [correct];
+  while (choices.length < 3) {
+    let wrong = correct + (Math.floor(Math.random() * 6) - 3);
+    if (wrong > 0 && !choices.includes(wrong)) choices.push(wrong);
+  }
+  choices.sort(() => Math.random() - 0.5);
+
+  const laneWidth = canvas.width / 3;
+  choices.forEach((val, idx) => {
+    targetMissiles.push({
+      x: laneWidth * idx + laneWidth / 2,
+      y: -60,
+      val: val,
+      isCorrect: val === correct,
+      promptText: `${num1} + ${num2}`,
+      speed: 2.2
+    });
   });
 }
 
-function spawnMathTarget() {
-  lockActive = true;
-  const targetBar = document.getElementById("target-lock-bar");
-  targetBar.classList.remove("hidden");
-
-  let n1 = Math.floor(Math.random() * 10) + 4;
-  let n2 = Math.floor(Math.random() * 10) + 3;
-  currentTargetAns = n1 + n2;
-
-  document.getElementById("lock-target-q").innerText = `⚡ TARGET LOCK: ${n1} + ${n2} = ?`;
-
-  let options = [currentTargetAns];
-  while (options.length < 4) {
-    let wrong = currentTargetAns + (Math.floor(Math.random() * 8) - 4);
-    if (wrong > 0 && !options.includes(wrong)) options.push(wrong);
-  }
-  options.sort(() => Math.random() - 0.5);
-
-  const optContainer = document.getElementById("lock-options");
-  optContainer.innerHTML = "";
-  options.forEach(opt => {
-    const btn = document.createElement("button");
-    btn.className = "arcade-btn";
-    btn.style.fontSize = "20px";
-    btn.style.padding = "10px";
-    btn.innerText = opt;
-    btn.onclick = () => checkTargetCode(opt);
-    optContainer.appendChild(btn);
-  });
-}
-
-function checkTargetCode(selected) {
-  if (selected === currentTargetAns) {
-    playSound('boom');
-    score += 50;
-    document.getElementById("score-val").innerText = score;
-    createExplosion(canvas.width / 2, 120);
-  }
-  lockActive = false;
-  document.getElementById("target-lock-bar").classList.add("hidden");
-  lastTargetSpawn = Date.now();
-}
-
-function createExplosion(x, y) {
-  for (let i = 0; i < 20; i++) {
+function addExplosion(x, y, count = 25) {
+  for (let i = 0; i < count; i++) {
     particles.push({
       x: x, y: y,
-      vx: (Math.random() - 0.5) * 8,
-      vy: (Math.random() - 0.5) * 8,
-      life: 25
+      vx: (Math.random() - 0.5) * 10,
+      vy: (Math.random() - 0.5) * 10,
+      life: 30,
+      color: Math.random() > 0.5 ? "#ff0033" : "#ffcc00"
     });
   }
 }
 
 function update() {
-  // Move Stars
+  if (shakeTime > 0) shakeTime--;
+
+  // Stars
   stars.forEach(s => {
     s.y += s.speed;
     if (s.y > canvas.height) s.y = 0;
   });
 
-  // Spawn Enemies
-  if (Date.now() - lastSpawn > 900) {
-    spawnEnemy();
-    lastSpawn = Date.now();
+  // Regular Enemies Spawning
+  if (Date.now() - lastEnemySpawn > 1000) {
+    enemies.push({
+      x: Math.random() * (canvas.width - 60) + 30,
+      y: -40,
+      speed: Math.random() * 2 + 2,
+      lastShoot: Date.now()
+    });
+    lastEnemySpawn = Date.now();
   }
 
-  // Spawn Math Target Event
-  if (!lockActive && Date.now() - lastTargetSpawn > 14000) {
-    spawnMathTarget();
+  // Math Missile Matrix Spawning (Every 12 seconds)
+  if (targetMissiles.length === 0 && Date.now() - lastMissileSpawn > 12000) {
+    spawnMissileMatrix();
+    lastMissileSpawn = Date.now();
   }
 
-  // Move Player Lasers
-  lasers.forEach((l, index) => {
-    l.y -= l.speed;
-    if (l.y < 0) lasers.splice(index, 1);
+  // Lasers
+  lasers.forEach((l, idx) => {
+    l.y += l.vy;
+    if (l.y < 0) lasers.splice(idx, 1);
   });
 
-  // Move Enemy Lasers & Check Collision with Player
-  enemyLasers.forEach((el, index) => {
-    el.x += el.vx;
-    el.y += el.vy;
-
-    // Check hit on player ship
-    if (Math.abs(el.x - ship.x) < 25 && Math.abs(el.y - ship.y) < 25) {
-      shield -= 10;
-      document.getElementById("shield-val").innerText = Math.max(0, shield) + "%";
-      createExplosion(el.x, el.y);
-      playSound('boom');
-      enemyLasers.splice(index, 1);
-
-      if (shield <= 0) {
-        gameRunning = false;
-        document.getElementById("menu-overlay").classList.remove("hidden");
-      }
-    } else if (el.y > canvas.height + 20 || el.x < 0 || el.x > canvas.width) {
-      enemyLasers.splice(index, 1);
-    }
-  });
-
-  // Move Enemies, Handle Shooting AI & Collisions
+  // Enemies & Combat AI
   enemies.forEach((e, eIdx) => {
     e.y += e.speed;
 
-    // Enemy Shooting AI
-    if (Date.now() - e.lastShoot > 1400 && e.y > 20 && e.y < canvas.height - 150) {
+    if (Date.now() - e.lastShoot > 1200 && e.y < canvas.height - 200) {
       e.lastShoot = Date.now();
-      playSound('enemylaser');
-
-      if (e.type === 'jedi') {
-        // Aimed Laser targeting player position
-        const angle = Math.atan2(ship.y - e.y, ship.x - e.x);
-        enemyLasers.push({
-          x: e.x, y: e.y + 15,
-          vx: Math.cos(angle) * 6,
-          vy: Math.sin(angle) * 6,
-          color: '#ff0000'
-        });
-      } else {
-        // Straight-down Heavy Plasma Blast
-        enemyLasers.push({
-          x: e.x, y: e.y + 20,
-          vx: 0, vy: 7,
-          color: '#00ff66'
-        });
-      }
+      enemyLasers.push({ x: e.x, y: e.y + 15, vy: 6 });
     }
 
-    // Direct Ship Collision
-    if (Math.abs(e.x - ship.x) < 32 && Math.abs(e.y - ship.y) < 32) {
-      shield -= 20;
-      document.getElementById("shield-val").innerText = Math.max(0, shield) + "%";
-      createExplosion(e.x, e.y);
-      enemies.splice(eIdx, 1);
-      playSound('boom');
-
-      if (shield <= 0) {
-        gameRunning = false;
-        document.getElementById("menu-overlay").classList.remove("hidden");
-      }
-    }
-
-    // Check hit by Player Lasers
+    // Player Hits Enemy
     lasers.forEach((l, lIdx) => {
-      if (Math.abs(e.x - l.x) < 25 && Math.abs(e.y - l.y) < 25) {
-        score += e.type === 'jedi' ? 15 : 25;
+      if (Math.hypot(e.x - l.x, e.y - l.y) < 25) {
+        addExplosion(e.x, e.y);
+        playFX('boom');
+        score += 20;
         document.getElementById("score-val").innerText = score;
-        createExplosion(e.x, e.y);
-        playSound('boom');
         enemies.splice(eIdx, 1);
         lasers.splice(lIdx, 1);
       }
     });
 
-    if (e.y > canvas.height + 50) enemies.splice(eIdx, 1);
+    if (e.y > canvas.height + 40) enemies.splice(eIdx, 1);
   });
 
-  // Update Particles
+  // Enemy Lasers Hit Player
+  enemyLasers.forEach((el, elIdx) => {
+    el.y += el.vy;
+    if (Math.hypot(player.x - el.x, player.y - el.y) < player.radius) {
+      shield -= 10;
+      shakeTime = 12;
+      addExplosion(player.x, player.y, 10);
+      playFX('boom');
+      document.getElementById("shield-val").innerText = Math.max(0, shield) + "%";
+      enemyLasers.splice(elIdx, 1);
+
+      if (shield <= 0) {
+        running = false;
+        document.getElementById("menu-overlay").style.display = "flex";
+      }
+    }
+  });
+
+  // Missile Matrix Target Intercepts
+  targetMissiles.forEach((m, mIdx) => {
+    m.y += m.speed;
+
+    // Player shoots a missile target
+    lasers.forEach((l, lIdx) => {
+      if (Math.hypot(m.x - l.x, m.y - l.y) < 35) {
+        lasers.splice(lIdx, 1);
+        if (m.isCorrect) {
+          addExplosion(m.x, m.y, 40);
+          playFX('boom');
+          score += 100;
+          document.getElementById("score-val").innerText = score;
+          targetMissiles = []; // Clear current matrix wave
+        } else {
+          shield -= 15;
+          shakeTime = 15;
+          document.getElementById("shield-val").innerText = Math.max(0, shield) + "%";
+          targetMissiles.splice(mIdx, 1);
+        }
+      }
+    });
+
+    if (m.y > canvas.height + 50) targetMissiles.splice(mIdx, 1);
+  });
+
+  // Particles
   particles.forEach((p, pIdx) => {
     p.x += p.vx;
     p.y += p.vy;
@@ -306,115 +263,101 @@ function update() {
   });
 }
 
-function drawJediStarfighter(x, y) {
-  ctx.save();
-  ctx.translate(x, y);
-
-  // Blue Glowing Thruster Trail
-  ctx.fillStyle = "#00d2ff";
-  ctx.shadowBlur = 10;
-  ctx.shadowColor = "#00d2ff";
-  ctx.fillRect(-4, -22, 8, 6);
-
-  // Main Wedge Wings
-  ctx.fillStyle = "#4cc9f0";
-  ctx.beginPath();
-  ctx.moveTo(0, 20);      // Nose pointing down
-  ctx.lineTo(-20, -18);   // Left Wingtip
-  ctx.lineTo(0, -10);     // Engine Bay
-  ctx.lineTo(20, -18);    // Right Wingtip
-  ctx.closePath();
-  ctx.fill();
-
-  // Glass Canopy
-  ctx.fillStyle = "#00ffff";
-  ctx.fillRect(-3, 0, 6, 10);
-
-  ctx.restore();
-}
-
-function drawHeavyGunship(x, y) {
-  ctx.save();
-  ctx.translate(x, y);
-
-  // Twin Heavy Engine Pods
-  ctx.fillStyle = "#888899";
-  ctx.fillRect(-18, -15, 8, 24);
-  ctx.fillRect(10, -15, 8, 24);
-
-  // Main Hull Body
-  ctx.fillStyle = "#aaaaaa";
-  ctx.fillRect(-12, -8, 24, 20);
-
-  // Front Turret Cannon
-  ctx.fillStyle = "#ffcc00";
-  ctx.fillRect(-2, 12, 4, 10);
-
-  ctx.restore();
-}
-
 function draw() {
+  ctx.save();
+
+  // Screen Shake FX
+  if (shakeTime > 0) {
+    ctx.translate((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10);
+  }
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Draw Starfield
-  ctx.fillStyle = "#ffffff";
+  // Stars
+  ctx.fillStyle = "#fff";
   stars.forEach(s => {
     ctx.beginPath();
     ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
     ctx.fill();
   });
 
-  // Draw Player Lasers
+  // Player Lasers (Glow)
   ctx.fillStyle = "#ff0033";
-  ctx.shadowBlur = 10;
   ctx.shadowColor = "#ff0033";
+  ctx.shadowBlur = 12;
   lasers.forEach(l => {
-    ctx.fillRect(l.x - 3, l.y, 6, 18);
+    ctx.fillRect(l.x - 3, l.y, 6, 16);
   });
 
-  // Draw Enemy Lasers
+  // Enemy Lasers
+  ctx.fillStyle = "#00ffcc";
+  ctx.shadowColor = "#00ffcc";
   enemyLasers.forEach(el => {
-    ctx.fillStyle = el.color;
-    ctx.shadowBlur = 12;
-    ctx.shadowColor = el.color;
+    ctx.fillRect(el.x - 2, el.y, 4, 12);
+  });
+
+  // Enemy Ships
+  ctx.shadowBlur = 0;
+  enemies.forEach(e => {
+    ctx.fillStyle = "#4cc9f0";
     ctx.beginPath();
-    ctx.arc(el.x, el.y, 4, 0, Math.PI * 2);
+    ctx.moveTo(e.x, e.y + 15);
+    ctx.lineTo(e.x - 18, e.y - 15);
+    ctx.lineTo(e.x + 18, e.y - 15);
+    ctx.closePath();
     ctx.fill();
   });
 
-  // Draw Detailed Enemy Starships
-  enemies.forEach(e => {
-    if (e.type === 'jedi') {
-      drawJediStarfighter(e.x, e.y);
-    } else {
-      drawHeavyGunship(e.x, e.y);
-    }
+  // Missile Matrix (Math Targets)
+  targetMissiles.forEach(m => {
+    ctx.fillStyle = "#1a0005";
+    ctx.strokeStyle = "#ff0033";
+    ctx.lineWidth = 3;
+    ctx.shadowColor = "#ff0033";
+    ctx.shadowBlur = 15;
+
+    ctx.beginPath();
+    ctx.arc(m.x, m.y, 32, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Text on missile
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#ffcc00";
+    ctx.font = "bold 20px -apple-system, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(m.val, m.x, m.y + 7);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "12px -apple-system, sans-serif";
+    ctx.fillText(m.promptText, m.x, m.y - 38);
   });
 
-  // Draw Explosion Particles
+  // Explosions
   particles.forEach(p => {
-    ctx.fillStyle = "#ffcc00";
-    ctx.shadowBlur = 6;
-    ctx.shadowColor = "#ff9900";
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 8;
     ctx.fillRect(p.x, p.y, 4, 4);
   });
 
-  // Draw Player Starfighter (Lord Athen's Sith Interceptor)
-  ctx.fillStyle = "#e60000";
+  // Player Sith Ship (High Detail)
   ctx.shadowColor = "#ff0033";
-  ctx.shadowBlur = 15;
+  ctx.shadowBlur = 20;
+  ctx.fillStyle = "#e60000";
   ctx.beginPath();
-  ctx.moveTo(ship.x, ship.y - 25);
-  ctx.lineTo(ship.x - 22, ship.y + 18);
-  ctx.lineTo(ship.x + 22, ship.y + 18);
+  ctx.moveTo(player.x, player.y - 28);
+  ctx.lineTo(player.x - 24, player.y + 20);
+  ctx.lineTo(player.x, player.y + 10);
+  ctx.lineTo(player.x + 24, player.y + 20);
   ctx.closePath();
   ctx.fill();
 
-  ctx.shadowBlur = 0; // Reset shadow
+  ctx.restore();
 }
 
 function gameLoop() {
-  if (!gameRunning) return;
+  if (!running) return;
   update();
   draw();
   requestAnimationFrame(gameLoop);

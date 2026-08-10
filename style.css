@@ -10,27 +10,26 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Lock viewport for iPad full-screen */
+  overflow: hidden;
   background: #000;
   color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-#game-container {
+#game-viewport {
   position: relative;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  background: #000;
 }
 
 canvas {
   width: 100%;
   height: 100%;
   display: block;
-  background: #030308;
 }
 
-/* Fullscreen HUD Overlay */
+/* Glassmorphism HUD Bar */
 #hud {
   position: absolute;
   top: 15px;
@@ -38,97 +37,74 @@ canvas {
   right: 15px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  background: rgba(28, 5, 5, 0.85);
-  border: 2px solid #ff0033;
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-weight: bold;
-  font-size: 18px;
-  color: #ff3355;
-  box-shadow: 0 0 15px rgba(255, 0, 51, 0.4);
-  pointer-events: none; /* Allows touch events to pass through to canvas */
+  pointer-events: none;
   z-index: 5;
 }
 
-.hud-item span { color: #fff; }
-
-/* Target Lock Bar for Math Blasters */
-#target-lock-bar {
-  position: absolute;
-  bottom: 25px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: 500px;
-  background: rgba(15, 2, 2, 0.92);
-  border: 3px solid #ff0033;
-  border-radius: 14px;
-  padding: 15px;
-  text-align: center;
-  box-shadow: 0 0 25px rgba(255, 0, 51, 0.6);
-  z-index: 10;
-}
-
-#lock-target-q {
-  font-size: 22px;
+.hud-box {
+  background: rgba(20, 0, 0, 0.75);
+  border: 2px solid #ff0033;
+  padding: 10px 18px;
+  border-radius: 10px;
   font-weight: 900;
-  color: #ffcc00;
-  margin-bottom: 12px;
-  text-shadow: 0 0 8px #ff0033;
+  font-size: 16px;
+  color: #ff3355;
+  box-shadow: 0 0 15px rgba(255, 0, 51, 0.4);
+  backdrop-filter: blur(5px);
 }
 
-#lock-options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
+.hud-box span { color: #fff; }
 
 /* Fullscreen Menu Overlay */
 .overlay {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(5, 2, 2, 0.92);
+  background: radial-gradient(circle, rgba(30,0,0,0.92) 0%, rgba(5,0,0,0.98) 100%);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 25px;
+  padding: 20px;
   text-align: center;
   z-index: 20;
 }
 
 .glow-title {
-  font-size: 38px;
+  font-size: 42px;
   color: #ff0033;
-  text-shadow: 0 0 20px #ff0033, 2px 2px #000;
-  margin: 0 0 10px 0;
+  text-shadow: 0 0 25px #ff0033, 0 0 50px #ff0033;
+  margin: 0;
+  letter-spacing: 2px;
 }
 
-.instructions {
+.sub-title {
+  color: #ffcc00;
   font-size: 20px;
-  color: #ddd;
-  max-width: 450px;
+  margin: 10px 0 20px 0;
+  text-shadow: 0 0 10px #ffcc00;
+}
+
+.desc {
+  font-size: 18px;
+  color: #ccc;
+  max-width: 420px;
   line-height: 1.5;
-  margin: 20px 0 30px 0;
+  margin-bottom: 30px;
 }
 
 .arcade-btn {
-  background: #ff0033;
+  background: linear-gradient(180deg, #ff0033 0%, #a00000 100%);
   color: #fff;
-  border: none;
-  padding: 18px 36px;
+  border: 2px solid #ff6688;
+  padding: 18px 40px;
   font-size: 24px;
   font-weight: 900;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
-  box-shadow: 0 6px 0 #800000, 0 0 20px rgba(255, 0, 51, 0.5);
+  box-shadow: 0 0 30px rgba(255, 0, 51, 0.6);
   touch-action: manipulation;
 }
 
 .arcade-btn:active {
-  transform: translateY(4px);
-  box-shadow: 0 2px 0 #800000;
+  transform: scale(0.96);
 }
-
-.hidden { display: none !important; }
