@@ -18,33 +18,44 @@ html, body {
   align-items: center;
 }
 
-/* Responsive Viewport Container for iPad/Tablet/Desktop/Phone */
+/* Dynamic Theme Color Variables Applied to Body */
+body.theme-spy       { --accent: #3b82f6; --bg-card: #1f2937; --bg-dark: #111827; --btn-bg: #2563eb; }
+body.theme-space     { --accent: #a855f7; --bg-card: #2e1065; --bg-dark: #0f172a; --btn-bg: #7c3aed; }
+body.theme-dino      { --accent: #10b981; --bg-card: #064e3b; --bg-dark: #022c22; --btn-bg: #059669; }
+body.theme-unicorn   { --accent: #f472b6; --bg-card: #831843; --bg-dark: #500724; --btn-bg: #db2777; }
+body.theme-fairy     { --accent: #fb7185; --bg-card: #881337; --bg-dark: #4c0519; --btn-bg: #e11d48; }
+body.theme-popstar   { --accent: #facc15; --bg-card: #713f12; --bg-dark: #451a03; --btn-bg: #ca8a04; }
+body.theme-detective { --accent: #f97316; --bg-card: #7c2d12; --bg-dark: #431407; --btn-bg: #ea580c; }
+body.theme-safari    { --accent: #84cc16; --bg-card: #365314; --bg-dark: #1a2e05; --btn-bg: #65a30d; }
+body.theme-superhero { --accent: #ef4444; --bg-card: #7f1d1d; --bg-dark: #450a0a; --btn-bg: #dc2626; }
+
 #game-container {
   width: 100vw;
   height: 100vh;
-  max-width: 800px;
+  max-width: 820px;
   max-height: 980px;
-  background: #111827;
+  background: var(--bg-dark);
   display: flex;
   flex-direction: column;
   position: relative;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 0 45px rgba(0, 0, 0, 0.95);
+  transition: background 0.4s ease;
 }
 
 /* Agent HUD Bar */
 #agent-hud {
   display: flex;
   justify-content: space-between;
-  background: #1f2937;
+  background: var(--bg-card);
   padding: 10px 14px;
-  border-bottom: 2px solid #3b82f6;
+  border-bottom: 2px solid var(--accent);
   font-size: 12px;
   font-weight: 800;
-  color: #9ca3af;
+  color: #d1d5db;
   flex-wrap: wrap;
 }
 
-#agent-hud span { color: #60a5fa; }
+#agent-hud span { color: var(--accent); }
 
 .screen {
   display: none;
@@ -62,22 +73,23 @@ html, body {
 
 /* Card Containers */
 .terminal-card {
-  background: #1f2937;
-  border: 2px solid #3b82f6;
+  background: var(--bg-card);
+  border: 2px solid var(--accent);
   border-radius: 16px;
   padding: 22px;
   width: 100%;
-  box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
   text-align: center;
   position: relative;
+  transition: background 0.4s ease, border-color 0.4s ease;
 }
 
 .top-secret-stamp {
   position: absolute;
   top: 12px;
   right: 12px;
-  border: 2px solid #ef4444;
-  color: #ef4444;
+  border: 2px solid var(--accent);
+  color: var(--accent);
   font-weight: 900;
   padding: 4px 8px;
   transform: rotate(8deg);
@@ -85,7 +97,7 @@ html, body {
   border-radius: 4px;
 }
 
-h2 { color: #60a5fa; margin-top: 0; }
+h2 { color: var(--accent); margin-top: 0; }
 h3 { color: #f59e0b; margin-top: 0; }
 .warning-text { color: #ef4444; font-weight: bold; }
 
@@ -140,12 +152,12 @@ h3 { color: #f59e0b; margin-top: 0; }
 }
 
 .theme-btn.active-theme {
-  background: #2563eb;
-  border-color: #60a5fa;
+  background: var(--btn-bg);
+  border-color: #fff;
 }
 
 .agent-btn {
-  background: #2563eb;
+  background: var(--btn-bg);
   color: #fff;
   border: none;
   padding: 14px 24px;
@@ -154,7 +166,7 @@ h3 { color: #f59e0b; margin-top: 0; }
   border-radius: 10px;
   cursor: pointer;
   margin-top: 12px;
-  box-shadow: 0 4px 0 #1e40af;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.4);
   width: 100%;
   touch-action: manipulation;
 }
@@ -175,9 +187,9 @@ h3 { color: #f59e0b; margin-top: 0; }
 }
 
 .grid-item, .choice-btn {
-  background: #374151;
+  background: rgba(0, 0, 0, 0.25);
   color: #fff;
-  border: 2px solid #4b5563;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   padding: 14px;
   font-size: 15px;
   font-weight: bold;
@@ -191,22 +203,46 @@ h3 { color: #f59e0b; margin-top: 0; }
   border-color: #059669;
 }
 
-/* Mission 3 Search Spot Styling */
+/* Mission 3 Extended Grid (6 Spots) */
+.search-grid-6 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 14px 0;
+}
+
 .search-spot {
-  background: #374151;
-  border: 2px dashed #f59e0b;
+  background: rgba(0,0,0,0.3);
+  border: 2px dashed var(--accent);
   padding: 14px;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: bold;
   cursor: pointer;
-  margin-bottom: 10px;
 }
 
 .search-spot.found {
   background: #059669;
   border-style: solid;
   border-color: #10b981;
+}
+
+.search-spot.empty-found {
+  background: #4b5563;
+  border-style: solid;
+  border-color: #6b7280;
+  opacity: 0.7;
+}
+
+.reading-pass-box {
+  background: rgba(0,0,0,0.4);
+  border-left: 4px solid var(--accent);
+  padding: 12px;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 12px 0;
 }
 
 .pencil-note {
@@ -218,7 +254,7 @@ h3 { color: #f59e0b; margin-top: 0; }
   margin-bottom: 10px;
 }
 
-/* Harder 10-Keypad for Mission 5 */
+/* Keypads */
 .keypad-grid-10 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -228,9 +264,9 @@ h3 { color: #f59e0b; margin-top: 0; }
 }
 
 .key-btn {
-  background: #374151;
+  background: rgba(0,0,0,0.3);
   color: #fff;
-  border: 2px solid #4b5563;
+  border: 2px solid rgba(255,255,255,0.2);
   padding: 14px;
   font-size: 20px;
   font-weight: bold;
@@ -242,8 +278,8 @@ h3 { color: #f59e0b; margin-top: 0; }
 /* Animation Cutscene Stage */
 #animation-container {
   height: 180px;
-  background: #111827;
-  border: 2px solid #3b82f6;
+  background: rgba(0,0,0,0.4);
+  border: 2px solid var(--accent);
   border-radius: 12px;
   margin: 15px 0;
   display: flex;
@@ -263,15 +299,15 @@ h3 { color: #f59e0b; margin-top: 0; }
   100% { transform: translateY(15px) scale(1.1); }
 }
 
-.anim-airplane {
-  font-size: 50px;
+.anim-vehicle {
+  font-size: 55px;
   position: absolute;
-  animation: flyAirplane 2s infinite linear;
+  animation: driveVehicle 2s infinite linear;
 }
 
-@keyframes flyAirplane {
-  0% { left: -20%; top: 70%; transform: rotate(-10deg); }
-  100% { left: 110%; top: 20%; transform: rotate(10deg); }
+@keyframes driveVehicle {
+  0% { left: -20%; }
+  100% { left: 110%; }
 }
 
 /* Sunset Silhouette Finale Stage */
@@ -357,7 +393,7 @@ h3 { color: #f59e0b; margin-top: 0; }
 
 /* Warm Final Screen */
 .warm-card {
-  background: #1f2937;
+  background: var(--bg-card);
   border: 3px solid #f59e0b;
   border-radius: 16px;
   padding: 20px;
@@ -365,7 +401,7 @@ h3 { color: #f59e0b; margin-top: 0; }
 }
 
 .message-box {
-  background: #374151;
+  background: rgba(0,0,0,0.3);
   border-left: 4px solid #ec4899;
   padding: 14px;
   border-radius: 8px;
@@ -381,7 +417,7 @@ h3 { color: #f59e0b; margin-top: 0; }
 }
 
 .parent-card ul { text-align: left; line-height: 1.8; }
-.debrief-box { background: #1f2937; padding: 14px; border-radius: 8px; margin: 15px 0; }
+.debrief-box { background: rgba(0,0,0,0.3); padding: 14px; border-radius: 8px; margin: 15px 0; }
 .quote { color: #f59e0b; font-size: 16px; font-weight: bold; }
 .status-box { font-size: 16px; font-weight: bold; color: #10b981; margin-top: 10px; }
 .code-display { font-size: 32px; font-weight: 900; letter-spacing: 12px; color: #f59e0b; margin: 15px 0; }
