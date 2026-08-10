@@ -139,7 +139,6 @@ h3 { color: #f59e0b; margin-top: 0; }
   font-size: 15px;
   line-height: 1.6;
   
-  /* Fix text overflow & maintain spaces */
   overflow-y: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -280,6 +279,18 @@ h3 { color: #f59e0b; margin-top: 0; }
   height: 100%;
   border-radius: 8px;
   cursor: pointer;
+}
+
+/* Reading Box */
+.reading-pass-box {
+  background: rgba(0,0,0,0.4);
+  border-left: 4px solid var(--accent);
+  padding: 12px;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 12px 0;
 }
 
 /* 3D Spinning Vault Dial */

@@ -9,7 +9,6 @@ let lastTransportChoice = "bus";
 // Progress Engine
 let currentMissionIndex = 1;
 let m1Count = 0;
-let m3NumbersFound = [];
 let m3ScratchCount = 0;
 let currentVaultCombo = [];
 let dialAngle = 0;
@@ -105,7 +104,7 @@ function toggleBGM() {
   } else if (bgmInterval) { clearInterval(bgmInterval); }
 }
 
-// Fixed Teletype / Typewriter Briefing Effect
+// Teletype / Typewriter Briefing Effect
 function runTeletype(text, containerId, callback) {
   const el = document.getElementById(containerId); 
   if (!el) {
@@ -268,6 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// Full 20-Mission Load Engine
 function loadMission(idx) {
   currentMissionIndex = idx;
   const t = themes[selectedTheme] || themes['spy'];
@@ -316,7 +316,7 @@ function loadMission(idx) {
 
   } else if (idx === 2) {
     if (title) title.innerText = `${t.term} 2: THE ROAD TO MANZANITA ${t.icon}`;
-    if (prompt) prompt.innerText = `Select your transport code! (Both Car and Bus are valid!)`;
+    if (prompt) prompt.innerText = `${agentName}, how do you travel to Manzanita Elementary this morning?`;
     if (area) {
       area.innerHTML = `
         <div class="choice-grid">
@@ -346,6 +346,7 @@ function loadMission(idx) {
           <canvas id="scratch-cvs" class="scratch-canvas"></canvas>
         </div>`;
     }
+    m3ScratchCount = 0;
     setupScratchCanvas();
 
   } else if (idx === 4) {
@@ -354,17 +355,14 @@ function loadMission(idx) {
     if (area) {
       area.innerHTML = `
         <div class="choice-grid">
-          <button class="choice-btn ${t.m4Math.options[0] === t.m4Math.ans ? 'correct-m4' : 'wrong-m4'}">${t.m4Math.options[0]}</button>
-          <button class="choice-btn ${t.m4Math.options[1] === t.m4Math.ans ? 'correct-m4' : 'wrong-m4'}">${t.m4Math.options[1]}</button>
-          <button class="choice-btn ${t.m4Math.options[2] === t.m4Math.ans ? 'correct-m4' : 'wrong-m4'}">${t.m4Math.options[2]}</button>
+          <button class="choice-btn ${t.m4Math.options[0] === t.m4Math.ans ? 'correct-m' : 'wrong-m'}">${t.m4Math.options[0]}</button>
+          <button class="choice-btn ${t.m4Math.options[1] === t.m4Math.ans ? 'correct-m' : 'wrong-m'}">${t.m4Math.options[1]}</button>
+          <button class="choice-btn ${t.m4Math.options[2] === t.m4Math.ans ? 'correct-m' : 'wrong-m'}">${t.m4Math.options[2]}</button>
         </div>`;
     }
-    const correctM4 = document.querySelector(".correct-m4");
-    if (correctM4) correctM4.addEventListener("click", () => completeMission());
-    document.querySelectorAll(".wrong-m4").forEach(b => b.addEventListener("click", () => { 
-      initAudio(); 
-      playSound('wrong'); 
-    }));
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
   } else if (idx === 5) {
     if (title) title.innerText = `${t.term} 5: 3D VAULT DIAL LOCK ${t.icon}`;
@@ -410,10 +408,77 @@ function loadMission(idx) {
     }
     const correctM = document.querySelector(".correct-m");
     if (correctM) correctM.addEventListener("click", () => completeMission());
-    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { 
-      initAudio(); 
-      playSound('wrong'); 
-    }));
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
+
+  } else if (idx === 7) {
+    if (title) title.innerText = `${t.term} 7: SPANISH PATTERN ARRAY ${t.icon}`;
+    if (prompt) prompt.innerText = `¿Qué sigue en el patrón? ${t.m7Seq} | ${t.m7Seq} | [ ? ]`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">${t.m7Seq.split('|')[0]}</button>
+          <button class="choice-btn wrong-m">⚪ White</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
+
+  } else if (idx === 8) {
+    if (title) title.innerText = `${t.term} 8: CAFETERIA FRACTIONS ${t.icon}`;
+    if (prompt) prompt.innerText = `${agentName} splits a snack into 2 equal parts with ${sidekickName}. What is each part called?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">One Half (1/2)</button>
+          <button class="choice-btn wrong-m">One Quarter (1/4)</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
+
+  } else if (idx === 9) {
+    if (title) title.innerText = `${t.term} 9: RECESS GAME CALCULATION ${t.icon}`;
+    if (prompt) prompt.innerText = `Your 2nd grade team scored 6 points in game 1 and 5 points in game 2. Total points?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn wrong-m">10 Points</button>
+          <button class="choice-btn correct-m">11 Points</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
+
+  } else if (idx === 10) {
+    if (title) title.innerText = `${t.term} 10: SCIENCE LAB DISCOVERY ${t.icon}`;
+    if (prompt) prompt.innerText = `En Español: ¿Qué necesita una planta para crecer en Manzanita Elementary?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">Agua y Luz del Sol ☀️</button>
+          <button class="choice-btn wrong-m">Refresco y Dulces 🍬</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
+
+  } else if (idx === 11) {
+    if (title) title.innerText = `${t.term} 11: ART STUDIO COLOR MIXING ${t.icon}`;
+    if (prompt) prompt.innerText = `What color do you get when you mix Red and Yellow paint together?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn wrong-m">Purple</button>
+          <button class="choice-btn correct-m">Orange 🟠</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
   } else if (idx === 12) {
     if (title) title.innerText = `${t.term} 12: MUSIC CLASS RHYTHM ${t.icon}`;
@@ -427,52 +492,119 @@ function loadMission(idx) {
     }
     const correctM = document.querySelector(".correct-m");
     if (correctM) correctM.addEventListener("click", () => completeMission());
-    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { 
-      initAudio(); 
-      playSound('wrong'); 
-    }));
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-  } else {
-    // Missions 7-11, 13-20 Standard Routing
-    if (title) title.innerText = `${t.term} ${idx} ${t.icon}`;
-    if (prompt) prompt.innerText = `Complete 2nd Grade Challenge Sector ${idx}!`;
+  } else if (idx === 13) {
+    if (title) title.innerText = `${t.term} 13: LIBRARY MAP COORDINATES ${t.icon}`;
+    if (prompt) prompt.innerText = `Find the 2nd grade book shelf at coordinates (5 + 3). What is 5 + 3?`;
     if (area) {
       area.innerHTML = `
         <div class="choice-grid">
-          <button class="choice-btn correct-m">Start Sector ${idx} ➔</button>
+          <button class="choice-btn wrong-m">7</button>
+          <button class="choice-btn correct-m">8</button>
         </div>`;
     }
     const correctM = document.querySelector(".correct-m");
     if (correctM) correctM.addEventListener("click", () => completeMission());
-  }
-}
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
 
-// Search Spot Logic (for interactive search mechanics)
-function searchSpot(spotKey, numVal, isReal) {
-  initAudio();
-  const el = document.getElementById(`spot-${spotKey}`);
-  if (!el) return;
-
-  if (!el.classList.contains("found") && !el.classList.contains("empty-found")) {
-    if (isReal) {
-      el.classList.add("found");
-      playSound('click');
-      el.innerText = `Found Number: [ ${numVal} ]`;
-      m3NumbersFound.push(numVal);
-
-      if (m3NumbersFound.length === 3) {
-        playSound('success');
-        const t = themes[selectedTheme] || themes['spy'];
-        setTimeout(() => {
-          alert(`📝 ${agentName}, make sure you wrote down ${t.numSeq.join(' - ')} on your paper! Proceeding!`);
-          completeMission();
-        }, 800);
-      }
-    } else {
-      el.classList.add("empty-found");
-      playSound('wrong');
-      el.innerText = `Empty Decoy! Nothing here!`;
+  } else if (idx === 14) {
+    if (title) title.innerText = `${t.term} 14: COMPUTER LAB CODING ${t.icon}`;
+    if (prompt) prompt.innerText = `Fill in the missing code sequence: 10, 20, 30, [ ? ], 50`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">40</button>
+          <button class="choice-btn wrong-m">35</button>
+        </div>`;
     }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
+
+  } else if (idx === 15) {
+    if (title) title.innerText = `${t.term} 15: SPANISH ANIMAL IDENTIFIER ${t.icon}`;
+    if (prompt) prompt.innerText = `¿Cómo se dice "dog" en Español?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">El Perro 🐕</button>
+          <button class="choice-btn wrong-m">El Gato 🐈</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
+
+  } else if (idx === 16) {
+    if (title) title.innerText = `${t.term} 16: GARDEN MEASUREMENT ${t.icon}`;
+    if (prompt) prompt.innerText = `A sunflower is 12 inches tall. It grows 6 more inches. How tall is it now?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn wrong-m">16 inches</button>
+          <button class="choice-btn correct-m">18 inches</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
+
+  } else if (idx === 17) {
+    if (title) title.innerText = `${t.term} 17: BELL TIMER CALIBRATION ${t.icon}`;
+    if (prompt) prompt.innerText = `School starts at 8:00 AM. It is 7:45 AM. How many minutes until the bell rings?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">15 Minutes</button>
+          <button class="choice-btn wrong-m">30 Minutes</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
+
+  } else if (idx === 18) {
+    if (title) title.innerText = `${t.term} 18: SPANISH DAYS OF THE WEEK ${t.icon}`;
+    if (prompt) prompt.innerText = `¿Qué día viene después del Lunes (Monday)?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">Martes (Tuesday)</button>
+          <button class="choice-btn wrong-m">Domingo (Sunday)</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
+
+  } else if (idx === 19) {
+    if (title) title.innerText = `${t.term} 19: FRIENDSHIP PROTOCOL ${t.icon}`;
+    if (prompt) prompt.innerText = `${agentName} sees a classmate sitting alone at recess. What should you do?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">Invite them to play! 🤝</button>
+          <button class="choice-btn wrong-m">Ignore them</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
+
+  } else if (idx === 20) {
+    if (title) title.innerText = `${t.term} 20: RECOVER THE GOLDEN BADGE ${t.icon}`;
+    if (prompt) prompt.innerText = `Final Challenge! What is the official rule of 2nd Grade at Manzanita Elementary?`;
+    if (area) {
+      area.innerHTML = `
+        <div class="choice-grid">
+          <button class="choice-btn correct-m">Try your best & have fun! ⭐</button>
+          <button class="choice-btn wrong-m">Be perfect at everything</button>
+        </div>`;
+    }
+    const correctM = document.querySelector(".correct-m");
+    if (correctM) correctM.addEventListener("click", () => completeMission());
+    document.querySelectorAll(".wrong-m").forEach(b => b.addEventListener("click", () => { initAudio(); playSound('wrong'); }));
   }
 }
 
