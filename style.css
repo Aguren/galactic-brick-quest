@@ -125,7 +125,7 @@ h2 { color: var(--accent); margin-top: 0; }
 h3 { color: #f59e0b; margin-top: 0; }
 .warning-text { color: #ef4444; font-weight: bold; }
 
-/* Teletype / Typewriter Box */
+/* Teletype Box */
 .teletype-box {
   background: rgba(0, 0, 0, 0.4);
   border-left: 4px solid var(--accent);
@@ -214,9 +214,13 @@ h3 { color: #f59e0b; margin-top: 0; }
   touch-action: manipulation;
 }
 
-.glow-btn {
+/* Large Kid-Friendly Start Button */
+.start-btn-lg {
   background: #059669;
-  box-shadow: 0 4px 0 #047857, 0 0 15px rgba(16, 185, 129, 0.4);
+  font-size: 20px;
+  padding: 18px 28px;
+  letter-spacing: 1px;
+  box-shadow: 0 5px 0 #047857, 0 0 20px rgba(16, 185, 129, 0.4);
 }
 
 .agent-btn:active { transform: translateY(2px); }
