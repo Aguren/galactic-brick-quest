@@ -2,79 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- Prevents accidental iPad zooming & double-tap scaling -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  
-  <!-- iOS Home Screen Fullscreen Web App Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Dark Side Quest" />
-  
-  <title>Lord Athen: Dark Side Brick Quest</title>
+  <title>Lord Athen: Dark Side Arcade</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- Animated Starfield Background -->
-<div class="stars"></div>
-<div class="twinkling"></div>
-
-<!-- FX Overlays -->
-<div id="slash-fx" class="slash-effect"></div>
-<div id="floating-text-container"></div>
-
 <div id="game-container">
-  <h1>⚡ LORD ATHEN: DARK SIDE QUEST 🧱</h1>
-  
+  <!-- Top HUD -->
   <div class="hud">
-    <div>Sector: <span id="sector-val">1</span> / 10</div>
-    <div>Sith Kyber: <span id="bricks-val">0</span> 💎</div>
-    <button id="force-btn" class="force-power-btn" disabled>⚡ Force Lightning (0/2)</button>
+    <div>LORD ATHEN</div>
+    <div>Crystals: <span id="kyber-count">0</span> 💎</div>
+    <div>Keycards: <span id="key-count">0</span> 🔑</div>
   </div>
 
-  <!-- Intro Screen -->
-  <div id="intro-screen" class="screen active">
-    <h2>Greetings, Dark Commander Athen!</h2>
-    <p>A secret Imperial Star Destroyer in Sector 7 has gone dark. Harness your Force powers and math skills to unlock the ancient Sith Vaults!</p>
-    <p>Crack the door codes, blast through security, and build your custom Sith Starfighter!</p>
-    <button class="lego-btn red-btn" id="start-btn">Begin Sith Mission</button>
-  </div>
+  <!-- Interactive 2D Canvas World -->
+  <div id="canvas-wrapper">
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
 
-  <!-- Game Screen -->
-  <div id="game-screen" class="screen">
-    <!-- Boss HP Bar (Visible in Sector 5 & 10) -->
-    <div id="boss-container" class="boss-box hidden">
-      <h3 id="boss-name">💥 JEDI BOSS</h3>
-      <div class="hp-bar-outer">
-        <div id="boss-hp-inner" class="hp-bar-inner"></div>
-      </div>
+    <!-- Overlay Popup for Door Hacking -->
+    <div id="hack-overlay" class="overlay hidden">
+      <h2 style="color: #ff0033; margin-top: 0;">⚡ SITH DOOR HACK ⚡</h2>
+      <p id="hack-instructions">Enter the security code to breach blast door:</p>
+      <div id="math-problem" style="font-size: 28px; font-weight: bold; margin: 15px 0;"></div>
+      <div id="hack-options" class="options-grid"></div>
     </div>
 
-    <div id="story-text" class="typewriter">Loading room...</div>
-
-    <div class="puzzle-box" id="puzzle-box">
-      <h3 id="puzzle-title">Sith Security Array</h3>
-      <p id="puzzle-q"></p>
-      <div class="options-grid" id="options-container"></div>
+    <!-- Start / Game Over Screen Overlay -->
+    <div id="start-overlay" class="overlay">
+      <h2 style="color: #ff0033;">⚡ LORD ATHEN: DARK SIDE QUEST ⚡</h2>
+      <p>Use the D-Pad below (or Arrow Keys) to move Dark Commander Athen.</p>
+      <p>Collect Kyber Crystals, dodge Jedi Droids, and hack blast doors to find the Secret Vault!</p>
+      <button class="lego-btn red-btn" id="start-game-btn">START MISSION</button>
     </div>
   </div>
 
-  <!-- Reward Screen (Sector 5 & 10) -->
-  <div id="reward-screen" class="screen">
-    <h2 id="reward-title">⚡ FORCE UNLEASHED! ⚡</h2>
-    <div id="lightsaber-container">
-      <div class="lightsaber-hilt"></div>
-      <div class="lightsaber-blade" id="saber-blade"></div>
+  <!-- On-Screen iPad D-Pad Controller -->
+  <div id="touch-controls">
+    <div class="dpad">
+      <button class="dbtn d-up" id="btn-up">▲</button>
+      <button class="dbtn d-left" id="btn-left">◀</button>
+      <button class="dbtn d-right" id="btn-right">▶</button>
+      <button class="dbtn d-down" id="btn-down">▼</button>
     </div>
-    <p id="reward-text" class="glow-text"></p>
-    <button class="lego-btn red-btn" id="continue-btn">Continue Mission</button>
-  </div>
-
-  <!-- Victory Screen -->
-  <div id="win-screen" class="screen">
-    <h2>👑 SUPREME DARK JEDI ATHEN! 👑</h2>
-    <p id="win-text"></p>
-    <button class="lego-btn red-btn" id="play-again-btn">Replay Conquest</button>
+    <div class="action-btn-area">
+      <button class="lego-btn red-btn saber-attack-btn" id="btn-action">⚡ SABER</button>
+    </div>
   </div>
 </div>
 

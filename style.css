@@ -1,6 +1,5 @@
-* { 
-  box-sizing: border-box; 
-  /* Disables iOS Safari tap highlight overlay and text selection */
+* {
+  box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   user-select: none;
@@ -11,257 +10,142 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevents bounce scrolling on iPad */
-  background: #030308;
+  overflow: hidden;
+  background: #050508;
   color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  text-align: center;
-}
-
-body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 15px;
-}
-
-/* Moving Starfield Background */
-.stars, .twinkling {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  width: 100%; height: 100%;
-  display: block;
-  z-index: -2;
-}
-
-.stars {
-  background: #000 url('https://www.script-tutorials.com/demos/259/images/stars.png') repeat top center;
-}
-
-.twinkling {
-  background: transparent url('https://www.script-tutorials.com/demos/259/images/twinkling.png') repeat top center;
-  z-index: -1;
-  animation: move-twink-back 200s linear infinite;
-}
-
-@keyframes move-twink-back {
-  from { background-position: 0 0; }
-  to { background-position: -10000px 5000px; }
 }
 
 #game-container {
   width: 100%;
-  max-width: 680px;
-  background: rgba(17, 3, 3, 0.94);
+  max-width: 640px;
+  background: #110303;
   border: 4px solid #ff0033;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 0 35px rgba(255, 0, 51, 0.6);
-  position: relative;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 0 30px rgba(255, 0, 51, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-
-/* Screen Shake Animation */
-.shake {
-  animation: shakeAnim 0.4s cubic-bezier(.36,.07,.19,.97) both;
-}
-
-@keyframes shakeAnim {
-  10%, 90% { transform: translate3d(-3px, 0, 0); }
-  20%, 80% { transform: translate3d(5px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-7px, 0, 0); }
-  40%, 60% { transform: translate3d(7px, 0, 0); }
-}
-
-/* Lightsaber Slash Effect */
-.slash-effect {
-  position: fixed;
-  top: 50%;
-  left: -20%;
-  width: 140%;
-  height: 10px;
-  background: #ffffff;
-  box-shadow: 0 0 25px #ff0033, 0 0 50px #ff0033;
-  transform: rotate(-25deg);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 999;
-}
-
-.slash-effect.active-slash {
-  animation: slashAnimation 0.35s ease-out;
-}
-
-@keyframes slashAnimation {
-  0% { opacity: 1; transform: scaleX(0) rotate(-25deg); }
-  50% { opacity: 1; transform: scaleX(1) rotate(-25deg); }
-  100% { opacity: 0; transform: scaleX(1) rotate(-25deg); }
-}
-
-/* Floating Points Text */
-.floating-text {
-  position: fixed;
-  color: #ff0033;
-  font-size: 32px;
-  font-weight: 900;
-  text-shadow: 0 0 10px #ff0033, 0 0 20px #ffffff;
-  pointer-events: none;
-  animation: floatUp 1.2s ease-out forwards;
-  z-index: 1000;
-}
-
-@keyframes floatUp {
-  0% { opacity: 1; transform: translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateY(-90px) scale(1.3); }
-}
-
-h1 {
-  color: #ff0033;
-  margin-top: 0;
-  font-size: 26px;
-  text-shadow: 0 0 12px #ff0033, 2px 2px #000;
-}
-
-h2 { color: #ff3355; }
 
 .hud {
+  width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: center;
   background: #1c0505;
-  padding: 12px 16px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  font-weight: bold;
-  color: #ff8899;
-  border: 1px solid #ff0033;
-}
-
-.hud span { 
-  color: #ff0033; 
-  font-size: 22px;
-}
-
-.force-power-btn {
-  background: #4cc9f0;
-  color: #000;
-  border: none;
-  padding: 10px 14px;
+  padding: 10px 15px;
   border-radius: 8px;
+  border: 1px solid #ff0033;
   font-weight: bold;
-  font-size: 15px;
-  cursor: pointer;
-  box-shadow: 0 0 12px #4cc9f0;
-  min-height: 44px; /* iPad Touch Standard */
+  color: #ff3355;
+  margin-bottom: 10px;
 }
 
-.force-power-btn:disabled {
-  background: #333;
-  color: #777;
-  box-shadow: none;
-  cursor: not-allowed;
+.hud span { color: #fff; }
+
+#canvas-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 380px;
 }
 
-.screen { display: none; }
-.active { display: block; }
+canvas {
+  background: #0b0c10;
+  border: 2px solid #333;
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(10, 2, 2, 0.92);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+  z-index: 10;
+}
+
 .hidden { display: none !important; }
 
-/* Authentic Lego Brick Button Styling */
 .lego-btn {
   background: #e60000;
   color: white;
   border: none;
-  padding: 16px 28px;
-  font-size: 22px;
-  font-weight: 800;
-  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 6px;
   cursor: pointer;
-  margin: 8px;
-  position: relative;
-  box-shadow: 0 7px 0 #800000, 0 0 15px rgba(255, 0, 0, 0.4);
-  transition: transform 0.08s ease, box-shadow 0.08s ease;
-  min-height: 60px; /* Optimal iPad tap target */
+  margin: 6px;
+  box-shadow: 0 5px 0 #800000;
   touch-action: manipulation;
 }
 
 .lego-btn:active {
-  transform: translateY(5px);
+  transform: translateY(3px);
   box-shadow: 0 2px 0 #800000;
 }
-
-.puzzle-box {
-  background: #1a0808;
-  padding: 20px;
-  border-radius: 10px;
-  margin: 15px 0;
-  border: 2px dashed #ff0033;
-}
-
-#puzzle-title { color: #ff6677; margin-top: 0; }
-#puzzle-q { font-size: 32px; font-weight: bold; text-shadow: 0 0 10px #ff0033; }
 
 .options-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-top: 15px;
+  gap: 10px;
+  width: 80%;
 }
 
-/* Boss Health Bar */
-.boss-box {
-  background: #2b0000;
-  border: 2px solid #ffcc00;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 15px;
-}
-
-.boss-box h3 { margin: 0 0 8px 0; color: #ffcc00; font-size: 18px; }
-
-.hp-bar-outer {
+/* On-screen Touch D-Pad for iPad */
+#touch-controls {
   width: 100%;
-  height: 22px;
-  background: #444;
-  border-radius: 11px;
-  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding: 0 10px;
 }
 
-.hp-bar-inner {
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(to right, #ff0000, #ffcc00);
-  transition: width 0.4s ease;
+.dpad {
+  position: relative;
+  width: 130px;
+  height: 130px;
 }
 
-#story-text {
+.dbtn {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  background: #2a0808;
+  border: 2px solid #ff0033;
+  color: #ff0033;
   font-size: 18px;
-  line-height: 1.4;
-  min-height: 52px;
-  color: #eee;
-}
-
-/* Lightsaber Animation */
-#lightsaber-container {
+  font-weight: bold;
+  border-radius: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 160px;
-  margin: 20px 0;
+  touch-action: manipulation;
 }
 
-.lightsaber-hilt {
-  width: 22px; height: 55px;
-  background: linear-gradient(to right, #888, #fff, #444);
-  border-radius: 4px;
-  border: 2px solid #222;
-}
+.dbtn:active { background: #ff0033; color: #fff; }
 
-.lightsaber-blade {
-  width: 14px; height: 0px;
-  background: #fff;
-  border-radius: 0 8px 8px 0;
-  box-shadow: 0 0 15px #ff0033, 0 0 30px #ff0033, 0 0 45px #ff0033;
-  transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1);
-}
+.d-up { top: 0; left: 44px; }
+.d-down { bottom: 0; left: 44px; }
+.d-left { top: 44px; left: 0; }
+.d-right { top: 44px; right: 0; }
 
-.lightsaber-blade.ignite { width: 260px; }
-.glow-text { font-size: 20px; color: #ff3355; font-weight: bold; text-shadow: 0 0 10px #ff0033; }
+.saber-attack-btn {
+  height: 70px;
+  width: 120px;
+  font-size: 20px;
+}

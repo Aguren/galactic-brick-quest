@@ -1,332 +1,255 @@
-let sector = 1;
-let bricks = 0;
-let currentAnswer = 0;
-let forceCharge = 0;
-let bossHP = 100;
-let isBossSector = false;
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-// Audio Synthesizer optimized for iOS Safari Web Audio Policy
+// Game State Variables
+let gameRunning = false;
+let crystalsCollected = 0;
+let keycards = 0;
+let activeDoor = null;
+
+// Player Setup (Dark Commander Athen)
+const player = {
+  x: 50,
+  y: 180,
+  width: 24,
+  height: 24,
+  speed: 3,
+  dx: 0,
+  dy: 0,
+  isAttacking: false,
+  attackTimer: 0
+};
+
+// Collectible Kyber Crystals
+let crystals = [
+  { x: 120, y: 80, collected: false },
+  { x: 280, y: 280, collected: false },
+  { x: 420, y: 100, collected: false }
+];
+
+// Patrol Droids (Enemies)
+let droids = [
+  { x: 200, y: 100, width: 22, height: 22, dirY: 2, minY: 50, maxY: 300 },
+  { x: 380, y: 250, width: 22, height: 22, dirY: -2, minY: 80, maxY: 320 }
+];
+
+// Security Blast Doors (Require Math Lock)
+let blastDoor = {
+  x: 480,
+  y: 140,
+  width: 20,
+  height: 100,
+  locked: true,
+  problem: { q: "8 + 6", answer: 14, options: [12, 14, 15, 16] }
+};
+
+// Audio Synthesizer
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
-function unlockAudioContext() {
-  if (!audioCtx) {
-    audioCtx = new AudioContext();
-  }
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
+function initAudio() {
+  if (!audioCtx) audioCtx = new AudioContext();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
 function playSound(type) {
   if (!audioCtx) return;
-  
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   osc.connect(gain);
   gain.connect(audioCtx.destination);
-
   const now = audioCtx.currentTime;
 
   if (type === 'saber') {
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(450, now);
-    osc.frequency.exponentialRampToValueAtTime(110, now + 0.3);
-    gain.gain.setValueAtTime(0.35, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-    osc.start(now);
-    osc.stop(now + 0.3);
-  } else if (type === 'force') {
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(850, now);
-    osc.frequency.setValueAtTime(250, now + 0.1);
-    osc.frequency.setValueAtTime(650, now + 0.2);
-    gain.gain.setValueAtTime(0.25, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-    osc.start(now);
-    osc.stop(now + 0.4);
-  } else if (type === 'click') {
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(600, now);
-    gain.gain.setValueAtTime(0.15, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-    osc.start(now);
-    osc.stop(now + 0.05);
-  } else if (type === 'wrong') {
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(140, now);
-    osc.frequency.setValueAtTime(70, now + 0.15);
+    osc.frequency.setValueAtTime(500, now);
+    osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
     gain.gain.setValueAtTime(0.3, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
     osc.start(now);
-    osc.stop(now + 0.3);
+    osc.stop(now + 0.2);
+  } else if (type === 'crystal') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, now);
+    osc.frequency.setValueAtTime(1200, now + 0.1);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    osc.start(now);
+    osc.stop(now + 0.2);
   }
 }
 
-const stories = [
-  "Dark Commander Athen docks his Tie Fighter at Bay 1. Crack the laser door lock to breach the station:",
-  "Athen enters the Command Deck. Red Sith alarms flash! Balance the force grid equation to bypass security:",
-  "A rogue Trooper Droid blocks Athen's path. Decipher his number sequence code to force push him aside:",
-  "Athen reaches the Secret Lego Armory. Solve the triple-code to unlock the dark kyber crystal storage:",
-  "⚡ BOSS BATTLE: Grand Master Yoda blocks Sector 5! Strike him with math answers to drain his HP!",
-  "Athen steps into the Shadow Vault. The door requires a reverse force calculation to proceed:",
-  "An ancient Sith Holocron floats in the air. Decode its mystery equation to reveal its knowledge:",
-  "Athen reaches the Imperial Control Bridge. Solve the multi-boost sequence to override the station controls:",
-  "The Reactor Core door is heavily shielded! Calculate the precise missing power number to blast it open:",
-  "⚡ FINAL BOSS BATTLE: The Ancient Jedi Sentinel guards the Core! Strike with full Dark Side power!"
-];
+// Input Handlers (Keyboard + iPad Touch Controls)
+const keys = {};
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Bind both click and touchstart for instant response on iPad
-  const startBtn = document.getElementById("start-btn");
-  const playAgainBtn = document.getElementById("play-again-btn");
-  const continueBtn = document.getElementById("continue-btn");
-  const forceBtn = document.getElementById("force-btn");
+window.addEventListener("keydown", (e) => {
+  keys[e.key] = true;
+  if (e.key === " ") triggerSaberAttack();
+});
+window.addEventListener("keyup", (e) => keys[e.key] = false);
 
-  const bindTouch = (el, handler) => {
-    el.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      unlockAudioContext();
-      handler(e);
-    }, { passive: false });
-    el.addEventListener("click", (e) => {
-      unlockAudioContext();
-      handler(e);
-    });
-  };
+function bindDPadButton(id, dx, dy) {
+  const el = document.getElementById(id);
+  const startHandler = (e) => { e.preventDefault(); initAudio(); player.dx = dx * player.speed; player.dy = dy * player.speed; };
+  const endHandler = (e) => { e.preventDefault(); player.dx = 0; player.dy = 0; };
+  
+  el.addEventListener("touchstart", startHandler, { passive: false });
+  el.addEventListener("touchend", endHandler, { passive: false });
+  el.addEventListener("mousedown", startHandler);
+  el.addEventListener("mouseup", endHandler);
+}
 
-  bindTouch(startBtn, startGame);
-  bindTouch(playAgainBtn, startGame);
-  bindTouch(continueBtn, continueMission);
-  bindTouch(forceBtn, useForceLightning);
+bindDPadButton("btn-up", 0, -1);
+bindDPadButton("btn-down", 0, 1);
+bindDPadButton("btn-left", -1, 0);
+bindDPadButton("btn-right", 1, 0);
+
+document.getElementById("btn-action").addEventListener("click", () => { initAudio(); triggerSaberAttack(); });
+document.getElementById("start-game-btn").addEventListener("click", () => {
+  initAudio();
+  document.getElementById("start-overlay").classList.add("hidden");
+  gameRunning = true;
+  gameLoop();
 });
 
-function startGame() {
-  sector = 1;
-  bricks = 0;
-  forceCharge = 0;
-  updateHUD();
-  showScreen("game-screen");
-  loadLevel();
+function triggerSaberAttack() {
+  if (!player.isAttacking) {
+    player.isAttacking = true;
+    player.attackTimer = 12;
+    playSound('saber');
+  }
 }
 
-function updateHUD() {
-  document.getElementById("sector-val").innerText = sector;
-  document.getElementById("bricks-val").innerText = bricks;
+// Game Loop Functions
+function update() {
+  if (!gameRunning) return;
+
+  // Keyboard Movement
+  if (keys["ArrowUp"] || keys["w"]) player.dy = -player.speed;
+  else if (keys["ArrowDown"] || keys["s"]) player.dy = player.speed;
+  else if (!player.dx) player.dy = 0;
+
+  if (keys["ArrowLeft"] || keys["a"]) player.dx = -player.speed;
+  else if (keys["ArrowRight"] || keys["d"]) player.dx = player.speed;
+  else if (!player.dy) player.dx = 0;
+
+  // Move Player & Clamp inside walls
+  player.x += player.dx;
+  player.y += player.dy;
+  player.x = Math.max(10, Math.min(canvas.width - player.width - 10, player.x));
+  player.y = Math.max(10, Math.min(canvas.height - player.height - 10, player.y));
+
+  // Handle Saber Attack Animation
+  if (player.isAttacking) {
+    player.attackTimer--;
+    if (player.attackTimer <= 0) player.isAttacking = false;
+  }
+
+  // Patrol Droids Logic
+  droids.forEach(d => {
+    d.y += d.dirY;
+    if (d.y <= d.minY || d.y >= d.maxY) d.dirY *= -1;
+
+    // Check collision with player attack
+    if (player.isAttacking && Math.abs(player.x - d.x) < 40 && Math.abs(player.y - d.y) < 40) {
+      d.x = -100; // Destroy droid!
+    }
+  });
+
+  // Collect Kyber Crystals
+  crystals.forEach(c => {
+    if (!c.collected && Math.abs(player.x - c.x) < 20 && Math.abs(player.y - c.y) < 20) {
+      c.collected = true;
+      crystalsCollected += 10;
+      document.getElementById("kyber-count").innerText = crystalsCollected;
+      playSound('crystal');
+    }
+  });
+
+  // Check Blast Door Proximity Trigger
+  if (blastDoor.locked && player.x + player.width >= blastDoor.x - 10 && Math.abs(player.y - blastDoor.y) < 60) {
+    player.x = blastDoor.x - player.width - 12; // Stop player movement
+    triggerDoorHack();
+  }
+}
+
+function triggerDoorHack() {
+  gameRunning = false;
+  const overlay = document.getElementById("hack-overlay");
+  overlay.classList.remove("hidden");
   
-  const forceBtn = document.getElementById("force-btn");
-  if (forceCharge >= 2) {
-    forceBtn.disabled = false;
-    forceBtn.innerText = "⚡ Force Lightning (READY!)";
-  } else {
-    forceBtn.disabled = true;
-    forceBtn.innerText = `⚡ Force Lightning (${forceCharge}/2)`;
-  }
-}
-
-function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function loadLevel() {
-  document.getElementById("story-text").innerText = stories[sector - 1];
-  
-  const bossBox = document.getElementById("boss-container");
-  if (sector === 5 || sector === 10) {
-    isBossSector = true;
-    bossHP = 100;
-    bossBox.classList.remove("hidden");
-    document.getElementById("boss-name").innerText = sector === 5 ? "💥 BOSS: Grand Master Yoda" : "💥 FINAL BOSS: Ancient Jedi Sentinel";
-    updateBossHP();
-  } else {
-    isBossSector = false;
-    bossBox.classList.add("hidden");
-  }
-
-  let qText = "";
-
-  if (sector === 1) {
-    let num1 = getRandomInt(5, 12), num2 = getRandomInt(3, 10);
-    currentAnswer = num1 + num2;
-    qText = `${num1} + ${num2} = ?`;
-  } else if (sector === 2) {
-    let num1 = getRandomInt(10, 20), num2 = getRandomInt(2, 8);
-    currentAnswer = num1 - num2;
-    qText = `${num1} - ${num2} = ?`;
-  } else if (sector === 3) {
-    let step = getRandomInt(2, 5), start = getRandomInt(1, 5);
-    currentAnswer = start + (step * 3);
-    qText = `Pattern: ${start}, ${start + step}, ${start + (step * 2)}, [ ? ]`;
-  } else if (sector === 4) {
-    let a = getRandomInt(2, 6), b = getRandomInt(2, 6), c = getRandomInt(2, 6);
-    currentAnswer = a + b + c;
-    qText = `${a} + ${b} + ${c} = ?`;
-  } else if (sector === 5) {
-    let num1 = getRandomInt(6, 12), num2 = getRandomInt(5, 10);
-    currentAnswer = num1 + num2;
-    qText = `BOSS STRIKE: ${num1} + ${num2} = ?`;
-  } else if (sector === 6) {
-    let num1 = getRandomInt(15, 25), num2 = getRandomInt(5, 12);
-    currentAnswer = num1 - num2;
-    qText = `${num1} - ${num2} = ?`;
-  } else if (sector === 7) {
-    let step = 10, start = getRandomInt(1, 4) * 10;
-    currentAnswer = start + 30;
-    qText = `Pattern: ${start}, ${start + 10}, ${start + 20}, [ ? ]`;
-  } else if (sector === 8) {
-    let a = getRandomInt(5, 10), b = getRandomInt(5, 10), c = getRandomInt(5, 10);
-    currentAnswer = a + b + c;
-    qText = `${a} + ${b} + ${c} = ?`;
-  } else if (sector === 9) {
-    let start = getRandomInt(10, 20), add = getRandomInt(5, 15);
-    currentAnswer = add;
-    qText = `${start} + [ ? ] = ${start + add}`;
-  } else if (sector === 10) {
-    let num1 = getRandomInt(10, 20), num2 = getRandomInt(10, 20);
-    currentAnswer = num1 + num2;
-    qText = `FINAL STRIKE: ${num1} + ${num2} = ?`;
-  }
-
-  document.getElementById("puzzle-q").innerText = qText;
-
-  let options = [currentAnswer];
-  while (options.length < 4) {
-    let wrong = currentAnswer + getRandomInt(-4, 4);
-    if (wrong > 0 && !options.includes(wrong)) options.push(wrong);
-  }
-  
-  options.sort(() => Math.random() - 0.5);
-
-  const optContainer = document.getElementById("options-container");
+  document.getElementById("math-problem").innerText = `${blastDoor.problem.q} = ?`;
+  const optContainer = document.getElementById("hack-options");
   optContainer.innerHTML = "";
-  options.forEach(opt => {
+
+  blastDoor.problem.options.forEach(opt => {
     const btn = document.createElement("button");
-    btn.className = "lego-btn option-btn";
+    btn.className = "lego-btn";
     btn.innerText = opt;
-    
-    // Bind touch for zero delay on iPad
-    btn.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      unlockAudioContext();
-      checkAnswer(opt, e.touches[0]);
-    }, { passive: false });
-
-    btn.addEventListener("click", (e) => {
-      unlockAudioContext();
-      checkAnswer(opt, e);
-    });
-
+    btn.onclick = () => {
+      if (opt === blastDoor.problem.answer) {
+        blastDoor.locked = false;
+        overlay.classList.add("hidden");
+        playSound('saber');
+        gameRunning = true;
+        gameLoop();
+      } else {
+        alert("⚡ Security Lock Glitch! Recalculate your code!");
+      }
+    };
     optContainer.appendChild(btn);
   });
 }
 
-function updateBossHP() {
-  document.getElementById("boss-hp-inner").style.width = `${bossHP}%`;
-}
+function draw() {
+  // Clear Frame
+  ctx.fillStyle = "#0c0d14";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-function checkAnswer(selected, touchEvent) {
-  if (selected === currentAnswer) {
-    bricks += 10;
-    if (forceCharge < 2) forceCharge++;
-    updateHUD();
+  // Draw Space Station Walls
+  ctx.strokeStyle = "#ff0033";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(5, 5, canvas.width - 10, canvas.height - 10);
 
-    playSound('saber');
-    triggerSlashFX();
-
-    const x = touchEvent.clientX || window.innerWidth / 2;
-    const y = touchEvent.clientY || window.innerHeight / 2;
-    triggerFloatingText("+10 KYBER!", x, y);
-
-    if (isBossSector) {
-      bossHP -= 50;
-      updateBossHP();
-      if (bossHP <= 0) {
-        setTimeout(() => {
-          if (sector === 5) triggerAnimation(5);
-          else if (sector === 10) triggerAnimation(10);
-        }, 500);
-        return;
-      }
-    }
-
-    if (!isBossSector) {
-      sector++;
-      setTimeout(loadLevel, 400);
-    } else {
-      setTimeout(loadLevel, 400);
-    }
-  } else {
-    playSound('wrong');
-    const container = document.getElementById("game-container");
-    container.classList.add("shake");
-    setTimeout(() => container.classList.remove("shake"), 400);
-  }
-}
-
-function triggerSlashFX() {
-  const slash = document.getElementById("slash-fx");
-  slash.classList.add("active-slash");
-  setTimeout(() => slash.classList.remove("active-slash"), 350);
-}
-
-function triggerFloatingText(text, x, y) {
-  const el = document.createElement("div");
-  el.className = "floating-text";
-  el.innerText = text;
-  el.style.left = `${x - 50}px`;
-  el.style.top = `${y - 50}px`;
-  document.getElementById("floating-text-container").appendChild(el);
-  setTimeout(() => el.remove(), 1200);
-}
-
-function useForceLightning() {
-  if (forceCharge < 2) return;
-  forceCharge = 0;
-  updateHUD();
-  playSound('force');
-
-  const buttons = document.querySelectorAll(".option-btn");
-  let removed = 0;
-  buttons.forEach(btn => {
-    if (parseInt(btn.innerText) !== currentAnswer && removed < 2) {
-      btn.style.visibility = "hidden";
-      removed++;
+  // Draw Kyber Crystals
+  crystals.forEach(c => {
+    if (!c.collected) {
+      ctx.fillStyle = "#4cc9f0";
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 8, 0, Math.PI * 2);
+      ctx.fill();
     }
   });
-}
 
-function triggerAnimation(level) {
-  showScreen("reward-screen");
-  const blade = document.getElementById("saber-blade");
-  blade.classList.remove("ignite");
+  // Draw Droids
+  ctx.fillStyle = "#ffcc00";
+  droids.forEach(d => {
+    if (d.x > 0) ctx.fillRect(d.x, d.y, d.width, d.height);
+  });
 
-  if (level === 5) {
-    document.getElementById("reward-title").innerText = "⚡ MID-WAY POWER UNLOCKED! ⚡";
-    document.getElementById("reward-text").innerText = 
-      "Lord Athen has defeated Yoda and empowered his Sith Kyber Crystal! Red Lightsaber ignition activated!";
-  } else if (level === 10) {
-    document.getElementById("reward-title").innerText = "👑 ULTIMATE SITH POWER! 👑";
-    document.getElementById("reward-text").innerText = 
-      "Lord Athen has conquered all 10 Sith Vaults and defeated the Ancient Sentinel!";
+  // Draw Blast Door
+  if (blastDoor.locked) {
+    ctx.fillStyle = "#ff0033";
+    ctx.fillRect(blastDoor.x, blastDoor.y, blastDoor.width, blastDoor.height);
   }
 
-  setTimeout(() => blade.classList.add("ignite"), 200);
+  // Draw Player (Lord Athen)
+  ctx.fillStyle = "#e60000"; // Sith Red Armor
+  ctx.fillRect(player.x, player.y, player.width, player.height);
+
+  // Draw Lightsaber Blade on Attack
+  if (player.isAttacking) {
+    ctx.fillStyle = "#ffffff";
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = "#ff0033";
+    ctx.fillRect(player.x + player.width, player.y + 4, 30, 6);
+    ctx.shadowBlur = 0;
+  }
 }
 
-function continueMission() {
-  if (sector === 5) {
-    sector = 6;
-    updateHUD();
-    showScreen("game-screen");
-    loadLevel();
-  } else if (sector === 10) {
-    document.getElementById("win-text").innerText = 
-      `All hail Supreme Dark Jedi Athen! You collected ${bricks} Sith Kyber Crystals, completed all 10 missions, and built the ultimate Dark Side Lego Starship!`;
-    showScreen("win-screen");
-  }
+function gameLoop() {
+  if (!gameRunning) return;
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
 }
