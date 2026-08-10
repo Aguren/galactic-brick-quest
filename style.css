@@ -10,142 +10,125 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
-  background: #050508;
+  overflow: hidden; /* Lock viewport for iPad full-screen */
+  background: #000;
   color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 #game-container {
-  width: 100%;
-  max-width: 640px;
-  background: #110303;
-  border: 4px solid #ff0033;
-  border-radius: 12px;
-  padding: 12px;
-  box-shadow: 0 0 30px rgba(255, 0, 51, 0.5);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.hud {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  background: #1c0505;
-  padding: 10px 15px;
-  border-radius: 8px;
-  border: 1px solid #ff0033;
-  font-weight: bold;
-  color: #ff3355;
-  margin-bottom: 10px;
-}
-
-.hud span { color: #fff; }
-
-#canvas-wrapper {
   position: relative;
-  width: 100%;
-  max-width: 600px;
-  height: 380px;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
 canvas {
-  background: #0b0c10;
-  border: 2px solid #333;
-  border-radius: 8px;
   width: 100%;
   height: 100%;
   display: block;
+  background: #030308;
 }
 
+/* Fullscreen HUD Overlay */
+#hud {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(28, 5, 5, 0.85);
+  border: 2px solid #ff0033;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 18px;
+  color: #ff3355;
+  box-shadow: 0 0 15px rgba(255, 0, 51, 0.4);
+  pointer-events: none; /* Allows touch events to pass through to canvas */
+  z-index: 5;
+}
+
+.hud-item span { color: #fff; }
+
+/* Target Lock Bar for Math Blasters */
+#target-lock-bar {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 500px;
+  background: rgba(15, 2, 2, 0.92);
+  border: 3px solid #ff0033;
+  border-radius: 14px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(255, 0, 51, 0.6);
+  z-index: 10;
+}
+
+#lock-target-q {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffcc00;
+  margin-bottom: 12px;
+  text-shadow: 0 0 8px #ff0033;
+}
+
+#lock-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Fullscreen Menu Overlay */
 .overlay {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(10, 2, 2, 0.92);
-  border-radius: 8px;
+  background: rgba(5, 2, 2, 0.92);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 25px;
   text-align: center;
-  z-index: 10;
+  z-index: 20;
 }
 
-.hidden { display: none !important; }
+.glow-title {
+  font-size: 38px;
+  color: #ff0033;
+  text-shadow: 0 0 20px #ff0033, 2px 2px #000;
+  margin: 0 0 10px 0;
+}
 
-.lego-btn {
-  background: #e60000;
-  color: white;
+.instructions {
+  font-size: 20px;
+  color: #ddd;
+  max-width: 450px;
+  line-height: 1.5;
+  margin: 20px 0 30px 0;
+}
+
+.arcade-btn {
+  background: #ff0033;
+  color: #fff;
   border: none;
-  padding: 12px 24px;
-  font-size: 18px;
-  font-weight: bold;
-  border-radius: 6px;
+  padding: 18px 36px;
+  font-size: 24px;
+  font-weight: 900;
+  border-radius: 10px;
   cursor: pointer;
-  margin: 6px;
-  box-shadow: 0 5px 0 #800000;
+  box-shadow: 0 6px 0 #800000, 0 0 20px rgba(255, 0, 51, 0.5);
   touch-action: manipulation;
 }
 
-.lego-btn:active {
-  transform: translateY(3px);
+.arcade-btn:active {
+  transform: translateY(4px);
   box-shadow: 0 2px 0 #800000;
 }
 
-.options-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  width: 80%;
-}
-
-/* On-screen Touch D-Pad for iPad */
-#touch-controls {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-  padding: 0 10px;
-}
-
-.dpad {
-  position: relative;
-  width: 130px;
-  height: 130px;
-}
-
-.dbtn {
-  position: absolute;
-  width: 42px;
-  height: 42px;
-  background: #2a0808;
-  border: 2px solid #ff0033;
-  color: #ff0033;
-  font-size: 18px;
-  font-weight: bold;
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  touch-action: manipulation;
-}
-
-.dbtn:active { background: #ff0033; color: #fff; }
-
-.d-up { top: 0; left: 44px; }
-.d-down { bottom: 0; left: 44px; }
-.d-left { top: 44px; left: 0; }
-.d-right { top: 44px; right: 0; }
-
-.saber-attack-btn {
-  height: 70px;
-  width: 120px;
-  font-size: 20px;
-}
+.hidden { display: none !important; }

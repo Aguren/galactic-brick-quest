@@ -1,53 +1,53 @@
-const canvas = document.getElementById("gameCanvas");
+const canvas = document.getElementById("arcadeCanvas");
 const ctx = canvas.getContext("2d");
 
-// Game State Variables
+// Full Screen Canvas Resizer
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+// Game State Setup
 let gameRunning = false;
-let crystalsCollected = 0;
-let keycards = 0;
-let activeDoor = null;
+let score = 0;
+let shield = 100;
+let currentTargetAns = 0;
+let lockActive = false;
 
-// Player Setup (Dark Commander Athen)
-const player = {
-  x: 50,
-  y: 180,
-  width: 24,
-  height: 24,
-  speed: 3,
-  dx: 0,
-  dy: 0,
-  isAttacking: false,
-  attackTimer: 0
+// Starfighter (Lord Athen)
+const ship = {
+  x: canvas.width / 2,
+  y: canvas.height - 120,
+  width: 44,
+  height: 44,
+  speed: 8
 };
 
-// Collectible Kyber Crystals
-let crystals = [
-  { x: 120, y: 80, collected: false },
-  { x: 280, y: 280, collected: false },
-  { x: 420, y: 100, collected: false }
-];
+// Dynamic Game Objects
+let lasers = [];
+let enemies = [];
+let stars = [];
+let particles = [];
+let lastSpawn = 0;
+let lastTargetSpawn = 0;
 
-// Patrol Droids (Enemies)
-let droids = [
-  { x: 200, y: 100, width: 22, height: 22, dirY: 2, minY: 50, maxY: 300 },
-  { x: 380, y: 250, width: 22, height: 22, dirY: -2, minY: 80, maxY: 320 }
-];
+// Generate Starfield Background
+for (let i = 0; i < 70; i++) {
+  stars.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 2 + 1,
+    speed: Math.random() * 3 + 1
+  });
+}
 
-// Security Blast Doors (Require Math Lock)
-let blastDoor = {
-  x: 480,
-  y: 140,
-  width: 20,
-  height: 100,
-  locked: true,
-  problem: { q: "8 + 6", answer: 14, options: [12, 14, 15, 16] }
-};
-
-// Audio Synthesizer
+// Audio Synthesizer (iOS Web Audio Compliant)
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
-function initAudio() {
+function unlockAudio() {
   if (!audioCtx) audioCtx = new AudioContext();
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
@@ -60,191 +60,251 @@ function playSound(type) {
   gain.connect(audioCtx.destination);
   const now = audioCtx.currentTime;
 
-  if (type === 'saber') {
+  if (type === 'laser') {
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(500, now);
-    osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
-    gain.gain.setValueAtTime(0.3, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-    osc.start(now);
-    osc.stop(now + 0.2);
-  } else if (type === 'crystal') {
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(800, now);
-    osc.frequency.setValueAtTime(1200, now + 0.1);
+    osc.frequency.setValueAtTime(600, now);
+    osc.frequency.exponentialRampToValueAtTime(150, now + 0.15);
     gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
     osc.start(now);
-    osc.stop(now + 0.2);
+    osc.stop(now + 0.15);
+  } else if (type === 'boom') {
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(120, now);
+    osc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+    osc.start(now);
+    osc.stop(now + 0.3);
   }
 }
 
-// Input Handlers (Keyboard + iPad Touch Controls)
-const keys = {};
+// iPad Touch Drag Steering & Continuous Auto-Firing
+canvas.addEventListener("touchmove", (e) => {
+  e.preventDefault();
+  unlockAudio();
+  const touch = e.touches[0];
+  ship.x = touch.clientX;
+  ship.y = touch.clientY - 30; // Position ship slightly above finger so he can see it
+}, { passive: false });
 
-window.addEventListener("keydown", (e) => {
-  keys[e.key] = true;
-  if (e.key === " ") triggerSaberAttack();
+// Desktop Mouse Steering Fallback
+canvas.addEventListener("mousemove", (e) => {
+  if (gameRunning) {
+    ship.x = e.clientX;
+    ship.y = e.clientY;
+  }
 });
-window.addEventListener("keyup", (e) => keys[e.key] = false);
 
-function bindDPadButton(id, dx, dy) {
-  const el = document.getElementById(id);
-  const startHandler = (e) => { e.preventDefault(); initAudio(); player.dx = dx * player.speed; player.dy = dy * player.speed; };
-  const endHandler = (e) => { e.preventDefault(); player.dx = 0; player.dy = 0; };
-  
-  el.addEventListener("touchstart", startHandler, { passive: false });
-  el.addEventListener("touchend", endHandler, { passive: false });
-  el.addEventListener("mousedown", startHandler);
-  el.addEventListener("mouseup", endHandler);
-}
+// Automatic Blaster Fire
+setInterval(() => {
+  if (gameRunning && !lockActive) {
+    lasers.push({ x: ship.x, y: ship.y - 20, speed: 12 });
+    playSound('laser');
+  }
+}, 220);
 
-bindDPadButton("btn-up", 0, -1);
-bindDPadButton("btn-down", 0, 1);
-bindDPadButton("btn-left", -1, 0);
-bindDPadButton("btn-right", 1, 0);
-
-document.getElementById("btn-action").addEventListener("click", () => { initAudio(); triggerSaberAttack(); });
-document.getElementById("start-game-btn").addEventListener("click", () => {
-  initAudio();
-  document.getElementById("start-overlay").classList.add("hidden");
+// Menu & Start Trigger
+document.getElementById("start-btn").addEventListener("click", () => {
+  unlockAudio();
+  document.getElementById("menu-overlay").classList.add("hidden");
+  score = 0;
+  shield = 100;
+  enemies = [];
+  lasers = [];
+  document.getElementById("score-val").innerText = score;
+  document.getElementById("shield-val").innerText = shield + "%";
   gameRunning = true;
-  gameLoop();
+  lastTargetSpawn = Date.now();
+  requestAnimationFrame(gameLoop);
 });
 
-function triggerSaberAttack() {
-  if (!player.isAttacking) {
-    player.isAttacking = true;
-    player.attackTimer = 12;
-    playSound('saber');
-  }
+function spawnEnemy() {
+  const isAsteroid = Math.random() > 0.5;
+  enemies.push({
+    x: Math.random() * (canvas.width - 40) + 20,
+    y: -40,
+    size: isAsteroid ? 30 : 22,
+    speed: Math.random() * 2 + 2,
+    isAsteroid: isAsteroid
+  });
 }
 
-// Game Loop Functions
-function update() {
-  if (!gameRunning) return;
+function spawnMathTarget() {
+  lockActive = true;
+  const targetBar = document.getElementById("target-lock-bar");
+  targetBar.classList.remove("hidden");
 
-  // Keyboard Movement
-  if (keys["ArrowUp"] || keys["w"]) player.dy = -player.speed;
-  else if (keys["ArrowDown"] || keys["s"]) player.dy = player.speed;
-  else if (!player.dx) player.dy = 0;
+  let n1 = Math.floor(Math.random() * 10) + 4;
+  let n2 = Math.floor(Math.random() * 10) + 3;
+  currentTargetAns = n1 + n2;
 
-  if (keys["ArrowLeft"] || keys["a"]) player.dx = -player.speed;
-  else if (keys["ArrowRight"] || keys["d"]) player.dx = player.speed;
-  else if (!player.dy) player.dx = 0;
+  document.getElementById("lock-target-q").innerText = `⚡ TARGET LOCK: ${n1} + ${n2} = ?`;
 
-  // Move Player & Clamp inside walls
-  player.x += player.dx;
-  player.y += player.dy;
-  player.x = Math.max(10, Math.min(canvas.width - player.width - 10, player.x));
-  player.y = Math.max(10, Math.min(canvas.height - player.height - 10, player.y));
-
-  // Handle Saber Attack Animation
-  if (player.isAttacking) {
-    player.attackTimer--;
-    if (player.attackTimer <= 0) player.isAttacking = false;
+  let options = [currentTargetAns];
+  while (options.length < 4) {
+    let wrong = currentTargetAns + (Math.floor(Math.random() * 8) - 4);
+    if (wrong > 0 && !options.includes(wrong)) options.push(wrong);
   }
+  options.sort(() => Math.random() - 0.5);
 
-  // Patrol Droids Logic
-  droids.forEach(d => {
-    d.y += d.dirY;
-    if (d.y <= d.minY || d.y >= d.maxY) d.dirY *= -1;
-
-    // Check collision with player attack
-    if (player.isAttacking && Math.abs(player.x - d.x) < 40 && Math.abs(player.y - d.y) < 40) {
-      d.x = -100; // Destroy droid!
-    }
-  });
-
-  // Collect Kyber Crystals
-  crystals.forEach(c => {
-    if (!c.collected && Math.abs(player.x - c.x) < 20 && Math.abs(player.y - c.y) < 20) {
-      c.collected = true;
-      crystalsCollected += 10;
-      document.getElementById("kyber-count").innerText = crystalsCollected;
-      playSound('crystal');
-    }
-  });
-
-  // Check Blast Door Proximity Trigger
-  if (blastDoor.locked && player.x + player.width >= blastDoor.x - 10 && Math.abs(player.y - blastDoor.y) < 60) {
-    player.x = blastDoor.x - player.width - 12; // Stop player movement
-    triggerDoorHack();
-  }
-}
-
-function triggerDoorHack() {
-  gameRunning = false;
-  const overlay = document.getElementById("hack-overlay");
-  overlay.classList.remove("hidden");
-  
-  document.getElementById("math-problem").innerText = `${blastDoor.problem.q} = ?`;
-  const optContainer = document.getElementById("hack-options");
+  const optContainer = document.getElementById("lock-options");
   optContainer.innerHTML = "";
-
-  blastDoor.problem.options.forEach(opt => {
+  options.forEach(opt => {
     const btn = document.createElement("button");
-    btn.className = "lego-btn";
+    btn.className = "arcade-btn";
+    btn.style.fontSize = "20px";
+    btn.style.padding = "10px";
     btn.innerText = opt;
-    btn.onclick = () => {
-      if (opt === blastDoor.problem.answer) {
-        blastDoor.locked = false;
-        overlay.classList.add("hidden");
-        playSound('saber');
-        gameRunning = true;
-        gameLoop();
-      } else {
-        alert("⚡ Security Lock Glitch! Recalculate your code!");
-      }
-    };
+    btn.onclick = () => checkTargetCode(opt);
     optContainer.appendChild(btn);
   });
 }
 
+function checkTargetCode(selected) {
+  if (selected === currentTargetAns) {
+    playSound('boom');
+    score += 50;
+    document.getElementById("score-val").innerText = score;
+    createExplosion(canvas.width / 2, 120);
+  }
+  lockActive = false;
+  document.getElementById("target-lock-bar").classList.add("hidden");
+  lastTargetSpawn = Date.now();
+}
+
+function createExplosion(x, y) {
+  for (let i = 0; i < 20; i++) {
+    particles.push({
+      x: x, y: y,
+      vx: (Math.random() - 0.5) * 8,
+      vy: (Math.random() - 0.5) * 8,
+      life: 25
+    });
+  }
+}
+
+function update() {
+  // Move Stars
+  stars.forEach(s => {
+    s.y += s.speed;
+    if (s.y > canvas.height) s.y = 0;
+  });
+
+  // Spawn Regular Enemies
+  if (Date.now() - lastSpawn > 900) {
+    spawnEnemy();
+    lastSpawn = Date.now();
+  }
+
+  // Spawn Math Target Lock Event every 14 seconds
+  if (!lockActive && Date.now() - lastTargetSpawn > 14000) {
+    spawnMathTarget();
+  }
+
+  // Move Lasers
+  lasers.forEach((l, index) => {
+    l.y -= l.speed;
+    if (l.y < 0) lasers.splice(index, 1);
+  });
+
+  // Move Enemies & Check Laser Collisions
+  enemies.forEach((e, eIdx) => {
+    e.y += e.speed;
+
+    // Check collision with ship
+    if (Math.abs(e.x - ship.x) < 30 && Math.abs(e.y - ship.y) < 30) {
+      shield -= 15;
+      document.getElementById("shield-val").innerText = Math.max(0, shield) + "%";
+      createExplosion(e.x, e.y);
+      enemies.splice(eIdx, 1);
+      playSound('boom');
+
+      if (shield <= 0) {
+        gameRunning = false;
+        document.getElementById("menu-overlay").classList.remove("hidden");
+      }
+    }
+
+    // Check collision with Lasers
+    lasers.forEach((l, lIdx) => {
+      if (Math.abs(e.x - l.x) < 25 && Math.abs(e.y - l.y) < 25) {
+        score += 10;
+        document.getElementById("score-val").innerText = score;
+        createExplosion(e.x, e.y);
+        playSound('boom');
+        enemies.splice(eIdx, 1);
+        lasers.splice(lIdx, 1);
+      }
+    });
+
+    if (e.y > canvas.height + 40) enemies.splice(eIdx, 1);
+  });
+
+  // Update Particles
+  particles.forEach((p, pIdx) => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+    if (p.life <= 0) particles.splice(pIdx, 1);
+  });
+}
+
 function draw() {
-  // Clear Frame
-  ctx.fillStyle = "#0c0d14";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Draw Space Station Walls
-  ctx.strokeStyle = "#ff0033";
-  ctx.lineWidth = 4;
-  ctx.strokeRect(5, 5, canvas.width - 10, canvas.height - 10);
+  // Draw Starfield
+  ctx.fillStyle = "#ffffff";
+  stars.forEach(s => {
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+    ctx.fill();
+  });
 
-  // Draw Kyber Crystals
-  crystals.forEach(c => {
-    if (!c.collected) {
-      ctx.fillStyle = "#4cc9f0";
+  // Draw Lasers
+  ctx.fillStyle = "#ff0033";
+  ctx.shadowBlur = 10;
+  ctx.shadowColor = "#ff0033";
+  lasers.forEach(l => {
+    ctx.fillRect(l.x - 3, l.y, 6, 18);
+  });
+
+  // Draw Enemies
+  enemies.forEach(e => {
+    if (e.isAsteroid) {
+      ctx.fillStyle = "#777";
+      ctx.shadowBlur = 0;
       ctx.beginPath();
-      ctx.arc(c.x, c.y, 8, 0, Math.PI * 2);
+      ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
       ctx.fill();
+    } else {
+      ctx.fillStyle = "#4cc9f0"; // Jedi Droid Blue
+      ctx.shadowColor = "#4cc9f0";
+      ctx.shadowBlur = 8;
+      ctx.fillRect(e.x - 15, e.y - 15, 30, 30);
     }
   });
 
-  // Draw Droids
-  ctx.fillStyle = "#ffcc00";
-  droids.forEach(d => {
-    if (d.x > 0) ctx.fillRect(d.x, d.y, d.width, d.height);
+  // Draw Explosion Particles
+  particles.forEach(p => {
+    ctx.fillStyle = "#ffcc00";
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = "#ff9900";
+    ctx.fillRect(p.x, p.y, 4, 4);
   });
 
-  // Draw Blast Door
-  if (blastDoor.locked) {
-    ctx.fillStyle = "#ff0033";
-    ctx.fillRect(blastDoor.x, blastDoor.y, blastDoor.width, blastDoor.height);
-  }
+  // Draw Player Starfighter (Sith Red Interceptor)
+  ctx.fillStyle = "#e60000";
+  ctx.shadowColor = "#ff0033";
+  ctx.shadowBlur = 15;
+  ctx.beginPath();
+  ctx.moveTo(ship.x, ship.y - 25);
+  ctx.lineTo(ship.x - 22, ship.y + 18);
+  ctx.lineTo(ship.x + 22, ship.y + 18);
+  ctx.closePath();
+  ctx.fill();
 
-  // Draw Player (Lord Athen)
-  ctx.fillStyle = "#e60000"; // Sith Red Armor
-  ctx.fillRect(player.x, player.y, player.width, player.height);
-
-  // Draw Lightsaber Blade on Attack
-  if (player.isAttacking) {
-    ctx.fillStyle = "#ffffff";
-    ctx.shadowBlur = 12;
-    ctx.shadowColor = "#ff0033";
-    ctx.fillRect(player.x + player.width, player.y + 4, 30, 6);
-    ctx.shadowBlur = 0;
-  }
+  ctx.shadowBlur = 0; // Reset shadow
 }
 
 function gameLoop() {

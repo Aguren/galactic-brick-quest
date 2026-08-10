@@ -5,51 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Lord Athen: Dark Side Arcade</title>
+  <title>Lord Athen: Starfighter Conquest</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <div id="game-container">
-  <!-- Top HUD -->
-  <div class="hud">
-    <div>LORD ATHEN</div>
-    <div>Crystals: <span id="kyber-count">0</span> 💎</div>
-    <div>Keycards: <span id="key-count">0</span> 🔑</div>
+  <!-- Full Screen Arcade Canvas -->
+  <canvas id="arcadeCanvas"></canvas>
+
+  <!-- Top HUD Bar -->
+  <div id="hud">
+    <div class="hud-item">LORD ATHEN</div>
+    <div class="hud-item">SCORE: <span id="score-val">0</span></div>
+    <div class="hud-item">SITH SHIELD: <span id="shield-val">100%</span></div>
   </div>
 
-  <!-- Interactive 2D Canvas World -->
-  <div id="canvas-wrapper">
-    <canvas id="gameCanvas" width="600" height="400"></canvas>
-
-    <!-- Overlay Popup for Door Hacking -->
-    <div id="hack-overlay" class="overlay hidden">
-      <h2 style="color: #ff0033; margin-top: 0;">⚡ SITH DOOR HACK ⚡</h2>
-      <p id="hack-instructions">Enter the security code to breach blast door:</p>
-      <div id="math-problem" style="font-size: 28px; font-weight: bold; margin: 15px 0;"></div>
-      <div id="hack-options" class="options-grid"></div>
-    </div>
-
-    <!-- Start / Game Over Screen Overlay -->
-    <div id="start-overlay" class="overlay">
-      <h2 style="color: #ff0033;">⚡ LORD ATHEN: DARK SIDE QUEST ⚡</h2>
-      <p>Use the D-Pad below (or Arrow Keys) to move Dark Commander Athen.</p>
-      <p>Collect Kyber Crystals, dodge Jedi Droids, and hack blast doors to find the Secret Vault!</p>
-      <button class="lego-btn red-btn" id="start-game-btn">START MISSION</button>
-    </div>
+  <!-- Target Lock Math Array (Appears when Boss/Cruiser Spawns) -->
+  <div id="target-lock-bar" class="hidden">
+    <div id="lock-target-q">LOCK TARGET: 12 + 8 = ?</div>
+    <div id="lock-options"></div>
   </div>
 
-  <!-- On-Screen iPad D-Pad Controller -->
-  <div id="touch-controls">
-    <div class="dpad">
-      <button class="dbtn d-up" id="btn-up">▲</button>
-      <button class="dbtn d-left" id="btn-left">◀</button>
-      <button class="dbtn d-right" id="btn-right">▶</button>
-      <button class="dbtn d-down" id="btn-down">▼</button>
-    </div>
-    <div class="action-btn-area">
-      <button class="lego-btn red-btn saber-attack-btn" id="btn-action">⚡ SABER</button>
-    </div>
+  <!-- Full Screen Start / Game Over Overlay -->
+  <div id="menu-overlay" class="overlay">
+    <h1 class="glow-title">⚡ LORD ATHEN ⚡</h1>
+    <h3 style="color: #ff3355;">SITH STARFIGHTER CONQUEST</h3>
+    <p class="instructions">Drag your finger across the iPad screen to steer your Starfighter and fire blasters!</p>
+    <button id="start-btn" class="arcade-btn">LAUNCH STARFIGHTER</button>
   </div>
 </div>
 
