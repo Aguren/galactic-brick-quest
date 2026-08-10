@@ -373,16 +373,10 @@ function loadMission(idx) {
 
   } else if (idx === 5) {
     if (title) title.innerText = `${t.term} 5: DIGITAL VAULT CONSOLE ${t.icon}`;
-    if (prompt) prompt.innerText = `Read the 4-sentence story to unlock the console:`;
-    if (promptEs) promptEs.innerText = `Lee la historia de 4 oraciones para desbloquear la consola:`;
+    if (prompt) prompt.innerText = `Enter the 3 secret Numbers you wrote on your paper (${t.numSeq.join(' - ')})!`;
+    if (promptEs) promptEs.innerText = `¡Ingresa los 3 números secretos de tu papel!`;
     if (area) {
       area.innerHTML = `
-        <div class="reading-pass-box">
-          1. Detective ${agentName} found a digital console in the Manzanita hallway.<br/>
-          2. ${sidekickName} checked the secret paper for the 3 numbers.<br/>
-          3. El código secreto de la bóveda tiene tres dígitos.<br/>
-          4. ¡Ingresa los números (${t.numSeq.join(' - ')}) para abrir la caja fuerte!
-        </div>
         <div class="keypad-console">
           <div class="code-display" id="vault-combo-disp">_ _ _</div>
           <div class="keypad-grid-3x3">
@@ -403,12 +397,15 @@ function loadMission(idx) {
 
   } else if (idx === 6) {
     if (title) title.innerText = `${t.term} 6: DETECTIVE READING MYSTERY ${t.icon}`;
-    if (prompt) prompt.innerText = `Read the passage carefully to answer the question!`;
-    if (promptEs) promptEs.innerText = `Lee el texto con atención para responder:`;
+    if (prompt) prompt.innerText = `Read the 4-sentence story to solve the mystery:`;
+    if (promptEs) promptEs.innerText = `Lee la historia de 4 oraciones para resolver el misterio:`;
     if (area) {
       area.innerHTML = `
         <div class="reading-pass-box">
-          It was a sunny morning at Manzanita Elementary. ${agentName} and ${sidekickName} walked quietly down the hallway toward the library. Suddenly, a polite parrot flew over the bookshelves holding a sparkling object in its beak. The parrot dropped the item carefully under the teacher's large oak desk. ${sidekickName} gasped with excitement. It turned out to be the special ${t.m6Color} needed for 2nd grade! Everyone cheered softly so they wouldn't disturb the reading class.
+          1. It was a sunny morning at Manzanita Elementary.<br/>
+          2. A polite parrot flew over the bookshelves holding a sparkling ${t.m6Color}.<br/>
+          3. El loro dejó caer la lupa debajo del escritorio del maestro.<br/>
+          4. ¡Detective ${agentName} y ${sidekickName} celebraron en la biblioteca!
         </div>
         <p style="font-weight:bold; margin-top:6px; font-size:13px;">Where did the parrot drop the ${t.m6Color}?</p>
         <div class="choice-grid">
