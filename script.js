@@ -426,7 +426,7 @@ function loadMission(idx) {
         <div class="reading-pass-box">
           It was a sunny morning at Manzanita Elementary. ${agentName} and ${sidekickName} walked quietly down the hallway toward the library. Suddenly, a polite parrot flew over the bookshelves holding a sparkling object in its beak. The parrot dropped the item carefully under the teacher's large oak desk. ${sidekickName} gasped with excitement. It turned out to be the special ${t.m6Color} needed for 2nd grade! Everyone cheered softly so they wouldn't disturb the reading class.
         </div>
-        <p style="font-weight:bold; margin-top:10px;">Where did the parrot drop the ${t.m6Color}?</p>
+        <p style="font-weight:bold; margin-top:6px; font-size:13px;">Where did the parrot drop the ${t.m6Color}?</p>
         <div class="choice-grid">
           <button class="choice-btn wrong-m">In a blue backpack / Mochila</button>
           <button class="choice-btn correct-m">Under the teacher's desk / Escritorio</button>
@@ -657,7 +657,7 @@ function loadMission(idx) {
         <div class="reading-pass-box">
           El gato de ${agentName} se llama Pelusa. Pelusa es de color blanco y le gusta jugar con una pelota roja en el jardín de Manzanita Elementary.
         </div>
-        <p style="font-weight:bold; margin-top:10px;">¿De qué color es Pelusa?</p>
+        <p style="font-weight:bold; margin-top:6px; font-size:13px;">¿De qué color es Pelusa?</p>
         <div class="choice-grid">
           <button class="choice-btn wrong-m">Azul / Blue</button>
           <button class="choice-btn correct-m">Blanco / White</button>
@@ -677,7 +677,7 @@ function loadMission(idx) {
         <div class="reading-pass-box">
           A las doce del día, ${sidekickName} abre su lonchera. Tiene una manzana roja y un bocadillo de queso delicioso.
         </div>
-        <p style="font-weight:bold; margin-top:10px;">¿Qué fruta tiene en la lonchera?</p>
+        <p style="font-weight:bold; margin-top:6px; font-size:13px;">¿Qué fruta tiene en la lonchera?</p>
         <div class="choice-grid">
           <button class="choice-btn correct-m">Manzana / Apple 🍎</button>
           <button class="choice-btn wrong-m">Plátano / Banana 🍌</button>
@@ -697,7 +697,7 @@ function loadMission(idx) {
         <div class="reading-pass-box">
           En el recreo, los estudiantes corren al patio. ${agentName} juega al fútbol con sus amigos bajo el sol brillante.
         </div>
-        <p style="font-weight:bold; margin-top:10px;">¿A qué juego juegan en el patio?</p>
+        <p style="font-weight:bold; margin-top:6px; font-size:13px;">¿A qué juego juegan en el patio?</p>
         <div class="choice-grid">
           <button class="choice-btn wrong-m">Baloncesto / Basketball 🏀</button>
           <button class="choice-btn correct-m">Fútbol / Soccer ⚽</button>
@@ -717,7 +717,7 @@ function loadMission(idx) {
         <div class="reading-pass-box">
           En la clase de arte, la maestra dice: "Hoy pintamos un arcoíris con pintura azul, amarilla y roja".
         </div>
-        <p style="font-weight:bold; margin-top:10px;">¿Qué pintan hoy en la clase de arte?</p>
+        <p style="font-weight:bold; margin-top:6px; font-size:13px;">¿Qué pintan hoy en la clase de arte?</p>
         <div class="choice-grid">
           <button class="choice-btn wrong-m">Un coche / A car 🚗</button>
           <button class="choice-btn correct-m">Un arcoíris / A rainbow 🌈</button>
@@ -737,7 +737,7 @@ function loadMission(idx) {
         <div class="reading-pass-box">
           ¡Felicidades Detective ${agentName}! La Placa Dorada de Manzanita Elementary estaba dentro de la caja fuerte del segundo grado. ¡Lo lograste con éxito junto a ${sidekickName}!
         </div>
-        <p style="font-weight:bold; margin-top:10px;">¿Dónde estaba la Placa Dorada?</p>
+        <p style="font-weight:bold; margin-top:6px; font-size:13px;">¿Dónde estaba la Placa Dorada?</p>
         <div class="choice-grid">
           <button class="choice-btn correct-m">En la caja fuerte / In the vault safe 🔐</button>
           <button class="choice-btn wrong-m">En el autobús / In the bus 🚌</button>
