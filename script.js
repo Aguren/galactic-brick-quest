@@ -89,75 +89,23 @@ function playSound(type) {
   } catch (e) {}
 }
 
-// Minecraft "Steve's Lava Chicken" Chiptune MIDI Synthesizer Loop
-const lavaChickenNotes = [
-  // "La-la-la-lava, ch-ch-ch-chicken"
-  { freq: 261.63, dur: 140 }, // C4
-  { freq: 261.63, dur: 140 }, // C4
-  { freq: 261.63, dur: 140 }, // C4
-  { freq: 311.13, dur: 220 }, // Eb4
-  { freq: 261.63, dur: 140 }, // C4
-  { freq: 261.63, dur: 140 }, // C4
-  { freq: 311.13, dur: 180 }, // Eb4
-  { freq: 349.23, dur: 180 }, // F4
-  { freq: 311.13, dur: 180 }, // Eb4
-  { freq: 261.63, dur: 250 }, // C4
-  
-  // "Steve's lava chicken, it's as tasty as..."
-  { freq: 261.63, dur: 140 }, // C4
-  { freq: 261.63, dur: 140 }, // C4
-  { freq: 261.63, dur: 140 }, // C4
-  { freq: 311.13, dur: 220 }, // Eb4
-  { freq: 349.23, dur: 180 }, // F4
-  { freq: 311.13, dur: 180 }, // Eb4
-  { freq: 261.63, dur: 180 }, // C4
-  { freq: 233.08, dur: 220 }, // Bb3
-  { freq: 261.63, dur: 320 }, // C4
-
-  // Minecraft Chiptune Fill
-  { freq: 392.00, dur: 150 }, // G4
-  { freq: 349.23, dur: 150 }, // F4
-  { freq: 311.13, dur: 180 }, // Eb4
-  { freq: 261.63, dur: 300 }  // C4
-];
-
 function toggleBGM() {
-  initAudio(); 
-  bgmEnabled = !bgmEnabled;
+  initAudio(); bgmEnabled = !bgmEnabled;
   const btn = document.getElementById("music-toggle-btn");
-  if (btn) btn.innerText = bgmEnabled ? "🐔 BGM: LAVA CHICKEN" : "🎵 BGM: OFF";
-
+  if (btn) btn.innerText = bgmEnabled ? "🎵 BGM: ON" : "🎵 BGM: OFF";
   if (bgmEnabled) {
-    let noteIdx = 0;
-    
-    function playLavaNote() {
+    let noteIdx = 0; const scale = [261.63, 293.66, 329.63, 392.00, 440.00];
+    bgmInterval = setInterval(() => {
       if (!bgmEnabled || !audioCtx) return;
       try {
-        const item = lavaChickenNotes[noteIdx % lavaChickenNotes.length];
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
-        osc.type = 'square'; // Authentic Minecraft retro 8-bit sound
-        osc.connect(gain); 
-        gain.connect(audioCtx.destination);
-        
-        osc.frequency.setValueAtTime(item.freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (item.dur / 1000));
-        
-        osc.start();
-        osc.stop(audioCtx.currentTime + (item.dur / 1000));
-
-        noteIdx++;
-        bgmInterval = setTimeout(playLavaNote, item.dur + 40);
+        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = 'sine'; osc.frequency.setValueAtTime(scale[noteIdx % scale.length], audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.03, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.15); noteIdx++;
       } catch (e) {}
-    }
-
-    playLavaNote();
-  } else if (bgmInterval) { 
-    clearTimeout(bgmInterval); 
-    bgmInterval = null;
-  }
+    }, 280);
+  } else if (bgmInterval) { clearInterval(bgmInterval); }
 }
 
 // Teletype / Typewriter Briefing Effect
