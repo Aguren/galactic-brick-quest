@@ -21,8 +21,13 @@
   <div id="agent-hud">
     <div class="hud-item"><span id="hud-role-label">SLEUTH</span>: <span id="hud-name">ATHEN</span></div>
     <div class="hud-item">AVATAR: <span id="hud-avatar">🔎</span></div>
-    <div class="hud-item">THEME: <span id="hud-theme">🔎 DETECTIVE</span></div>
-    <div class="hud-item">PROGRESS: <span id="hud-progress">0/20</span></div>
+    <div class="hud-item">SIDEKICK: <span id="hud-sidekick">POPPY 🐰</span></div>
+    <div class="hud-item hud-progress-container">
+      <div class="progress-bar-bg">
+        <div id="hud-progress-fill" style="width: 0%;"></div>
+      </div>
+      <span id="hud-progress-text">0/20</span>
+    </div>
     <button id="music-toggle-btn" class="hud-btn">🎵 BGM: OFF</button>
   </div>
 
@@ -33,17 +38,17 @@
       <h2 id="setup-title">MANZANITA ELEMENTARY DETECTIVE HQ</h2>
 
       <div class="input-group">
-        <label for="input-agent-name">Detective Name:</label>
+        <label for="input-agent-name">Detective Name / Nombre del Detective:</label>
         <input type="text" id="input-agent-name" value="Athen" placeholder="Enter Child's Name" />
       </div>
 
       <div class="input-group">
-        <label for="input-sidekick-name">Special Sidekick / Companion:</label>
+        <label for="input-sidekick-name">Special Sidekick / Compañero:</label>
         <input type="text" id="input-sidekick-name" value="Poppy the Rainbow Bunny" placeholder="Enter Sidekick Name" />
       </div>
 
       <div class="input-group">
-        <label>Select Avatar Icon:</label>
+        <label>Select Avatar Icon / Selecciona Avatar:</label>
         <div class="avatar-options">
           <button class="avatar-btn active-avatar" data-avatar="🔎">🔎</button>
           <button class="avatar-btn" data-avatar="🕵️">🕵️</button>
@@ -54,7 +59,7 @@
         </div>
       </div>
 
-      <button class="agent-btn start-btn-lg" id="save-setup-btn">START GAME ➔</button>
+      <button class="agent-btn start-btn-lg" id="save-setup-btn">START GAME ➔ / INICIAR</button>
     </div>
   </div>
 
@@ -62,13 +67,13 @@
   <div id="screen-briefing" class="screen">
     <div class="terminal-card">
       <h3 id="briefing-header">CONFIDENTIAL BRIEFING</h3>
-      <p class="warning-text">⚠️ MANZANITA ELEMENTARY ALERT</p>
+      <p class="warning-text">⚠️ MANZANITA ELEMENTARY ALERT / ALERTA</p>
       
       <div class="teletype-box" id="briefing-box">
         <p id="typewriter-text"></p>
       </div>
 
-      <button class="agent-btn start-btn-lg" id="start-mission-btn">ACCEPT CASE & LAUNCH</button>
+      <button class="agent-btn start-btn-lg" id="start-mission-btn">ACCEPT CASE & LAUNCH ➔</button>
     </div>
   </div>
 
@@ -77,9 +82,16 @@
     <div class="terminal-card" id="mission-card">
       <h3 id="mission-title">CASE 1</h3>
       <p id="mission-prompt">Prompt details...</p>
+      <p id="mission-prompt-es" class="spanish-subtext"></p>
       
       <div id="mission-interactive-area"></div>
       
+      <!-- Interactive Animated Poppy Companion Element -->
+      <div id="poppy-companion" class="poppy-idle">
+        <div class="poppy-speech" id="poppy-bubble">Let's solve this case! 🔎</div>
+        <div class="poppy-avatar">🐰</div>
+      </div>
+
       <div class="status-box" id="mission-status">STATUS: IN PROGRESS</div>
     </div>
   </div>
@@ -92,7 +104,7 @@
         <div id="anim-stage"></div>
       </div>
       <p id="cutscene-subtext">Calibrating next Manzanita Sector...</p>
-      <button class="agent-btn start-btn-lg" id="next-mission-btn">CONTINUE ➔</button>
+      <button class="agent-btn start-btn-lg" id="next-mission-btn">CONTINUE ➔ / CONTINUAR</button>
     </div>
   </div>
 
@@ -120,7 +132,7 @@
       <div class="message-box">
         <h4>❤️ A SPECIAL MESSAGE FOR <span class="display-agent-name">ATHEN</span> ❤️</h4>
         <p>Your goal today in 2nd Grade isn't to be perfect. It's to try new things, make friends, and have fun!</p>
-        <p>If you get nervous, that's okay. If you don't know something, that's okay too! That's how 2nd graders learn!</p>
+        <p>Tu meta hoy en 2º grado no es ser perfecto. ¡Es probar cosas nuevas, hacer amigos y divertirte!</p>
         <p><strong>Everyone at home is so proud of you! ❤️</strong></p>
       </div>
 
