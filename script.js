@@ -89,25 +89,6 @@ function playSound(type) {
   } catch (e) {}
 }
 
-function toggleBGM() {
-  initAudio(); bgmEnabled = !bgmEnabled;
-  const btn = document.getElementById("music-toggle-btn");
-  if (btn) btn.innerText = bgmEnabled ? "🎵 BGM: ON" : "🎵 BGM: OFF";
-  if (bgmEnabled) {
-    let noteIdx = 0; const scale = [261.63, 293.66, 329.63, 392.00, 440.00];
-    bgmInterval = setInterval(() => {
-      if (!bgmEnabled || !audioCtx) return;
-      try {
-        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.type = 'sine'; osc.frequency.setValueAtTime(scale[noteIdx % scale.length], audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.03, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.15); noteIdx++;
-      } catch (e) {}
-    }, 280);
-  } else if (bgmInterval) { clearInterval(bgmInterval); }
-}
-
 // Teletype / Typewriter Briefing Effect
 function runTeletype(text, containerId, callback) {
   const el = document.getElementById(containerId); 
@@ -212,9 +193,6 @@ function showScreen(id) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const musicBtn = document.getElementById("music-toggle-btn");
-  if (musicBtn) musicBtn.addEventListener("click", toggleBGM);
-
   document.querySelectorAll(".avatar-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".avatar-btn").forEach(b => b.classList.remove("active-avatar"));
