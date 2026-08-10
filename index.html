@@ -4,48 +4,172 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
-  <!-- Apple Fullscreen Web App Meta -->
+  <!-- Apple Web App Tags for iPad Fullscreen -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Dark Side RPG" />
+  <meta name="apple-mobile-web-app-title" content="Agent Athen" />
   
-  <title>Lord Athen: Dark Side RPG</title>
+  <title>Operation: Second Grade - Agent Athen</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div id="rpg-viewport">
-  <!-- Game Canvas World -->
-  <canvas id="rpgCanvas"></canvas>
-
-  <!-- Top Quest HUD -->
-  <div id="quest-hud">
-    <div id="chapter-tag">CHAPTER 1: THE DERELICT SHIP</div>
-    <div id="quest-objective">Objective: Search the Hangar for a Plasma Core</div>
+<div id="game-viewport">
+  <!-- Top Agent HUD -->
+  <div id="agent-hud">
+    <div class="hud-item">AGENT: <span>ATHEN</span></div>
+    <div class="hud-item">RANK: <span>2ND GRADE AGENT</span></div>
+    <div class="hud-item">SIDEKICK: <span>POPPY 🐰</span></div>
+    <div class="hud-item">INTEL: <span id="intel-count">0/3 CODES</span></div>
   </div>
 
-  <!-- Dialogue Box Overlay (NPCs & Clues) -->
-  <div id="dialogue-box" class="hidden">
-    <div id="dialogue-speaker">R2-SITH DROID</div>
-    <div id="dialogue-text">Greetings, Commander Athen. The main blast door is sealed...</div>
-    <button id="dialogue-next-btn" class="rpg-btn">CONTINUE</button>
+  <!-- Screen 0: Title / Mission Briefing -->
+  <div id="screen-intro" class="screen active">
+    <div class="terminal-card">
+      <div class="top-secret-stamp">TOP SECRET</div>
+      <h2>JUNIOR AGENT TRAINING DIVISION</h2>
+      <p class="warning-text">⚠️ STATUS: URGENT</p>
+      <p>Welcome, <strong>Agent Athen</strong>.</p>
+      <p>Today you begin your most important mission yet: <strong>SECOND GRADE</strong>.</p>
+      <p>The school's <strong>Golden School Badge</strong> has vanished! Only a clever, brave, and observant 2nd grader can recover it before the bell rings.</p>
+      <p class="poppy-note">🐰 <em>Poppy the Rainbow Bunny is equipped and ready for field assistance!</em></p>
+      <button class="agent-btn" id="start-mission-btn">ACCEPT MISSION</button>
+    </div>
   </div>
 
-  <!-- Interactive Workbench / Item Combiner Overlay -->
-  <div id="workbench-overlay" class="overlay hidden">
-    <h2>🛠️ SITH CRAFTING BENCH</h2>
-    <p>Select items from inventory to combine into a Dark Side artifact:</p>
-    <div id="crafting-grid"></div>
-    <button id="craft-btn" class="rpg-btn red-btn">FORGE ITEM</button>
-    <button id="close-craft-btn" class="rpg-btn">EXIT BENCH</button>
+  <!-- Screen 1: Mission 1 - Morning Launch -->
+  <div id="screen-m1" class="screen">
+    <div class="terminal-card">
+      <h3>🚀 MISSION 1: MORNING LAUNCH</h3>
+      <p>Find the <strong>5 items</strong> Agent Athen needs for 2nd Grade! (Tap the items below)</p>
+      <div id="m1-grid" class="item-grid">
+        <button class="grid-item correct-item" data-name="Backpack">🎒 Backpack</button>
+        <button class="grid-item wrong-item" data-name="Pajamas">🌙 Pajamas</button>
+        <button class="grid-item correct-item" data-name="Shoes">👟 Shoes</button>
+        <button class="grid-item wrong-item" data-name="Video Game">🎮 Video Game</button>
+        <button class="grid-item correct-item" data-name="Lunchbox">🍱 Lunchbox</button>
+        <button class="grid-item correct-item" data-name="Water Bottle">💧 Water Bottle</button>
+        <button class="grid-item correct-item" data-name="Pencil">✏️ Pencil</button>
+        <button class="grid-item wrong-item" data-name="Pillow">🛌 Pillow</button>
+      </div>
+      <div id="m1-status" class="status-msg">ITEMS SECURED: <span id="m1-count">0</span>/5</div>
+    </div>
   </div>
 
-  <!-- Launch / Title Screen -->
-  <div id="menu-overlay" class="overlay">
-    <h1 class="glow-title">⚡ LORD ATHEN ⚡</h1>
-    <h3 class="sub-title">THE HOLOCRON OF SECTOR 7</h3>
-    <p class="desc">A story-driven Dark Side adventure. Explore alien vaults, solve ancient glyph puzzles, combine artifacts, and unlock your true Force potential!</p>
-    <button id="start-btn" class="rpg-btn red-btn">BEGIN ADVENTURE</button>
+  <!-- Screen 2: Mission 2 - The Mystery Ride -->
+  <div id="screen-m2" class="screen">
+    <div class="terminal-card">
+      <h3>🚌 MISSION 2: THE MYSTERY RIDE</h3>
+      <p>Decode the Transport Clue to travel to the school base!</p>
+      <div class="clue-box">
+        <p><strong>CLUE #1:</strong> "I have four wheels, carry 2nd graders, and bring you safely to school. What am I?"</p>
+      </div>
+      <div class="choice-grid">
+        <button class="choice-btn wrong-choice">🚗 Car</button>
+        <button class="choice-btn correct-choice" id="m2-correct-btn">🚌 School Bus</button>
+        <button class="choice-btn wrong-choice">🚀 Rocket</button>
+        <button class="choice-btn wrong-choice">🐘 Elephant</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 3: Mission 3 - Infiltrate the School -->
+  <div id="screen-m3" class="screen">
+    <div class="terminal-card">
+      <h3>🏫 MISSION 3: INFILTRATE THE CLASSROOM</h3>
+      <p>The classroom door is locked! Collect the 3 hidden security symbols around the room to unlock the door.</p>
+      <div class="classroom-search-area">
+        <div class="symbol-item" id="sym1" style="top: 20%; left: 15%;">🔵 Star [7]</div>
+        <div class="symbol-item" id="sym2" style="top: 60%; left: 70%;">🟡 Lightning [2]</div>
+        <div class="symbol-item" id="sym3" style="top: 35%; left: 45%;">🔴 Key [9]</div>
+      </div>
+      <p class="status-msg" id="m3-status">Tap all 3 hidden symbols!</p>
+    </div>
+  </div>
+
+  <!-- Screen 4: Mission 4 - Robot Repair Challenge -->
+  <div id="screen-m4" class="screen">
+    <div class="terminal-card">
+      <h3>🔬 MISSION 4: REPAIR THE CLASSROOM ROBOT</h3>
+      <p class="warning-text">⚠️ The 2nd Grade Classroom Robot is malfunctioning!</p>
+      
+      <!-- Challenge A -->
+      <div id="chal-a" class="challenge-step">
+        <p><strong>Challenge A (Math):</strong> The robot has 7 batteries. You give it 5 more. How many batteries does it have?</p>
+        <button class="choice-btn chal-a-wrong">10</button>
+        <button class="choice-btn chal-a-correct">12</button>
+        <button class="choice-btn chal-a-wrong">14</button>
+      </div>
+
+      <!-- Challenge B -->
+      <div id="chal-b" class="challenge-step hidden">
+        <p><strong>Challenge B (Reading):</strong> "The purple dragon hid the golden pencil under the blue desk."</p>
+        <p><em>Where is the golden pencil?</em></p>
+        <button class="choice-btn chal-b-wrong">In the lunchbox</button>
+        <button class="choice-btn chal-b-correct">Under the blue desk</button>
+        <button class="choice-btn chal-b-wrong">On top of the bookshelf</button>
+      </div>
+
+      <!-- Challenge C -->
+      <div id="chal-c" class="challenge-step hidden">
+        <p><strong>Challenge C (Pattern):</strong> What comes next in the sequence?</p>
+        <p style="font-size: 26px;">⭐ 🔵 ⭐ 🔵 ⭐ [ ? ]</p>
+        <button class="choice-btn chal-c-correct">🔵 Blue Circle</button>
+        <button class="choice-btn chal-c-wrong">⭐ Yellow Star</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 5: Mission 5 - The Golden Safe -->
+  <div id="screen-m5" class="screen">
+    <div class="terminal-card">
+      <h3>🏆 MISSION 5: THE GOLDEN SAFE</h3>
+      <p>Enter the 3-digit secret code collected from the classroom symbols!</p>
+      <div class="code-display" id="code-input">_ _ _</div>
+      <div class="keypad-grid">
+        <button class="key-btn" onclick="pressKey(7)">7</button>
+        <button class="key-btn" onclick="pressKey(2)">2</button>
+        <button class="key-btn" onclick="pressKey(9)">9</button>
+        <button class="key-btn" onclick="clearKey()">C</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 6: Final Message & Parent Intel -->
+  <div id="screen-final" class="screen">
+    <div class="warm-card">
+      <h2>🎉 MISSION ACCOMPLISHED! 🎉</h2>
+      <h3>OFFICIAL CERTIFICATE OF BRAVERY</h3>
+      <p>This certifies that <strong>AGENT ATHEN</strong> (and Assistant Poppy 🐰) successfully completed <strong>OPERATION: SECOND GRADE</strong>!</p>
+      
+      <div class="message-box">
+        <h4>❤️ A SPECIAL MESSAGE FOR ATHEN ❤️</h4>
+        <p>Your mission today isn't to be perfect. It's to try something new!</p>
+        <p>If you're nervous, that's okay. If you don't know something, that's okay. That's how 2nd graders learn and grow!</p>
+        <p><strong>Someone very important is incredibly proud of you!</strong></p>
+      </div>
+
+      <button class="agent-btn" id="parent-intel-btn">👨‍👩‍👦 PARENT INTEL MODE</button>
+    </div>
+  </div>
+
+  <!-- Parent Intel Overlay -->
+  <div id="screen-parent" class="screen">
+    <div class="parent-card">
+      <h2>📋 PARENT INTEL DEBRIEF</h2>
+      <p>Agent Athen successfully completed today's preparation mission!</p>
+      <ul>
+        <li>🔎 <strong>Observation:</strong> Found all school gear and hidden symbols</li>
+        <li>🧠 <strong>Problem Solving:</strong> Decoded pattern sequences and math puzzles</li>
+        <li>💪 <strong>Persistence:</strong> Repaired the classroom robot</li>
+      </ul>
+      <div class="debrief-question">
+        <h4>Recommended Real-World Mission:</h4>
+        <p>When Athen comes home, ask him:</p>
+        <p class="quote">"What was the coolest thing you discovered today in 2nd grade?"</p>
+      </div>
+      <button class="agent-btn" onclick="location.reload()">REPLAY MISSION</button>
+    </div>
   </div>
 </div>
 
