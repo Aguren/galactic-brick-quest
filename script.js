@@ -397,21 +397,18 @@ function loadMission(idx) {
 
   } else if (idx === 6) {
     if (title) title.innerText = `${t.term} 6: DETECTIVE READING MYSTERY ${t.icon}`;
-    if (prompt) prompt.innerText = `Read the 4-sentence story to solve the mystery:`;
-    if (promptEs) promptEs.innerText = `Lee la historia de 4 oraciones para resolver el misterio:`;
+    if (prompt) prompt.innerText = `Read the Spanish paragraph carefully to answer:`;
+    if (promptEs) promptEs.innerText = `Lee el párrafo en español para responder:`;
     if (area) {
       area.innerHTML = `
         <div class="reading-pass-box">
-          1. It was a sunny morning at Manzanita Elementary.<br/>
-          2. A polite parrot flew over the bookshelves holding a sparkling ${t.m6Color}.<br/>
-          3. El loro dejó caer la lupa debajo del escritorio del maestro.<br/>
-          4. ¡Detective ${agentName} y ${sidekickName} celebraron en la biblioteca!
+          Era una mañana soleada en Manzanita Elementary. Un loro muy educado voló sobre los estantes llevando una lupa brillante en su pico. El loro dejó caer la lupa con cuidado debajo del escritorio del maestro. ¡Detective ${agentName} y ${sidekickName} celebraron juntos en la biblioteca!
         </div>
-        <p style="font-weight:bold; margin-top:6px; font-size:13px;">Where did the parrot drop the ${t.m6Color}?</p>
+        <p style="font-weight:bold; margin-top:6px; font-size:13px;">¿Dónde dejó caer el loro la lupa?</p>
         <div class="choice-grid">
-          <button class="choice-btn wrong-m">In a blue backpack / Mochila</button>
-          <button class="choice-btn correct-m">Under the teacher's desk / Escritorio</button>
-          <button class="choice-btn wrong-m">On top of the bookshelf / Estante</button>
+          <button class="choice-btn wrong-m">En una mochila azul / Backpack</button>
+          <button class="choice-btn correct-m">Debajo del escritorio / Under desk</button>
+          <button class="choice-btn wrong-m">Sobre el estante / Bookshelf</button>
         </div>`;
     }
     const correctM = document.querySelector(".correct-m");
